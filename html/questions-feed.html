@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questions Feed - Agocare</title>
+<link rel="stylesheet" href="../css/doctor.css">
+<script src="../js/navigation.js"></script>
+<script src="../js/doctor.js"></script>
+</head>
+<body>
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu-header">
+<h2>Menu</h2>
+<button class="mobile-menu-close" id="mobileMenuClose">×</button>
+</div>
+<div class="mobile-menu-content">
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">MAIN</div>
+<a href="doctor-dashboard.html" class="mobile-menu-item">
+<span class="nav-icon">🏠</span>
+<span>Dashboard</span>
+</a>
+<a href="questions-feed.html" class="mobile-menu-item active">
+<span class="nav-icon">❓</span>
+<span>Questions Feed</span>
+</a>
+<a href="my-patients.html" class="mobile-menu-item">
+<span class="nav-icon">👥</span>
+<span>My Patients</span>
+</a>
+<a href="appointments.html" class="mobile-menu-item">
+<span class="nav-icon">📅</span>
+<span>Appointments</span>
+</a>
+</div>
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">RESOURCES</div>
+<a href="medical-library(1).html" class="mobile-menu-item">
+<span class="nav-icon">📚</span>
+<span>Medical Library</span>
+</a>
+<a href="analytics.html" class="mobile-menu-item">
+<span class="nav-icon">📊</span>
+<span>Analytics</span>
+</a>
+<a href="settings(1).html" class="mobile-menu-item">
+<span class="nav-icon">⚙</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">ACCOUNT</div>
+<div class="mobile-menu-profile">
+<div class="user-avatar" id="feedMobileAvatar">DN</div>
+<div>
+<div class="mobile-profile-name">Dr. Nabirye</div>
+<div class="mobile-profile-specialty">Pediatrician</div>
+</div>
+</div>
+<a href="doctor-profile(1).html" class="mobile-menu-item">
+<span class="nav-icon">👤</span>
+<span>My Profile</span>
+</a>
+<a href="#" class="mobile-menu-item" data-page="logout">
+<span class="nav-icon">🚪</span>
+<span>Logout</span>
+</a>
+</div>
+</div>
+</div>
+
+<!-- Header -->
+<header>
+<div class="header-left">
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+<span></span>
+<span></span>
+<span></span>
+</button>
+<div class="logo">Ago<span>care</span></div>
+<div class="header-icons desktop-only">
+<button class="icon-btn">📍</button>
+<button class="icon-btn">🔔</button>
+<button class="icon-btn">👤</button>
+</div>
+<div class="search-bar desktop-only">
+<span>🔍</span>
+<input type="text" placeholder="Search questions...">
+</div>
+</div>
+<div class="header-right">
+<div class="user-info desktop-only">
+<div class="user-avatar" id="feedDesktopAvatar">DN</div>
+<span>Dr. Nabirye</span>
+</div>
+<button class="ask-question-btn">Ask Question</button>
+</div>
+</header>
+
+<!-- Main Container -->
+<div class="container">
+<!-- Left Sidebar -->
+<aside class="left-sidebar desktop-only">
+<nav class="nav-section">
+<div class="category-header">MAIN</div>
+<a href="doctor-dashboard.html" class="nav-item">
+<span class="nav-icon">🏠</span>
+<span>Dashboard</span>
+</a>
+<!--a href="questions-feed.html" class="nav-item active">
+<span class="nav-icon">❓</span>
+<span>Questions Feed</span>
+</a-->
+<a href="my-patients.html" class="nav-item">
+<span class="nav-icon">👥</span>
+<span>My Patients</span>
+</a>
+<a href="appointments.html" class="nav-item">
+<span class="nav-icon">📅</span>
+<span>Appointments</span>
+</a>
+</nav>
+<div class="nav-section">
+<div class="category-header">RESOURCES</div>
+<a href="medical-library(1).html" class="nav-item">
+<span class="nav-icon">📚</span>
+<span>Medical Library</span>
+</a>
+<a href="analytics.html" class="nav-item">
+<span class="nav-icon">📊</span>
+<span>Analytics</span>
+</a>
+<a href="settings(1).html" class="nav-item">
+<span class="nav-icon">⚙</span>
+<span>Settings</span>
+</a>
+</div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+<h1>❓ Questions Feed</h1>
+<div style="display: flex; gap: 12px; flex-wrap: wrap;">
+<select class="period-selector" id="filterCategory">
+<option value="all">All Categories</option>
+<option value="pediatrics">Pediatrics</option>
+<option value="general">General Health</option>
+<option value="infectious">Infectious Diseases</option>
+<option value="pregnancy">Pregnancy</option>
+</select>
+<select class="period-selector" id="filterUrgency">
+<option value="all">All Priority</option>
+<option value="urgent">Urgent Only</option>
+<option value="normal">Normal</option>
+</select>
+</div>
+</div>
+
+<!-- Filter Stats -->
+<div class="section-card" style="margin-bottom: 20px;">
+<div style="display: flex; gap: 24px; flex-wrap: wrap;">
+<div>
+<div style="font-size: 24px; font-weight: bold; color: #e63946;">12</div>
+<div style="font-size: 13px; color: #666;">Urgent Questions</div>
+</div>
+<div>
+<div style="font-size: 24px; font-weight: bold; color: #4a90e2;">48</div>
+<div style="font-size: 13px; color: #666;">Unanswered</div>
+</div>
+<div>
+<div style="font-size: 24px; font-weight: bold; color: #28a745;">156</div>
+<div style="font-size: 13px; color: #666;">Answered Today</div>
+</div>
+</div>
+</div>
+
+<!-- Questions List -->
+<div class="section-card">
+<h2 style="margin-bottom: 20px;">Pending Questions</h2>
+
+<!-- Question 1 - Urgent -->
+<div class="question-item">
+<div class="question-avatar">👶</div>
+<div class="question-content">
+<div class="question-category">Pediatrics • <span class="urgent-tag">URGENT</span></div>
+<div class="question-text">My 2-year-old has been having high fever (39.5°C) for 3 days with vomiting. Should I bring her to the hospital?</div>
+<div class="question-meta">Posted by Sarah M. • 15 minutes ago • Kampala</div>
+</div>
+<button class="btn-answer urgent" onclick="answerQuestion(1)">Answer Now</button>
+</div>
+
+<!-- Question 2 -->
+<div class="question-item">
+<div class="question-avatar">🤰</div>
+<div class="question-content">
+<div class="question-category">Pregnancy</div>
+<div class="question-text">I'm 7 months pregnant and experiencing severe lower back pain. Is this normal or should I be concerned?</div>
+<div class="question-meta">Posted by Grace K. • 1 hour ago • Jinja</div>
+</div>
+<button class="btn-answer" onclick="answerQuestion(2)">Answer</button>
+</div>
+
+<!-- Question 3 - Urgent -->
+<div class="question-item">
+<div class="question-avatar">🦠</div>
+<div class="question-content">
+<div class="question-category">Infectious Diseases • <span class="urgent-tag">URGENT</span></div>
+<div class="question-text">I have been having night fevers, chills, and joint pain for 5 days. Could this be malaria?</div>
+<div class="question-meta">Posted by Anonymous • 25 minutes ago • Mbarara</div>
+</div>
+<button class="btn-answer urgent" onclick="answerQuestion(3)">Answer Now</button>
+</div>
+
+<!-- Question 4 -->
+<div class="question-item">
+<div class="question-avatar">👶</div>
+<div class="question-content">
+<div class="question-category">Pediatrics</div>
+<div class="question-text">At what age should I start introducing solid foods to my baby? She's currently 5 months old.</div>
+<div class="question-meta">Posted by Mary N. • 2 hours ago • Entebbe</div>
+</div>
+<button class="btn-answer" onclick="answerQuestion(4)">Answer</button>
+</div>
+
+<!-- Question 5 -->
+<div class="question-item">
+<div class="question-avatar">💊</div>
+<div class="question-content">
+<div class="question-category">General Health</div>
+<div class="question-text">I've been taking antibiotics for 3 days but still feel sick. Should I continue or stop?</div>
+<div class="question-meta">Posted by John D. • 3 hours ago • Mbale</div>
+</div>
+<button class="btn-answer" onclick="answerQuestion(5)">Answer</button>
+</div>
+
+<!-- Question 6 - Urgent -->
+<div class="question-item">
+<div class="question-avatar">🧒</div>
+<div class="question-content">
+<div class="question-category">Pediatrics • <span class="urgent-tag">URGENT</span></div>
+<div class="question-text">My 4-year-old swallowed a coin about an hour ago. He's breathing fine but I'm worried. What should I do?</div>
+<div class="question-meta">Posted by Patricia L. • 45 minutes ago • Gulu</div>
+</div>
+<button class="btn-answer urgent" onclick="answerQuestion(6)">Answer Now</button>
+</div>
+
+<!-- Question 7 -->
+<div class="question-item">
+<div class="question-avatar">❤️</div>
+<div class="question-content">
+<div class="question-category">Sexual Health</div>
+<div class="question-text">What are the most reliable methods of family planning available in Uganda?</div>
+<div class="question-meta">Posted by Anonymous • 4 hours ago • Kampala</div>
+</div>
+<button class="btn-answer" onclick="answerQuestion(7)">Answer</button>
+</div>
+
+<!-- Question 8 -->
+<div class="question-item">
+<div class="question-avatar">🧠</div>
+<div class="question-content">
+<div class="question-category">Mental Health</div>
+<div class="question-text">I've been feeling very anxious and having trouble sleeping for the past 2 weeks. What can I do?</div>
+<div class="question-meta">Posted by David M. • 5 hours ago • Masaka</div>
+</div>
+<button class="btn-answer" onclick="answerQuestion(8)">Answer</button>
+</div>
+
+<!-- Load More Button -->
+<div style="text-align: center; margin-top: 24px;">
+<button class="btn-answer" style="width: auto; padding: 12px 32px;">Load More Questions</button>
+</div>
+</div>
+
+<!-- Recently Answered Section -->
+<div class="section-card" style="margin-top: 20px;">
+<h2 style="margin-bottom: 20px;">Recently Answered by You</h2>
+
+<div class="question-item" style="background-color: #f0f9ff;">
+<div class="question-avatar">👶</div>
+<div class="question-content">
+<div class="question-category">Pediatrics • Answered</div>
+<div class="question-text">Can I give honey to my 8-month-old baby for cough relief?</div>
+<div class="question-meta">Answered 2 hours ago • 45 likes • 12 comments</div>
+</div>
+<button class="btn-answer" style="background-color: #4a90e2; color: white; border-color: #4a90e2;" onclick="viewAnswer(1)">View Answer</button>
+</div>
+
+<div class="question-item" style="background-color: #f0f9ff;">
+<div class="question-avatar">🦠</div>
+<div class="question-content">
+<div class="question-category">Infectious Diseases • Answered</div>
+<div class="question-text">How can I prevent malaria during the rainy season?</div>
+<div class="question-meta">Answered 5 hours ago • 67 likes • 23 comments</div>
+</div>
+<button class="btn-answer" style="background-color: #4a90e2; color: white; border-color: #4a90e2;" onclick="viewAnswer(2)">View Answer</button>
+</div>
+</div>
+</main>
+
+<!-- Right Sidebar -->
+<aside class="right-sidebar desktop-only">
+<div class="sidebar-card">
+<h3>Quick Stats</h3>
+<div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+<div style="font-size: 24px; font-weight: bold; color: #e63946;">12</div>
+<div style="font-size: 13px; color: #666;">Urgent Questions</div>
+</div>
+<div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+<div style="font-size: 24px; font-weight: bold; color: #4a90e2;">48</div>
+<div style="font-size: 13px; color: #666;">Unanswered</div>
+</div>
+<div style="padding: 12px 0;">
+<div style="font-size: 24px; font-weight: bold; color: #28a745;">27</div>
+<div style="font-size: 13px; color: #666;">Answered Today</div>
+</div>
+</div>
+
+<div class="urgent-help-card">
+<h3>Response Tips</h3>
+<p style="font-size: 13px; line-height: 1.6;">
+• Prioritize urgent questions<br>
+• Be clear and concise<br>
+• Recommend follow-up when needed<br>
+• Stay professional and empathetic
+</p>
+</div>
+
+<div class="trending-card">
+<h3>Trending Topics</h3>
+<div class="trending-item">
+<div class="trending-title">Malaria Prevention</div>
+<div class="trending-subtitle">156 questions this week</div>
+</div>
+<div class="trending-item">
+<div class="trending-title">Child Nutrition</div>
+<div class="trending-subtitle">98 questions this week</div>
+</div>
+<div class="trending-item">
+<div class="trending-title">Fever Management</div>
+<div class="trending-subtitle">76 questions this week</div>
+</div>
+</div>
+</aside>
+</div>
+
+<script src="../js/doctor.js"></script>
+<script>
+function answerQuestion(id) {
+    alert(`📝 Opening Answer Form\n\nQuestion ID: ${id}\n\nIn production, this would open a form where you can:\n• Write your detailed answer\n• Add references or resources\n• Recommend follow-up actions\n• Submit your response`);
+}
+
+function viewAnswer(id) {
+    alert(`👁️ Viewing Your Answer\n\nAnswer ID: ${id}\n\nIn production, this would show:\n• Your full answer\n• Patient responses\n• Comments and engagement\n• Edit/update options`);
+}
+
+// Filter functionality
+document.getElementById('filterCategory').addEventListener('change', function() {
+    console.log('Filter by category:', this.value);
+    alert(`Filtering by: ${this.options[this.selectedIndex].text}`);
+});
+
+document.getElementById('filterUrgency').addEventListener('change', function() {
+    console.log('Filter by urgency:', this.value);
+    alert(`Filtering by: ${this.options[this.selectedIndex].text}`);
+});
+
+// Load doctor profile picture on page load
+window.addEventListener('DOMContentLoaded', function() {
+    const savedPicture = localStorage.getItem('doctorProfilePicture');
+    if (savedPicture) {
+        const avatars = ['feedMobileAvatar', 'feedDesktopAvatar'];
+        avatars.forEach(avatarId => {
+            const avatar = document.getElementById(avatarId);
+            if (avatar) {
+                avatar.textContent = '';
+                avatar.style.background = 'none';
+                const img = document.createElement('img');
+                img.src = savedPicture;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                avatar.appendChild(img);
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>

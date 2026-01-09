@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Patient Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="../js/navigation.js"></script>
+        <script src="../js/patientDashboard.js"></script>
+        <link rel="stylesheet" href="../css/patientDashboard.css">
+    </head>
+    <body class="bg-gray-100 text-gray-800" onload="requireAuth()">
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-4">
+                        <a href="patientDashboard.html" style="text-decoration: none;">
+                            <div class="text-2xl font-extrabold text-blue-600">Ago<span class="text-red-500">care</span></div>
+                        </a>
+                        <nav class="hidden md:flex items-center space-x-3 text-sm text-gray-600">
+                            <a href="patientDashboard.html" class="px-2 py-1 rounded hover:bg-gray-50">Home</a>
+                            <a href="medical_centers.html" class="px-2 py-1 rounded hover:bg-gray-50">Medical Centers</a>
+                            <a href="medical-library(1).html" class="px-2 py-1 rounded hover:bg-gray-50">Medical Library</a>
+                        </nav>
+                    </div>
+
+                    <div class="flex-1 mx-6">
+                        <div class="relative">
+                            <input type="text" placeholder="Search Agocare..." class="w-full rounded-md border-gray-200 shadow-sm focus:ring-0" />
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden sm:flex items-center space-x-3">
+                            <span id="user-name" class="text-sm">User</span>
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-400 cursor-pointer" id="patientAvatar" onclick="toggleUserMenu()" style="position: relative; overflow: hidden;"></div>
+                            <input type="file" id="patientProfilePicInput" accept="image/*" style="display: none;" onchange="updatePatientProfilePicture(event)">
+                        </div>
+                        <button class="bg-red-500 text-white px-4 py-2 rounded-full text-sm" onclick="openAskQuestionModal()">Add Question</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Menu Dropdown -->
+            <div id="user-menu" style="display: none; position: absolute; top: 70px; right: 20px; background: white; border: 1px solid #e5e7eb; border-radius: 0.375rem; padding: 0.5rem 0; min-width: 160px; z-index: 50; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <a href="#" onclick="openPatientProfileEditor(); return false;" style="padding: 0.5rem 1rem; color: #1f2937; text-decoration: none; display: block; font-size: 0.875rem;">Edit Profile</a>
+                <a href="settings(1).html" style="padding: 0.5rem 1rem; color: #1f2937; text-decoration: none; display: block; font-size: 0.875rem;">Settings</a>
+                <hr style="margin: 0.25rem 0; border: none; border-top: 1px solid #e5e7eb;">
+                <a href="#" onclick="logout(); return false;" style="padding: 0.5rem 1rem; color: #dc2626; text-decoration: none; display: block; font-size: 0.875rem;">Logout</a>
+            </div>
+        </header>
+
+        <script>
+            function toggleUserMenu() {
+                const menu = document.getElementById('user-menu');
+                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            }
+
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('user-menu');
+                const avatar = document.querySelector('.w-8.h-8');
+                if (avatar && !avatar.contains(event.target) && !menu.contains(event.target)) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            // Initialize user name
+            window.addEventListener('DOMContentLoaded', function() {
+                const user = getCurrentUser();
+                if (user) {
+                    document.getElementById('user-name').textContent = user.name || user.username || 'User';
+                }
+            });
+        </script>
+
+        <!-- Body -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Left Sidebar -->
+                <aside class="col-span-12 lg:col-span-3">
+                    <div class="bg-white rounded-lg shadow sidebar-scroll p-4 sticky top-24">
+                        <div class="mb-4">
+                            <a href="patientDashboard.html" class="flex items-center space-x-3 px-2 py-2 rounded bg-red-50 text-red-700 font-semibold">
+                                <span>🏠</span>
+                                <span>All Questions</span>
+                            </a>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="text-xs font-semibold text-gray-500 uppercase">Health Topics</div>
+                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('pediatrics')">
+                                <span>👶</span>
+                                <span>Pediatrics</span>
+                            </div>
+                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('pregnancy')">
+                                <span>🤰</span>
+                                <span>Pregnancy</span>
+                            </div>
+                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('infectious')">
+                                <span>🦠</span>
+                                <span>Infectious</span>
+                            </div>
+                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('sexual')">
+                                <span>💚</span>
+                                <span>Sexual Health</span>
+                            </div>
+                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('mental')">
+                                <span>🧠</span>
+                                <span>Mental Health</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 text-xs text-gray-500">
+                            <div class="font-semibold mb-2">Resources</div>
+                            <a href="appointments.html" class="block text-sm text-gray-700 hover:underline mb-2">My Appointments</a>
+                            <a href="medical_centers.html" class="block text-sm text-gray-700 hover:underline mb-2">Find Medical Centers</a>
+                            <a href="medical-library(1).html" class="block text-sm text-gray-700 hover:underline">Medical Library</a>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Feed -->
+                <main class="col-span-12 lg:col-span-6">
+                    <!-- Ask Question Button -->
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
+                        <button onclick="openAskQuestionModal()" class="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-600 transition">
+                            ❓ Ask a Question
+                        </button>
+                    </div>
+
+                    <!-- Question Card 1 - Pediatrics -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="pediatrics">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">Pediatrics</span>
+                                    <span class="text-xs text-gray-500">2 hours ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">My 3-year-old child developed a heat rash that won't go away</h3>
+                                <p class="text-gray-700 mb-4">We live in Bushenyi and it has been very hot lately. The rash is mostly on the neck and back. We tried cool baths but it persists. Is this dangerous?</p>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500"></div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-sm">Dr. Sarah Nabirye ✓</div>
+                                            <div class="text-xs text-gray-500">Pediatrician • Mulago Hospital</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">Heat rash (miliaria) is common in hot climates. Keep the area dry and cool. Avoid applying heavy creams. If it develops pus or fever, visit a clinic immediately. Calamine lotion can help soothe itching.</p>
+                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 45 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 2 - Pediatrics -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="pediatrics">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">Pediatrics</span>
+                                    <span class="text-xs text-gray-500">4 hours ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">My baby won't stop crying and has diarrhea</h3>
+                                <p class="text-gray-700 mb-4">My 1-year-old has been having frequent loose stools for 2 days now. He's still drinking milk but seems uncomfortable. Should I change his diet?</p>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500"></div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-sm">Dr. James Okonkwo ✓</div>
+                                            <div class="text-xs text-gray-500">Pediatric Specialist • Kenyatta Hospital</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">Diarrhea in infants can be caused by viral infections or dietary changes. Ensure proper hydration with oral rehydration solution. Continue breastfeeding if possible. If symptoms persist beyond 3 days or you notice blood in stool, seek medical attention.</p>
+                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 67 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 3 - Pregnancy (Unanswered) -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="pregnancy">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Pregnancy</span>
+                                    <span class="text-xs text-red-500 font-semibold">UNANSWERED</span>
+                                    <span class="text-xs text-gray-500">10 mins ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">What are the early warning signs of preeclampsia?</h3>
+                                <p class="text-gray-700">I am 7 months pregnant and feeling a bit dizzy with swollen feet. My blood pressure was slightly elevated at my last clinic visit. Should I be worried?</p>
+                                
+                                <div class="mt-4 p-3 bg-orange-50 rounded-lg text-sm text-orange-800">
+                                    ⚠️ This question is still waiting for a doctor's response. Doctors can provide verified answers.
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600 mt-4">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 2 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Answer</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 4 - Pregnancy -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="pregnancy">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Pregnancy</span>
+                                    <span class="text-xs text-gray-500">8 hours ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Is it safe to exercise during the third trimester?</h3>
+                                <p class="text-gray-700 mb-4">I'm currently 8 months pregnant and have been doing light walking and yoga. My OB said it's fine, but I'm worried about the baby. What type of exercise is safest at this stage?</p>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-500 to-orange-500"></div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-sm">Dr. Victoria Mukasa ✓</div>
+                                            <div class="text-xs text-gray-500">Obstetrician • Kampala Women's Hospital</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">Light exercise like walking, swimming, and prenatal yoga is beneficial during the third trimester. Avoid high-impact activities and heavy lifting. Always listen to your body and stop if you feel dizzy or short of breath. Regular exercise helps with labor and postpartum recovery.</p>
+                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 89 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 5 - Infectious -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="infectious">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">Infectious</span>
+                                    <span class="text-xs text-gray-500">5 hours ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Persistent headache and fever in the evenings</h3>
+                                <p class="text-gray-700 mb-4">I have been having high fevers only at night for the past 3 days, accompanied by joint pain. Could this be Malaria even if I sleep under a net?</p>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-green-500 to-blue-500"></div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-sm">Dr. Amina Kaggwa ✓</div>
+                                            <div class="text-xs text-gray-500">General Practitioner • Nsambya Hospital</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">Yes, it is possible. Evening fevers are a classic sign of Malaria. Please visit the nearest health center for a blood smear test immediately. Do not self-medicate.</p>
+                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 120 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 6 - Infectious -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="infectious">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">Infectious</span>
+                                    <span class="text-xs text-gray-500">6 hours ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Red eyes and itching - could it be conjunctivitis?</h3>
+                                <p class="text-gray-700 mb-4">For the past 2 days, both my eyes have been red, itchy, and producing a yellow discharge. A colleague at work also has the same symptoms. Is this contagious and how can I treat it at home?</p>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-cyan-500"></div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-sm">Dr. Hassan Mwangi ✓</div>
+                                            <div class="text-xs text-gray-500">Eye Specialist • Nairobi Eye Center</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">Yellow discharge suggests bacterial conjunctivitis, which is highly contagious. Avoid touching your eyes and wash your hands frequently. Seek medical attention for antibiotic eye drops. Do not share towels or eye cosmetics with others.</p>
+                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 156 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 7 - Sexual Health -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="sexual">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-semibold">Sexual Health</span>
+                                    <span class="text-xs text-gray-500">3 hours ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">What are the symptoms of STIs and how are they treated?</h3>
+                                <p class="text-gray-700 mb-4">I'm concerned about potential STI symptoms but I'm too embarrassed to visit a clinic. What should I look out for and are there medications I can get without seeing a doctor?</p>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500"></div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-sm">Dr. Grace Kipchoge ✓</div>
+                                            <div class="text-xs text-gray-500">Sexual Health Counselor • Kenyatta Hospital</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">Common STI symptoms include unusual discharge, pain during urination, and pelvic pain. A medical diagnosis is essential as treatments vary. Healthcare providers maintain confidentiality. Early treatment prevents complications. Consider visiting a sexual health clinic where staff are trained and non-judgmental.</p>
+                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 234 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 8 - Sexual Health (Unanswered) -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="sexual">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-semibold">Sexual Health</span>
+                                    <span class="text-xs text-red-500 font-semibold">UNANSWERED</span>
+                                    <span class="text-xs text-gray-500">30 mins ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Is it safe to use contraception while breastfeeding?</h3>
+                                <p class="text-gray-700">I'm 3 months postpartum and still breastfeeding exclusively. I want to start family planning but I'm worried it might affect my milk production. What are my options?</p>
+                                
+                                <div class="mt-4 p-3 bg-orange-50 rounded-lg text-sm text-orange-800">
+                                    ⚠️ This question is still waiting for a doctor's response. Doctors can provide verified answers.
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600 mt-4">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 8 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Answer</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 9 - Mental Health -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="mental">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Mental Health</span>
+                                    <span class="text-xs text-gray-500">1 hour ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">How do I manage anxiety and panic attacks?</h3>
+                                <p class="text-gray-700 mb-4">I've been experiencing sudden panic attacks with chest tightness and shortness of breath. They happen without warning and make me feel like something is seriously wrong. How can I manage these episodes?</p>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-lime-500 to-green-500"></div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-sm">Dr. David Kariuki ✓</div>
+                                            <div class="text-xs text-gray-500">Psychiatrist • Mental Health Center</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">Panic attacks are treatable. During an attack: breathe slowly (4 in, 6 out), ground yourself using the 5-4-3-2-1 technique, and reassure yourself it will pass. Long-term management includes CBT therapy and sometimes medication. Speaking with a mental health professional is crucial for proper diagnosis and treatment plan.</p>
+                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 312 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Question Card 10 - Mental Health -->
+                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="mental">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Mental Health</span>
+                                    <span class="text-xs text-gray-500">2 hours ago</span>
+                                </div>
+                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Dealing with depression after job loss</h3>
+                                <p class="text-gray-700 mb-4">I lost my job 2 months ago and since then I've felt hopeless and unmotivated. I'm isolating myself and losing interest in things I used to enjoy. My family is worried about me. What can I do?</p>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500"></div>
+                                        <div class="flex-1">
+                                            <div class="font-semibold text-sm">Dr. Amara Obi ✓</div>
+                                            <div class="text-xs text-gray-500">Clinical Psychologist • Wellness Institute</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700 text-sm">Job loss is a significant life stressor. What you're experiencing is valid. Reach out to friends and family, maintain daily routines, and consider professional counseling. Therapy can help process grief and rebuild confidence. Don't self-isolate - connection and professional support are key to recovery.</p>
+                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-sm text-gray-600">
+                                    <button class="flex items-center gap-1 hover:text-red-500">👍 278 Helpful</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
+                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </main>
+
+                <!-- Right Sidebar -->
+                <aside class="col-span-12 lg:col-span-3">
+                    <div class="bg-white rounded-lg shadow p-4 sticky top-24">
+                        <h3 class="font-bold text-lg mb-4">🔥 Trending Topics</h3>
+                        <div class="space-y-3">
+                            <div onclick="switchTab('infectious')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
+                                <div class="text-sm font-semibold text-red-500">Malaria Prevention</div>
+                                <div class="text-xs text-gray-600">24 questions</div>
+                            </div>
+                            <div onclick="switchTab('pregnancy')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
+                                <div class="text-sm font-semibold text-pink-500">Pregnancy Care</div>
+                                <div class="text-xs text-gray-600">18 questions</div>
+                            </div>
+                            <div onclick="switchTab('pediatrics')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
+                                <div class="text-sm font-semibold text-green-500">Child Nutrition</div>
+                                <div class="text-xs text-gray-600">15 questions</div>
+                            </div>
+                            <div onclick="switchTab('mental')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
+                                <div class="text-sm font-semibold text-blue-500">Mental Wellness</div>
+                                <div class="text-xs text-gray-600">22 questions</div>
+                            </div>
+                            <div onclick="switchTab('sexual')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
+                                <div class="text-sm font-semibold text-purple-500">Sexual Health</div>
+                                <div class="text-xs text-gray-600">12 questions</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t">
+                            <h4 class="font-bold text-sm mb-3">👨‍⚕️ Top Doctors</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500"></div>
+                                    <div>
+                                        <div class="text-xs font-semibold">Dr. Sarah Nabirye</div>
+                                        <div class="text-xs text-gray-500">450 Answers</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-blue-500"></div>
+                                    <div>
+                                        <div class="text-xs font-semibold">Dr. Amina Kaggwa</div>
+                                        <div class="text-xs text-gray-500">320 Answers</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Ask Question Modal -->
+        <div id="askQuestionModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Ask a Question</h2>
+                    <button class="close-btn" onclick="closeAskQuestionModal()">✕</button>
+                </div>
+
+                <form id="askQuestionForm" onsubmit="handleAskQuestion(event)">
+                    <div class="form-group">
+                        <label for="question-title">Question Title *</label>
+                        <input 
+                            type="text" 
+                            id="question-title" 
+                            placeholder="e.g., My child has a fever and cough" 
+                            required 
+                            oninput="autoDetectCategory()"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="question-description">Description</label>
+                        <textarea 
+                            id="question-description" 
+                            placeholder="Provide more details about your question..." 
+                            oninput="autoDetectCategory()"
+                        ></textarea>
+                    </div>
+
+                    <div id="categoryHint" class="category-hint" style="display: none;">
+                        <strong>Detected Category:</strong> <span id="detectedCategory"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="question-category">Category *</label>
+                        <select id="question-category" required>
+                            <option value="">-- Select a category --</option>
+                            <option value="pediatrics">👶 Pediatrics</option>
+                            <option value="pregnancy">🤰 Pregnancy</option>
+                            <option value="infectious">🦠 Infectious Diseases</option>
+                            <option value="sexual">💚 Sexual Health</option>
+                            <option value="mental">🧠 Mental Health</option>
+                        </select>
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="submit" class="btn-submit">Post Question</button>
+                        <button type="button" class="btn-cancel" onclick="closeAskQuestionModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function toggleUserMenu() {
+                const menu = document.getElementById('user-menu');
+                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            }
+
+            // Category filtering with switchTab
+            function switchTab(topic) {
+                // Remove active class from all sidebar items
+                const items = document.querySelectorAll('.sidebar-item');
+                items.forEach(item => item.classList.remove('active'));
+                
+                // Add active class to clicked item
+                if (event && event.currentTarget) {
+                    event.currentTarget.classList.add('active');
+                }
+                
+                // Filter questions by category
+                const articles = document.querySelectorAll('article[data-category]');
+                articles.forEach(article => {
+                    const category = article.getAttribute('data-category');
+                    if (category === topic) {
+                        article.classList.remove('hidden');
+                    } else {
+                        article.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Ask Question Modal Functions
+            function openAskQuestionModal() {
+                document.getElementById('askQuestionModal').classList.add('show');
+            }
+
+            function closeAskQuestionModal() {
+                document.getElementById('askQuestionModal').classList.remove('show');
+                document.getElementById('askQuestionForm').reset();
+                document.getElementById('categoryHint').style.display = 'none';
+            }
+
+            // Keyword-based auto-categorization
+            const categoryKeywords = {
+                pediatrics: ['child', 'baby', 'infant', 'toddler', 'kid', 'boy', 'girl', 'newborn', 'rash', 'vaccine', 'vaccination', 'diarrhea', 'cough', 'cold', 'fever', 'crying', 'sleep', 'feeding', 'milk', 'weaning'],
+                pregnancy: ['pregnant', 'pregnancy', 'pregnant', 'trimester', 'due date', 'labor', 'delivery', 'antenatal', 'prenatal', 'miscarriage', 'abortion', 'nausea', 'morning sickness', 'contractions', 'preeclampsia', 'gestational'],
+                infectious: ['malaria', 'typhoid', 'cholera', 'infection', 'virus', 'viral', 'bacterial', 'pneumonia', 'tuberculosis', 'tb', 'hiv', 'aids', 'dengue', 'fever', 'cough', 'wound', 'conjunctivitis', 'eye infection', 'diarrhea', 'vomiting'],
+                sexual: ['sti', 'std', 'sexually transmitted', 'herpes', 'gonorrhea', 'chlamydia', 'contraception', 'birth control', 'condom', 'family planning', 'period', 'menstrual', 'discharge', 'orgasm', 'erectile', 'sexual health', 'pregnancy prevention'],
+                mental: ['anxiety', 'depression', 'stress', 'panic', 'mental', 'psychological', 'emotional', 'sad', 'lonely', 'suicide', 'suicidal', 'trauma', 'ptsd', 'ocd', 'insomnia', 'sleep problem', 'phobia', 'fear', 'worry', 'counseling']
+            };
+
+            function autoDetectCategory() {
+                const title = document.getElementById('question-title').value.toLowerCase();
+                const description = document.getElementById('question-description').value.toLowerCase();
+                const text = (title + ' ' + description).toLowerCase();
+
+                let detectedCategory = '';
+                let maxMatches = 0;
+
+                // Count keyword matches for each category
+                for (const [category, keywords] of Object.entries(categoryKeywords)) {
+                    let matches = 0;
+                    keywords.forEach(keyword => {
+                        if (text.includes(keyword)) {
+                            matches++;
+                        }
+                    });
+
+                    if (matches > maxMatches) {
+                        maxMatches = matches;
+                        detectedCategory = category;
+                    }
+                }
+
+                // Show hint and set category if matches found
+                const hintElement = document.getElementById('categoryHint');
+                const categorySelect = document.getElementById('question-category');
+                
+                if (detectedCategory && maxMatches > 0) {
+                    const categoryNames = {
+                        pediatrics: '👶 Pediatrics',
+                        pregnancy: '🤰 Pregnancy',
+                        infectious: '🦠 Infectious Diseases',
+                        sexual: '💚 Sexual Health',
+                        mental: '🧠 Mental Health'
+                    };
+                    
+                    document.getElementById('detectedCategory').textContent = categoryNames[detectedCategory];
+                    hintElement.style.display = 'block';
+                    categorySelect.value = detectedCategory;
+                } else {
+                    hintElement.style.display = 'none';
+                    categorySelect.value = '';
+                }
+            }
+
+            function handleAskQuestion(event) {
+                event.preventDefault();
+                
+                const title = document.getElementById('question-title').value;
+                const description = document.getElementById('question-description').value;
+                const category = document.getElementById('question-category').value;
+
+                if (!title || !category) {
+                    alert('Please enter a title and select a category');
+                    return;
+                }
+
+                // Store the question (would normally send to backend)
+                const question = {
+                    id: Date.now(),
+                    title: title,
+                    description: description,
+                    category: category,
+                    author: getCurrentUser().name || getCurrentUser().username,
+                    timestamp: new Date(),
+                    answered: false,
+                    views: 0
+                };
+
+                // Save to localStorage
+                let questions = JSON.parse(localStorage.getItem('userQuestions') || '[]');
+                questions.push(question);
+                localStorage.setItem('userQuestions', JSON.stringify(questions));
+
+                alert('Question posted successfully!');
+                closeAskQuestionModal();
+
+                // Optionally refresh or update the page
+                // window.location.reload();
+            }
+
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('user-menu');
+                const avatar = document.getElementById('patientAvatar');
+                if (avatar && !avatar.contains(event.target) && !menu.contains(event.target)) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            // Initialize user name and profile picture
+            window.addEventListener('DOMContentLoaded', function() {
+                const user = getCurrentUser();
+                if (user) {
+                    document.getElementById('user-name').textContent = user.name || user.username || 'User';
+                }
+                
+                // Load patient profile picture
+                const savedPicture = localStorage.getItem('patientProfilePicture');
+                if (savedPicture) {
+                    const avatar = document.getElementById('patientAvatar');
+                    avatar.style.background = 'none';
+                    const img = document.createElement('img');
+                    img.src = savedPicture;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    avatar.appendChild(img);
+                }
+            });
+
+            // Patient Profile Picture Upload
+            function updatePatientProfilePicture(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Compress and optimize image
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Set canvas size (limit to 300x300 to reduce file size)
+                            canvas.width = 300;
+                            canvas.height = 300;
+                            
+                            // Draw image centered and cropped
+                            ctx.drawImage(img, 0, 0, 300, 300);
+                            
+                            // Convert to base64 with compression
+                            const compressedData = canvas.toDataURL('image/jpeg', 0.8);
+                            
+                            // Update avatar
+                            const avatar = document.getElementById('patientAvatar');
+                            avatar.innerHTML = '';
+                            avatar.style.background = 'none';
+                            const displayImg = document.createElement('img');
+                            displayImg.src = compressedData;
+                            displayImg.style.width = '100%';
+                            displayImg.style.height = '100%';
+                            displayImg.style.objectFit = 'cover';
+                            avatar.appendChild(displayImg);
+                            
+                            // Store in localStorage
+                            try {
+                                localStorage.setItem('patientProfilePicture', compressedData);
+                                showPatientToast('✅ Profile picture updated successfully!', 'success');
+                            } catch(e) {
+                                showPatientToast('⚠️ Image too large. Using smaller size...', 'info');
+                                const smallerData = canvas.toDataURL('image/jpeg', 0.6);
+                                localStorage.setItem('patientProfilePicture', smallerData);
+                            }
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            function openPatientProfileEditor() {
+                const modal = document.createElement('div');
+                modal.id = 'patientProfileModal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                `;
+                
+                const content = document.createElement('div');
+                content.style.cssText = `
+                    background: white;
+                    border-radius: 12px;
+                    padding: 32px;
+                    width: 90%;
+                    max-width: 500px;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                `;
+                
+                content.innerHTML = `
+                    <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 600;">Edit Profile</h2>
+                    
+                    <form id="patientProfileForm" onsubmit="savePatientProfile(event)">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Profile Picture</label>
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div id="patientPreviewImage" style="width: 80px; height: 80px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer;">👤</div>
+                                <input type="file" id="patientPicInput" accept="image/*" style="display: none;" onchange="previewPatientImage(event)">
+                                <button type="button" onclick="document.getElementById('patientPicInput').click()" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Upload Picture</button>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label for="patFullName" style="display: block; margin-bottom: 8px; font-weight: 500;">Full Name</label>
+                            <input type="text" id="patFullName" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label for="patEmail" style="display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
+                            <input type="email" id="patEmail" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label for="patPhoneNumber" style="display: block; margin-bottom: 8px; font-weight: 500;">Phone Number</label>
+                            <input type="tel" id="patPhoneNumber" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label for="patBio" style="display: block; margin-bottom: 8px; font-weight: 500;">Bio</label>
+                            <textarea id="patBio" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;" rows="4"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                            <button type="button" onclick="closePatientProfileModal()" style="padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Cancel</button>
+                            <button type="submit" style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Save Changes</button>
+                        </div>
+                    </form>
+                `;
+                
+                modal.appendChild(content);
+                document.body.appendChild(modal);
+                
+                // Load existing data
+                const savedProfile = localStorage.getItem('patientProfile');
+                if (savedProfile) {
+                    const profile = JSON.parse(savedProfile);
+                    document.getElementById('patFullName').value = profile.name || '';
+                    document.getElementById('patEmail').value = profile.email || '';
+                    document.getElementById('patPhoneNumber').value = profile.phoneNumber || '';
+                    document.getElementById('patBio').value = profile.bio || '';
+                }
+                
+                // Load existing picture in preview
+                const savedPicture = localStorage.getItem('patientProfilePicture');
+                if (savedPicture) {
+                    const preview = document.getElementById('patientPreviewImage');
+                    preview.textContent = '';
+                    const img = document.createElement('img');
+                    img.src = savedPicture;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.borderRadius = '50%';
+                    img.style.objectFit = 'cover';
+                    preview.appendChild(img);
+                }
+                
+                const user = getCurrentUser();
+                if (user && !document.getElementById('patFullName').value) {
+                    document.getElementById('patFullName').value = user.name || user.username || '';
+                    document.getElementById('patEmail').value = user.email || '';
+                }
+                
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closePatientProfileModal();
+                    }
+                });
+            }
+
+            function previewPatientImage(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = 300;
+                            canvas.height = 300;
+                            ctx.drawImage(img, 0, 0, 300, 300);
+                            
+                            const preview = document.getElementById('patientPreviewImage');
+                            preview.textContent = '';
+                            const previewImg = document.createElement('img');
+                            previewImg.src = canvas.toDataURL('image/jpeg', 0.8);
+                            previewImg.style.width = '100%';
+                            previewImg.style.height = '100%';
+                            previewImg.style.borderRadius = '50%';
+                            previewImg.style.objectFit = 'cover';
+                            preview.appendChild(previewImg);
+                            
+                            // Store the compressed data in a temporary variable
+                            window.tempPatientPicture = previewImg.src;
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            function savePatientProfile(event) {
+                event.preventDefault();
+                
+                const name = document.getElementById('patFullName').value;
+                const email = document.getElementById('patEmail').value;
+                const phoneNumber = document.getElementById('patPhoneNumber').value;
+                const bio = document.getElementById('patBio').value;
+                
+                // Save to localStorage
+                const profileData = {
+                    name: name,
+                    email: email,
+                    phoneNumber: phoneNumber,
+                    bio: bio
+                };
+                localStorage.setItem('patientProfile', JSON.stringify(profileData));
+                
+                // If a new picture was uploaded, save it
+                if (window.tempPatientPicture) {
+                    try {
+                        localStorage.setItem('patientProfilePicture', window.tempPatientPicture);
+                        const avatar = document.getElementById('patientAvatar');
+                        avatar.innerHTML = '';
+                        avatar.style.background = 'none';
+                        const img = document.createElement('img');
+                        img.src = window.tempPatientPicture;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        avatar.appendChild(img);
+                        window.tempPatientPicture = null;
+                    } catch(e) {
+                        console.log('Failed to save picture');
+                    }
+                }
+                
+                // Update the page
+                document.getElementById('user-name').textContent = name;
+                
+                showPatientToast('✅ Profile saved successfully!', 'success');
+                closePatientProfileModal();
+            }
+
+            function closePatientProfileModal() {
+                const modal = document.getElementById('patientProfileModal');
+                if (modal) {
+                    modal.remove();
+                }
+            }
+
+            function showPatientToast(message, type) {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    padding: 16px 20px;
+                    background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                    color: white;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    z-index: 1001;
+                `;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Moderation - AgoCare Admin</title>
+    <script src="../js/navigation.js"></script>
+    <script src="../js/admin.js"></script>
+    <link rel="stylesheet" href="../css/moderation.css">
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-section">
+            <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+            <div class="logo">
+                <span class="logo-ago">Ago</span><span class="logo-care">care</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Category Header -->
+        <div class="category-header">
+            <div class="category-title">
+                <span class="category-icon" id="categoryIcon">🧠</span>
+                <h1 id="categoryName">Mental Health</h1>
+            </div>
+            <div class="category-stats">
+                <div class="stat-box">
+                    <label>Total Posts</label>
+                    <div class="value">389</div>
+                </div>
+                <div class="stat-box">
+                    <label>Flagged Posts</label>
+                    <div class="value">12</div>
+                </div>
+                <div class="stat-box">
+                    <label>Active Today</label>
+                    <div class="value">21</div>
+                </div>
+                <div class="stat-box">
+                    <label>Crisis Alerts</label>
+                    <div class="value">4</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterPosts('all')">All Posts</button>
+                <button class="filter-btn" onclick="filterPosts('flagged')">Flagged Only</button>
+                <button class="filter-btn" onclick="filterPosts('impersonation')">Impersonation</button>
+                <button class="filter-btn" onclick="filterPosts('misleading')">Misleading Info</button>
+            </div>
+            <div class="search-filter">
+                <input type="text" placeholder="Search posts..." id="searchPosts" oninput="searchPosts()">
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Posts Section -->
+            <div class="posts-section" id="postsSection">
+                <!-- Post Card 1 - Flagged -->
+                <div class="post-card" data-category="flagged misleading">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">JK</div>
+                            <div class="author-info">
+                                <h4>Dr. Jane Kirabo</h4>
+                                <p>Psychiatrist • 2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="post-status">
+                            <span class="status-badge flagged">🚩 Flagged</span>
+                            <span class="status-badge misleading">⚠️ Misleading</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h3>Stopping Antidepressants Suddenly</h3>
+                        <p>Once you start feeling better on antidepressants, you can safely stop them without talking to your doctor. Your brain has already adjusted...</p>
+                    </div>
+                    <div class="post-flags">
+                        <div class="flag-item">🚩 Reported by 3 clinicians - Dangerous advice on medication adherence</div>
+                        <div class="flag-item">⚠️ Contradicts standard tapering guidelines</div>
+                    </div>
+                    <div class="post-meta">
+                        <div class="meta-item">👁️ 742 views</div>
+                        <div class="meta-item">💬 22 comments</div>
+                        <div class="meta-item">👍 18 reactions</div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn view-btn" onclick="viewPost(1)">View Full Post</button>
+                        <button class="action-btn warn-btn" onclick="warnUser('Dr. Jane Kirabo', 1)">Warn Author</button>
+                        <button class="action-btn delete-btn" onclick="deletePost(1)">Delete Post</button>
+                        <button class="action-btn block-btn" onclick="blockUser('Dr. Jane Kirabo')">Block User</button>
+                    </div>
+                </div>
+
+                <!-- Post Card 2 - Impersonation -->
+                <div class="post-card" data-category="flagged impersonation">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">LC</div>
+                            <div class="author-info">
+                                <h4>Life Coach UG</h4>
+                                <p>Claims to be Psychologist • 6 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="post-status">
+                            <span class="status-badge flagged">🚩 Flagged</span>
+                            <span class="status-badge impersonation">🚨 Impersonation</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h3>No Need for Therapy If You Are Strong</h3>
+                        <p>Therapy is only for weak people who cannot handle life. If you are strong minded, you can force yourself out of depression without talking to anyone...</p>
+                    </div>
+                    <div class="post-flags">
+                        <div class="flag-item">🚨 Stigmatizing mental health care</div>
+                        <div class="flag-item">🚩 Claims professional expertise without verification</div>
+                        <div class="flag-item">⚠️ May prevent people from seeking help</div>
+                    </div>
+                    <div class="post-meta">
+                        <div class="meta-item">👁️ 589 views</div>
+                        <div class="meta-item">💬 30 comments</div>
+                        <div class="meta-item">👍 3 reactions</div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn view-btn" onclick="viewPost(2)">View Full Post</button>
+                        <button class="action-btn warn-btn" onclick="warnUser('Life Coach UG', 2)">Warn Author</button>
+                        <button class="action-btn delete-btn" onclick="deletePost(2)">Delete Post</button>
+                        <button class="action-btn block-btn" onclick="blockUser('Life Coach UG')">Block User</button>
+                    </div>
+                </div>
+
+                <!-- Post Card 3 - Normal Post -->
+                <div class="post-card" data-category="all">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">DP</div>
+                            <div class="author-info">
+                                <h4>Dr. Daniel Pwono</h4>
+                                <p>Clinical Psychologist • 1 day ago</p>
+                            </div>
+                        </div>
+                        <div class="post-status">
+                            <span class="status-badge verified">✓ Verified</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h3>Recognizing Warning Signs of Suicide</h3>
+                        <p>Changes in behavior, talking about wanting to die, giving away possessions, and withdrawing from loved ones can all be warning signs. Here is how to respond and where to get help...</p>
+                    </div>
+                    <div class="post-meta">
+                        <div class="meta-item">👁️ 2,134 views</div>
+                        <div class="meta-item">💬 63 comments</div>
+                        <div class="meta-item">👍 190 reactions</div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn view-btn" onclick="viewPost(3)">View Full Post</button>
+                        <button class="action-btn delete-btn" onclick="deletePost(3)">Delete Post</button>
+                    </div>
+                </div>
+
+                <!-- Post Card 4 - Flagged -->
+                <div class="post-card" data-category="flagged">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">AN</div>
+                            <div class="author-info">
+                                <h4>Anonymous User</h4>
+                                <p>User • 3 days ago</p>
+                            </div>
+                        </div>
+                        <div class="post-status">
+                            <span class="status-badge flagged">🚩 Flagged</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h3>I Don’t See Any Reason to Continue Living</h3>
+                        <p>I feel hopeless and tired of everything. I have started planning how to end my life and I don’t think anyone would miss me...</p>
+                    </div>
+                    <div class="post-flags">
+                        <div class="flag-item">🚩 Reported as potential suicide risk - needs urgent review</div>
+                    </div>
+                    <div class="post-meta">
+                        <div class="meta-item">👁️ 811 views</div>
+                        <div class="meta-item">💬 45 comments</div>
+                        <div class="meta-item">👍 29 reactions</div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn view-btn" onclick="viewPost(4)">View Full Post</button>
+                        <button class="action-btn warn-btn" onclick="warnUser('Anonymous User', 4)">Reach Out</button>
+                        <button class="action-btn delete-btn" onclick="deletePost(4)">Hide Post</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Alert Box -->
+                <div class="sidebar-card">
+                    <div class="alert-box">
+                        <h4>⚠️ High-Risk Content</h4>
+                        <p>Some posts in this category may indicate self-harm or suicide risk. Follow crisis protocols and escalate to emergency contacts when necessary.</p>
+                    </div>
+                    <div class="quick-stats">
+                        <div class="quick-stat-item">
+                            <label>Flagged Today</label>
+                            <div class="value">3</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <label>Pending Review</label>
+                            <div class="value">7</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <label>Resolved</label>
+                            <div class="value">16</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trending Posts -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">Trending in Mental Health</h3>
+                    <div class="trending-post" onclick="showToast('Loading post...', 'success')">
+                        <h4>Coping With Anxiety During Exams</h4>
+                        <p class="trending-meta">University Counselling Team • 3.6k views</p>
+                    </div>
+                    <div class="trending-post" onclick="showToast('Loading post...', 'success')">
+                        <h4>How to Support a Friend With Depression</h4>
+                        <p class="trending-meta">Peer Support Group • 3.1k views</p>
+                    </div>
+                    <div class="trending-post" onclick="showToast('Loading post...', 'success')">
+                        <h4>Where to Find Free Counselling Services</h4>
+                        <p class="trending-meta">Mental Health Hotline • 2.7k views</p>
+                    </div>
+                    <div class="trending-post" onclick="showToast('Loading post...', 'success')">
+                        <h4>Managing Burnout for Health Workers</h4>
+                        <p class="trending-meta">Professional Association • 2.2k views</p>
+                    </div>
+                </div>
+
+                <!-- Reviews Summary -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">Community Reviews</h3>
+                    <div class="quick-stats">
+                        <div class="quick-stat-item">
+                            <label>⭐ Average Rating</label>
+                            <div class="value">4.9/5</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <label>📝 Total Reviews</label>
+                            <div class="value">1,102</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <label>👍 Helpful Posts</label>
+                            <div class="value">96%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Delete Confirmation -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2 class="modal-header">Hide/Delete Post</h2>
+            <div class="modal-body">
+                <p>Are you sure you want to hide or delete this post? This action may limit others from seeing this content.</p>
+                <p style="margin-top: 10px;"><strong>Reason (optional):</strong></p>
+                <textarea id="deleteReason" placeholder="Enter reason for this action..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmDelete()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Warning / Reaching Out -->
+    <div class="modal" id="warnModal">
+        <div class="modal-content">
+            <h2 class="modal-header">Send Support Message</h2>
+            <div class="modal-body">
+                <p>Send a supportive message to <strong id="warnUserName"></strong> about their post.</p>
+                <p style="margin-top: 10px;"><strong>Message:</strong></p>
+                <textarea id="warnMessage" placeholder="Enter support message...">Thank you for sharing how you feel. Your life is important. Please consider reaching out to a trusted person or professional. If you are in immediate danger, contact local emergency services or a crisis helpline straight away.</textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('warnModal')">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmWarn()">Send Message</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Block User -->
+    <div class="modal" id="blockModal">
+        <div class="modal-content">
+            <h2 class="modal-header">Block User</h2>
+            <div class="modal-body">
+                <p>Are you sure you want to block <strong id="blockUserName"></strong>? They will no longer be able to post or comment.</p>
+                <p style="margin-top: 10px;"><strong>Reason for blocking:</strong></p>
+                <textarea id="blockReason" placeholder="Enter reason for blocking..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('blockModal')">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmBlock()">Block User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentPostId = null;
+        let currentUserName = null;
+
+        // Category data
+        const categories = {
+            'pediatrics': { icon: '👶', name: 'Pediatrics' },
+            'pregnancy': { icon: '🤰', name: 'Pregnancy' },
+            'infectious': { icon: '🦠', name: 'Infectious Diseases' },
+            'sexual': { icon: '❤️', name: 'Sexual Health' },
+            'mental': { icon: '🧠', name: 'Mental Health' }
+        };
+
+        // Initialize category from URL or default
+        function initCategory() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category') || 'mental';
+            
+            if (categories[category]) {
+                document.getElementById('categoryIcon').textContent = categories[category].icon;
+                document.getElementById('categoryName').textContent = categories[category].name;
+            }
+        }
+
+        // Filter posts
+        function filterPosts(filter) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const posts = document.querySelectorAll('.post-card');
+            posts.forEach(post => {
+                if (filter === 'all') {
+                    post.style.display = 'block';
+                } else {
+                    const categories = post.getAttribute('data-category');
+                    if (categories.includes(filter)) {
+                        post.style.display = 'block';
+                    } else {
+                        post.style.display = 'none';
+                    }
+                }
+            });
+
+            showToast(`Showing ${filter === 'all' ? 'all' : filter} posts`, 'success');
+        }
+
+        // Search posts
+        function searchPosts() {
+            const searchTerm = document.getElementById('searchPosts').value.toLowerCase();
+            const posts = document.querySelectorAll('.post-card');
+
+            posts.forEach(post => {
+                const content = post.textContent.toLowerCase();
+                if (content.includes(searchTerm)) {
+                    post.style.display = 'block';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+
+        // View post
+        function viewPost(postId) {
+            showToast(`Opening post #${postId}...`, 'success');
+        }
+
+        // Delete / Hide post
+        function deletePost(postId) {
+            currentPostId = postId;
+            openModal('deleteModal');
+        }
+
+        function confirmDelete() {
+            const reason = document.getElementById('deleteReason').value;
+            const post = document.querySelector(`[onclick*="deletePost(${currentPostId})"]`).closest('.post-card');
+            
+            post.style.opacity = '0';
+            post.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                post.remove();
+                showToast('✓ Post action completed', 'success');
+            }, 300);
+
+            closeModal('deleteModal');
+            document.getElementById('deleteReason').value = '';
+        }
+
+        // Warn user / Reach out
+        function warnUser(userName, postId) {
+            currentUserName = userName;
+            currentPostId = postId;
+            document.getElementById('warnUserName').textContent = userName;
+            openModal('warnModal');
+        }
+
+        function confirmWarn() {
+            const message = document.getElementById('warnMessage').value;
+            showToast(`💬 Support message sent to ${currentUserName}`, 'success');
+            closeModal('warnModal');
+        }
+
+        // Block user
+        function blockUser(userName) {
+            currentUserName = userName;
+            document.getElementById('blockUserName').textContent = userName;
+            openModal('blockModal');
+        }
+
+        function confirmBlock() {
+            const reason = document.getElementById('blockReason').value;
+            showToast(`🚫 ${currentUserName} has been blocked`, 'error');
+            closeModal('blockModal');
+            document.getElementById('blockReason').value = '';
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Go back
+        function goBack() {
+            window.history.back();
+        }
+
+        // Initialize
+        initCategory();
+    </script>
+</body>
+</html>
+
+

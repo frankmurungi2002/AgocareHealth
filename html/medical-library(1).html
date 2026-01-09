@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Library - Agocare</title>
+    <link rel="stylesheet" href="../css/doctor.css">
+    <script src="../js/navigation.js"></script>
+    <script src="../js/doctor.js"></script>
+</head>
+<body class="no-sidebar">
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h2>Menu</h2>
+            <button class="mobile-menu-close" id="mobileMenuClose">×</button>
+        </div>
+        
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">MAIN</div>
+                <a href="doctor-dashboard.html" class="mobile-menu-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="questions-feed">
+                    <span class="nav-icon">❓</span>
+                    <span>Questions Feed</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="my-patients">
+                    <span class="nav-icon">👥</span>
+                    <span>My Patients</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="appointments">
+                    <span class="nav-icon">📅</span>
+                    <span>Appointments</span>
+                </a>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">RESOURCES</div>
+                <a href="medical-library(1).html" class="mobile-menu-item active">
+                    <span class="nav-icon">📚</span>
+                    <span>Medical Library</span>
+                </a>
+                <a href="analytics.html" class="mobile-menu-item">
+                    <span class="nav-icon">📊</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="settings(1).html" class="mobile-menu-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">ACCOUNT</div>
+                    <div class="user-avatar" id="libraryMobileAvatar">DN</div>
+                        <div class="mobile-profile-name">Dr. Nabirye</div>
+                        <div class="mobile-profile-specialty">Pediatrician</div>
+                    </div>
+                </div>
+                <a href="doctor-profile(1).html" class="mobile-menu-item">
+                    <span class="nav-icon">👤</span>
+                    <span>My Profile</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="logo">Ago<span>care</span></div>
+            <div class="header-icons desktop-only">
+                <button class="icon-btn">📍</button>
+                <button class="icon-btn">🔔</button>
+                <button class="icon-btn">👤</button>
+            </div>
+            <div class="search-bar desktop-only">
+                <span>🔍</span>
+                <input type="text" placeholder="Search library...">
+            </div>
+        </div>
+        <div class="header-right">
+                <div class="user-avatar" id="libraryDesktopAvatar">DN</div>
+                <span>Dr. Nabirye</span>
+            </div>
+            <button class="ask-question-btn">Ask Question</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar desktop-only">
+            <nav class="nav-section">
+                <div class="category-header">MAIN</div>
+                <a href="doctor-dashboard.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">❓</span>
+                    <span>Questions Feed</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>My Patients</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Appointments</span>
+                </a>
+            </nav>
+
+            <div class="nav-section">
+                <div class="category-header">RESOURCES</div>
+                <a href="medical-library(1).html" class="nav-item active">
+                    <span class="nav-icon">📚</span>
+                    <span>Medical Library</span>
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="settings(1).html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 style="margin-bottom: 24px;">📚 Medical Library</h1>
+
+            <!-- Categories -->
+            <div class="library-categories">
+                <button class="category-pill active">All</button>
+                <button class="category-pill">Pediatrics</button>
+                <button class="category-pill">Infectious Diseases</button>
+                <button class="category-pill">Treatment Guidelines</button>
+                <button class="category-pill">Drug Information</button>
+                <button class="category-pill">Research Papers</button>
+            </div>
+
+            <!-- Resource Cards -->
+            <div class="section-card library-resource">
+                <div class="resource-icon">📄</div>
+                <div class="resource-content">
+                    <h3>WHO Guidelines for Pediatric Care 2024</h3>
+                    <p>Comprehensive guidelines for pediatric treatment and preventative care from the World Health Organization.</p>
+                    <div class="resource-meta">
+                        <span>📁 Pediatrics</span>
+                        <span>📅 Updated: Dec 2024</span>
+                        <span>📖 245 pages</span>
+                    </div>
+                </div>
+                <button class="resource-btn">View</button>
+            </div>
+
+            <div class="section-card library-resource">
+                <div class="resource-icon">💊</div>
+                <div class="resource-content">
+                    <h3>Pediatric Drug Dosage Reference</h3>
+                    <p>Complete reference guide for safe medication dosing in children by age and weight.</p>
+                    <div class="resource-meta">
+                        <span>📁 Drug Information</span>
+                        <span>📅 Updated: Nov 2024</span>
+                        <span>📖 180 pages</span>
+                    </div>
+                </div>
+                <button class="resource-btn">View</button>
+            </div>
+
+            <div class="section-card library-resource">
+                <div class="resource-icon">🦠</div>
+                <div class="resource-content">
+                    <h3>Infectious Diseases in Tropical Climates</h3>
+                    <p>Clinical protocols for diagnosing and treating common tropical infectious diseases.</p>
+                    <div class="resource-meta">
+                        <span>📁 Infectious Diseases</span>
+                        <span>📅 Updated: Oct 2024</span>
+                        <span>📖 320 pages</span>
+                    </div>
+                </div>
+                <button class="resource-btn">View</button>
+            </div>
+
+            <div class="section-card library-resource">
+                <div class="resource-icon">🧪</div>
+                <div class="resource-content">
+                    <h3>Laboratory Test Interpretation Guide</h3>
+                    <p>Reference ranges and clinical significance of common laboratory tests in pediatric patients.</p>
+                    <div class="resource-meta">
+                        <span>📁 Pediatrics</span>
+                        <span>📅 Updated: Dec 2024</span>
+                        <span>📖 150 pages</span>
+                    </div>
+                </div>
+                <button class="resource-btn">View</button>
+            </div>
+
+            <div class="section-card library-resource">
+                <div class="resource-icon">🩺</div>
+                <div class="resource-content">
+                    <h3>Emergency Pediatric Protocols</h3>
+                    <p>Step-by-step protocols for managing pediatric emergencies and critical conditions.</p>
+                    <div class="resource-meta">
+                        <span>📁 Treatment Guidelines</span>
+                        <span>📅 Updated: Dec 2024</span>
+                        <span>📖 95 pages</span>
+                    </div>
+                </div>
+                <button class="resource-btn">View</button>
+            </div>
+
+            <div class="section-card library-resource">
+                <div class="resource-icon">📊</div>
+                <div class="resource-content">
+                    <h3>Growth and Development Charts</h3>
+                    <p>WHO growth charts and developmental milestone tracking guides for children 0-18 years.</p>
+                    <div class="resource-meta">
+                        <span>📁 Pediatrics</span>
+                        <span>📅 Updated: Nov 2024</span>
+                        <span>📖 45 pages</span>
+                    </div>
+                </div>
+                <button class="resource-btn">View</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/doctor.js"></script>
+    <script>
+        // Category pills functionality
+        document.querySelectorAll('.category-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                console.log('Category selected:', this.textContent);
+            });
+        });
+
+        // Resource view buttons
+        document.querySelectorAll('.resource-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const title = this.closest('.library-resource').querySelector('h3').textContent;
+                alert(`📖 Opening Resource\n\n${title}\n\nIn production, this would open the document viewer or download the PDF.`);
+            });
+        });
+
+        // Load doctor profile picture on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedPicture = localStorage.getItem('doctorProfilePicture');
+            if (savedPicture) {
+                const avatars = ['libraryMobileAvatar', 'libraryDesktopAvatar'];
+                avatars.forEach(avatarId => {
+                    const avatar = document.getElementById(avatarId);
+                    if (avatar) {
+                        avatar.textContent = '';
+                        avatar.style.background = 'none';
+                        const img = document.createElement('img');
+                        img.src = savedPicture;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.borderRadius = '50%';
+                        img.style.objectFit = 'cover';
+                        avatar.appendChild(img);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

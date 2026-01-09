@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appointments - Agocare</title>
+<script src="../js/navigation.js"></script>
+<script src="../js/doctor.js"></script>
+<link rel="stylesheet" href="../css/doctor.css">
+<style>
+.calendar-view {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.calendar-nav button {
+    background: white;
+    border: 1px solid #e0e0e0;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.calendar-nav button:hover {
+    background-color: #f5f5f5;
+    border-color: #4a90e2;
+}
+
+.calendar-month {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    padding: 8px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.calendar-day:hover {
+    border-color: #4a90e2;
+    background-color: #f0f7ff;
+}
+
+.calendar-day.today {
+    background-color: #4a90e2;
+    color: white;
+    border-color: #4a90e2;
+}
+
+.calendar-day.has-appointments {
+    background-color: #fff8e1;
+}
+
+.calendar-day.today.has-appointments {
+    background-color: #357abd;
+}
+
+.day-number {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.appointment-dots {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.appointment-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #4a90e2;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 8px;
+}
+
+.view-btn {
+    padding: 8px 16px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.view-btn.active {
+    background-color: #4a90e2;
+    color: white;
+    border-color: #4a90e2;
+}
+
+.time-slot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.time-label {
+    width: 80px;
+    font-weight: 600;
+    color: #666;
+}
+
+.time-slot-content {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+}
+
+.appointment-block {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.appointment-block:hover {
+    transform: translateX(4px);
+}
+
+.appointment-block.consultation {
+    background-color: #e3f2fd;
+    border-color: #4a90e2;
+}
+
+.appointment-block.followup {
+    background-color: #e8f5e9;
+    border-color: #28a745;
+}
+
+.appointment-block.checkup {
+    background-color: #fff3e0;
+    border-color: #ffc107;
+}
+
+.appointment-block.urgent {
+    background-color: #ffebee;
+    border-color: #e63946;
+}
+
+@media (max-width: 768px) {
+    .calendar-grid {
+        gap: 4px;
+    }
+    
+    .calendar-day {
+        padding: 4px;
+    }
+    
+    .day-number {
+        font-size: 12px;
+    }
+    
+    .appointment-dot {
+        width: 4px;
+        height: 4px;
+    }
+}
+</style>
+</head>
+<body>
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu-header">
+<h2>Menu</h2>
+<button class="mobile-menu-close" id="mobileMenuClose">×</button>
+</div>
+<div class="mobile-menu-content">
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">MAIN</div>
+<a href="doctor-dashboard.html" class="mobile-menu-item">
+<span class="nav-icon">🏠</span>
+<span>Dashboard</span>
+</a>
+<a href="questions-feed.html" class="mobile-menu-item">
+<span class="nav-icon">❓</span>
+<span>Questions Feed</span>
+</a>
+<a href="my-patients.html" class="mobile-menu-item">
+<span class="nav-icon">👥</span>
+<span>My Patients</span>
+</a>
+<a href="appointments.html" class="mobile-menu-item active">
+<span class="nav-icon">📅</span>
+<span>Appointments</span>
+</a>
+</div>
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">RESOURCES</div>
+<a href="medical-library(1).html" class="mobile-menu-item">
+<span class="nav-icon">📚</span>
+<span>Medical Library</span>
+</a>
+<a href="analytics.html" class="mobile-menu-item">
+<span class="nav-icon">📊</span>
+<span>Analytics</span>
+</a>
+<a href="settings(1).html" class="mobile-menu-item">
+<span class="nav-icon">⚙</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">ACCOUNT</div>
+<div class="mobile-menu-profile">
+<div class="user-avatar" id="appointmentsMobileAvatar">DN</div>
+<div>
+<div class="mobile-profile-name">Dr. Nabirye</div>
+<div class="mobile-profile-specialty">Pediatrician</div>
+</div>
+</div>
+<a href="doctor-profile(1).html" class="mobile-menu-item">
+<span class="nav-icon">👤</span>
+<span>My Profile</span>
+</a>
+<a href="#" class="mobile-menu-item" data-page="logout">
+<span class="nav-icon">🚪</span>
+<span>Logout</span>
+</a>
+</div>
+</div>
+</div>
+
+<!-- Header -->
+<header>
+<div class="header-left">
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+<span></span>
+<span></span>
+<span></span>
+</button>
+<div class="logo">Ago<span>care</span></div>
+<div class="header-icons desktop-only">
+<button class="icon-btn">📍</button>
+<button class="icon-btn">🔔</button>
+<button class="icon-btn">👤</button>
+</div>
+<div class="search-bar desktop-only">
+<span>🔍</span>
+<input type="text" placeholder="Search appointments...">
+</div>
+</div>
+<div class="header-right">
+<div class="user-info desktop-only">
+<div class="user-avatar" id="appointmentsDesktopAvatar">DN</div>
+<span>Dr. Nabirye</span>
+</div>
+<button class="ask-question-btn">Ask Question</button>
+</div>
+</header>
+
+<!-- Main Container -->
+<div class="container">
+<!-- Left Sidebar -->
+<aside class="left-sidebar desktop-only">
+<nav class="nav-section">
+<div class="category-header">MAIN</div>
+<a href="doctor-dashboard.html" class="nav-item">
+<span class="nav-icon">🏠</span>
+<span>Dashboard</span>
+</a>
+<a href="questions-feed.html" class="nav-item">
+<span class="nav-icon">❓</span>
+<span>Questions Feed</span>
+</a>
+<a href="my-patients.html" class="nav-item">
+<span class="nav-icon">👥</span>
+<span>My Patients</span>
+</a>
+<a href="appointments.html" class="nav-item active">
+<span class="nav-icon">📅</span>
+<span>Appointments</span>
+</a>
+</nav>
+<div class="nav-section">
+<div class="category-header">RESOURCES</div>
+<a href="medical-library(1).html" class="nav-item">
+<span class="nav-icon">📚</span>
+<span>Medical Library</span>
+</a>
+<a href="analytics.html" class="nav-item">
+<span class="nav-icon">📊</span>
+<span>Analytics</span>
+</a>
+<a href="settings(1).html" class="nav-item">
+<span class="nav-icon">⚙</span>
+<span>Settings</span>
+</a>
+</div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+<h1>📅 Appointments</h1>
+<button class="ask-question-btn" onclick="createAppointment()">+ New Appointment</button>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+<div class="stat-card">
+<div class="stat-label">Today's Appointments</div>
+<div class="stat-value">8</div>
+<div class="stat-change info">3 completed</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">This Week</div>
+<div class="stat-value">32</div>
+<div class="stat-change positive">↑ 5 from last week</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Pending Confirmations</div>
+<div class="stat-value">6</div>
+<div class="stat-change" style="color: #ffc107;">Awaiting response</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Cancellations</div>
+<div class="stat-value">2</div>
+<div class="stat-change">This week</div>
+</div>
+</div>
+
+<!-- Calendar View -->
+<div class="calendar-view">
+<div class="calendar-header">
+<div class="calendar-nav">
+<button onclick="previousMonth()">←</button>
+<div class="calendar-month" id="currentMonth">December 2024</div>
+<button onclick="nextMonth()">→</button>
+</div>
+<div class="view-toggle">
+<button class="view-btn active" onclick="switchView('calendar')">Calendar</button>
+<button class="view-btn" onclick="switchView('list')">List</button>
+<button class="view-btn" onclick="switchView('day')">Day</button>
+</div>
+</div>
+
+<div class="calendar-grid">
+<div class="calendar-day-header">Sun</div>
+<div class="calendar-day-header">Mon</div>
+<div class="calendar-day-header">Tue</div>
+<div class="calendar-day-header">Wed</div>
+<div class="calendar-day-header">Thu</div>
+<div class="calendar-day-header">Fri</div>
+<div class="calendar-day-header">Sat</div>
+
+<!-- Week 1 -->
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">1</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">2</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">3</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">4</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">5</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">6</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">7</div></div>
+
+<!-- Week 2 -->
+<div class="calendar-day"><div class="day-number">8</div></div>
+<div class="calendar-day has-appointments" onclick="showDayView(9)">
+<div class="day-number">9</div>
+<div class="appointment-dots">
+<div class="appointment-dot"></div>
+<div class="appointment-dot"></div>
+</div>
+</div>
+<div class="calendar-day has-appointments" onclick="showDayView(10)">
+<div class="day-number">10</div>
+<div class="appointment-dots">
+<div class="appointment-dot"></div>
+</div>
+</div>
+<div class="calendar-day"><div class="day-number">11</div></div>
+<div class="calendar-day has-appointments" onclick="showDayView(12)">
+<div class="day-number">12</div>
+<div class="appointment-dots">
+<div class="appointment-dot"></div>
+<div class="appointment-dot"></div>
+<div class="appointment-dot"></div>
+</div>
+</div>
+<div class="calendar-day"><div class="day-number">13</div></div>
+<div class="calendar-day"><div class="day-number">14</div></div>
+
+<!-- Week 3 -->
+<div class="calendar-day"><div class="day-number">15</div></div>
+<div class="calendar-day has-appointments" onclick="showDayView(16)">
+<div class="day-number">16</div>
+<div class="appointment-dots">
+<div class="appointment-dot"></div>
+</div>
+</div>
+<div class="calendar-day today has-appointments" onclick="showDayView(17)">
+<div class="day-number">17</div>
+<div class="appointment-dots">
+<div class="appointment-dot" style="background-color: white;"></div>
+<div class="appointment-dot" style="background-color: white;"></div>
+<div class="appointment-dot" style="background-color: white;"></div>
+</div>
+</div>
+<div class="calendar-day has-appointments" onclick="showDayView(18)">
+<div class="day-number">18</div>
+<div class="appointment-dots">
+<div class="appointment-dot"></div>
+<div class="appointment-dot"></div>
+</div>
+</div>
+<div class="calendar-day has-appointments" onclick="showDayView(19)">
+<div class="day-number">19</div>
+<div class="appointment-dots">
+<div class="appointment-dot"></div>
+</div>
+</div>
+<div class="calendar-day"><div class="day-number">20</div></div>
+<div class="calendar-day"><div class="day-number">21</div></div>
+
+<!-- Week 4 -->
+<div class="calendar-day"><div class="day-number">22</div></div>
+<div class="calendar-day has-appointments" onclick="showDayView(23)">
+<div class="day-number">23</div>
+<div class="appointment-dots">
+<div class="appointment-dot"></div>
+<div class="appointment-dot"></div>
+</div>
+</div>
+<div class="calendar-day"><div class="day-number">24</div></div>
+<div class="calendar-day"><div class="day-number">25</div></div>
+<div class="calendar-day"><div class="day-number">26</div></div>
+<div class="calendar-day"><div class="day-number">27</div></div>
+<div class="calendar-day"><div class="day-number">28</div></div>
+
+<!-- Week 5 -->
+<div class="calendar-day"><div class="day-number">29</div></div>
+<div class="calendar-day"><div class="day-number">30</div></div>
+<div class="calendar-day"><div class="day-number">31</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">1</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">2</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">3</div></div>
+<div class="calendar-day" style="opacity: 0.3;"><div class="day-number">4</div></div>
+</div>
+</div>
+
+<!-- Today's Appointments -->
+<div class="section-card">
+<h2 style="margin-bottom: 20px;">Today's Schedule - December 17, 2024</h2>
+
+<div class="time-slot">
+<div class="time-label">9:00 AM</div>
+<div class="time-slot-content">
+<div class="appointment-block consultation" onclick="viewAppointment(1)">
+<strong>Video Consultation</strong>
+<div style="font-size: 12px; color: #666; margin-top: 4px;">Grace Akinyi • Antenatal Checkup</div>
+</div>
+</div>
+</div>
+
+<div class="time-slot">
+<div class="time-label">10:00 AM</div>
+<div class="time-slot-content">
+<div class="appointment-block checkup" onclick="viewAppointment(2)">
+<strong>Routine Checkup</strong>
+<div style="font-size: 12px; color: #666; margin-top: 4px;">Baby Emma Nakato • Growth Assessment</div>
+</div>
+</div>
+</div>
+
+<div class="time-slot">
+<div class="time-label">11:30 AM</div>
+<div class="time-slot-content">
+<div class="appointment-block followup" onclick="viewAppointment(3)">
+<strong>Follow-up Visit</strong>
+<div style="font-size: 12px; color: #666; margin-top: 4px;">Joshua Okello • Malaria Treatment Review</div>
+</div>
+</div>
+</div>
+
+<div class="time-slot">
+<div class="time-label">2:00 PM</div>
+<div class="time-slot-content">
+<div class="appointment-block urgent" onclick="viewAppointment(4)">
+<strong>Urgent Consultation</strong>
+<div style="font-size: 12px; color: #666; margin-top: 4px;">Moses Mugisha • Respiratory Issues</div>
+</div>
+</div>
+</div>
+
+<div class="time-slot">
+<div class="time-label">3:30 PM</div>
+<div class="time-slot-content">
+<div class="appointment-block consultation" onclick="viewAppointment(5)">
+<strong>New Patient Consultation</strong>
+<div style="font-size: 12px; color: #666; margin-top: 4px;">Patricia Nabwire • Initial Assessment</div>
+</div>
+</div>
+</div>
+
+<div class="time-slot">
+<div class="time-label">4:30 PM</div>
+<div class="time-slot-content">
+<div class="appointment-block checkup" onclick="viewAppointment(6)">
+<strong>Vaccination</strong>
+<div style="font-size: 12px; color: #666; margin-top: 4px;">Baby Brian Ssemakula • 9-Month Vaccines</div>
+</div>
+</div>
+</div>
+
+<div class="time-slot">
+<div class="time-label">5:00 PM</div>
+<div class="time-slot-content">
+<div style="flex: 1; text-align: center; color: #999; font-style: italic;">Free slot</div>
+</div>
+</div>
+</div>
+
+<!-- Upcoming Appointments -->
+<div class="section-card">
+<h2 style="margin-bottom: 20px;">Upcoming Appointments</h2>
+
+<div class="appointment-item">
+<div class="appointment-indicator blue"></div>
+<div class="appointment-avatar">👶</div>
+<div class="appointment-content">
+<div class="appointment-title">Baby Emma Nakato - Follow-up</div>
+<div class="appointment-details">December 18, 2024 • 10:00 AM • Video Call</div>
+</div>
+<button class="btn-appointment primary" onclick="rescheduleAppointment(1)">Reschedule</button>
+<button class="btn-appointment secondary" onclick="cancelAppointment(1)">Cancel</button>
+</div>
+
+<div class="appointment-item">
+<div class="appointment-indicator green"></div>
+<div class="appointment-avatar">🤰</div>
+<div class="appointment-content">
+<div class="appointment-title">Grace Akinyi - Antenatal Care</div>
+<div class="appointment-details">December 19, 2024 • 2:00 PM • In-Person</div>
+</div>
+<button class="btn-appointment primary" onclick="rescheduleAppointment(2)">Reschedule</button>
+<button class="btn-appointment secondary" onclick="cancelAppointment(2)">Cancel</button>
+</div>
+
+<div class="appointment-item">
+<div class="appointment-indicator yellow"></div>
+<div class="appointment-avatar">🧒</div>
+<div class="appointment-content">
+<div class="appointment-title">Moses Mugisha - Checkup</div>
+<div class="appointment-details">December 23, 2024 • 11:00 AM • In-Person</div>
+</div>
+<button class="btn-appointment primary" onclick="rescheduleAppointment(3)">Reschedule</button>
+<button class="btn-appointment secondary" onclick="cancelAppointment(3)">Cancel</button>
+</div>
+</div>
+</main>
+
+<!-- Right Sidebar -->
+<aside class="right-sidebar desktop-only">
+<div class="sidebar-card">
+<h3>Quick Actions</h3>
+<button class="quick-action-btn primary" onclick="createAppointment()">+ New Appointment</button>
+<button class="quick-action-btn secondary" onclick="viewAvailability()">📅 Set Availability</button>
+<button class="quick-action-btn tertiary" onclick="exportSchedule()">📄 Export Schedule</button>
+</div>
+
+<div class="sidebar-card">
+<h3>Today's Summary</h3>
+<div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+<div style="font-size: 24px; font-weight: bold; color: #4a90e2;">8</div>
+<div style="font-size: 13px; color: #666;">Total Appointments</div>
+</div>
+<div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+<div style="font-size: 24px; font-weight: bold; color: #28a745;">3</div>
+<div style="font-size: 13px; color: #666;">Completed</div>
+</div>
+<div style="padding: 12px 0;">
+<div style="font-size: 24px; font-weight: bold; color: #ffc107;">5</div>
+<div style="font-size: 13px; color: #666;">Remaining</div>
+</div>
+</div>
+
+<div class="urgent-help-card">
+<h3>Appointment Tips</h3>
+<p style="font-size: 13px; line-height: 1.6;">
+• Confirm appointments 24hrs before<br>
+• Keep buffer time between slots<br>
+• Update availability regularly<br>
+• Document session notes promptly
+</p>
+</div>
+</aside>
+</div>
+
+<script src="../js/doctor.js"></script>
+<script>
+function viewAppointment(id) {
+    alert(`📋 Appointment Details\n\nAppointment ID: ${id}\n\nIn production, this would show:\n• Patient information\n• Appointment type\n• Medical history\n• Previous notes\n• Start video call option`);
+}
+
+function createAppointment() {
+    alert(`➕ Create New Appointment\n\nThis would open a form to:\n• Select patient\n• Choose date and time\n• Set appointment type\n• Add notes\n• Send confirmation`);
+}
+
+function rescheduleAppointment(id) {
+    alert(`🔄 Reschedule Appointment\n\nAppointment ID: ${id}\n\nOptions:\n• Select new date\n• Choose new time\n• Notify patient\n• Update calendar`);
+}
+
+function cancelAppointment(id) {
+    if (confirm('Are you sure you want to cancel this appointment?')) {
+        alert(`❌ Appointment Cancelled\n\nAppointment ID: ${id}\n\nActions taken:\n• Patient notified\n• Slot freed\n• Calendar updated`);
+    }
+}
+
+function showDayView(day) {
+    alert(`📅 Day View\n\nShowing appointments for December ${day}, 2024\n\nIn production, this would display all appointments for that day.`);
+}
+
+function previousMonth() {
+    alert('← Previous Month\n\nNavigating to November 2024');
+}
+
+function nextMonth() {
+    alert('→ Next Month\n\nNavigating to January 2025');
+}
+
+function switchView(view) {
+    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    alert(`Switching to ${view.charAt(0).toUpperCase() + view.slice(1)} View`);
+}
+
+function viewAvailability() {
+    alert(`📅 Set Availability\n\nThis would allow you to:\n• Set working hours\n• Block time slots\n• Set recurring availability\n• Manage breaks`);
+}
+
+function exportSchedule() {
+    alert(`📄 Export Schedule\n\nExport options:\n• Weekly schedule (PDF)\n• Monthly calendar (CSV)\n• Appointment list\n• Custom date range`);
+}
+
+// Load doctor profile picture on page load
+window.addEventListener('DOMContentLoaded', function() {
+    const savedPicture = localStorage.getItem('doctorProfilePicture');
+    if (savedPicture) {
+        const avatars = ['appointmentsMobileAvatar', 'appointmentsDesktopAvatar'];
+        avatars.forEach(avatarId => {
+            const avatar = document.getElementById(avatarId);
+            if (avatar) {
+                avatar.textContent = '';
+                avatar.style.background = 'none';
+                const img = document.createElement('img');
+                img.src = savedPicture;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                avatar.appendChild(img);
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>

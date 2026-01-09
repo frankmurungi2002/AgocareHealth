@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Agocare</title>
+    <link rel="stylesheet" href="../css/doctor.css">
+    <script src="../js/navigation.js"></script>
+    <script src="../js/doctor.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h2>Menu</h2>
+            <button class="mobile-menu-close" id="mobileMenuClose">×</button>
+        </div>
+        
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">MAIN</div>
+                <a href="doctor-dashboard.html" class="mobile-menu-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="questions-feed">
+                    <span class="nav-icon">❓</span>
+                    <span>Questions Feed</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="my-patients">
+                    <span class="nav-icon">👥</span>
+                    <span>My Patients</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="appointments">
+                    <span class="nav-icon">📅</span>
+                    <span>Appointments</span>
+                </a>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">RESOURCES</div>
+                <a href="medical-library(1).html" class="mobile-menu-item">
+                    <span class="nav-icon">📚</span>
+                    <span>Medical Library</span>
+                </a>
+                <a href="analytics.html" class="mobile-menu-item active">
+                    <span class="nav-icon">📊</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="settings(1).html" class="mobile-menu-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">ACCOUNT</div>
+                <div class="mobile-menu-profile">
+                    <div class="user-avatar" id="analyticsMobileAvatar">DN</div>
+                    <div>
+                        <div class="mobile-profile-name">Dr. Nabirye</div>
+                        <div class="mobile-profile-specialty">Pediatrician</div>
+                    </div>
+                </div>
+                <a href="doctor-profile(1).html" class="mobile-menu-item">
+                    <span class="nav-icon">👤</span>
+                    <span>My Profile</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="logo">Ago<span>care</span></div>
+            <div class="header-icons desktop-only">
+                <button class="icon-btn">📍</button>
+                <button class="icon-btn">🔔</button>
+                <button class="icon-btn">👤</button>
+            </div>
+            <div class="search-bar desktop-only">
+                <span>🔍</span>
+                <input type="text" placeholder="Search Agocare...">
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-info desktop-only">
+                <div class="user-avatar" id="analyticsDesktopAvatar">DN</div>
+                <span>Dr. Nabirye</span>
+            </div>
+            <button class="ask-question-btn">Ask Question</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar desktop-only">
+            <nav class="nav-section">
+                <div class="category-header">MAIN</div>
+                <a href="doctor-dashboard.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">❓</span>
+                    <span>Questions Feed</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>My Patients</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Appointments</span>
+                </a>
+            </nav>
+
+            <div class="nav-section">
+                <div class="category-header">RESOURCES</div>
+                <a href="medical-library(1).html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>Medical Library</span>
+                </a>
+                <a href="analytics.html" class="nav-item active">
+                    <span class="nav-icon">📊</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="settings(1).html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h1>📊 Analytics & Performance</h1>
+                <select class="period-selector">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30" selected>Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                    <option value="365">Last Year</option>
+                </select>
+            </div>
+
+            <!-- Overview Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Questions Answered</div>
+                    <div class="stat-value">450</div>
+                    <div class="stat-change positive">↑ 12% from last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Patients Consulted</div>
+                    <div class="stat-value">287</div>
+                    <div class="stat-change positive">↑ 8% from last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Average Response Time</div>
+                    <div class="stat-value">1.2hrs</div>
+                    <div class="stat-change positive">↓ 15 min improvement</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Patient Satisfaction</div>
+                    <div class="stat-value">4.9/5</div>
+                    <div class="stat-change rating">⭐⭐⭐⭐⭐</div>
+                </div>
+            </div>
+
+            <!-- Questions Analytics -->
+            <div class="section-card">
+                <h2>📋 Questions Analytics</h2>
+                <div class="analytics-chart">
+                    <div class="chart-placeholder">
+                        <p>📈 Questions Answered Over Time</p>
+                        <div class="mini-chart">
+                            <div class="chart-bar" style="height: 60%;"></div>
+                            <div class="chart-bar" style="height: 75%;"></div>
+                            <div class="chart-bar" style="height: 55%;"></div>
+                            <div class="chart-bar" style="height: 85%;"></div>
+                            <div class="chart-bar" style="height: 90%;"></div>
+                            <div class="chart-bar" style="height: 80%;"></div>
+                            <div class="chart-bar" style="height: 95%;"></div>
+                        </div>
+                        <div class="chart-labels">
+                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analytics-breakdown">
+                    <h3>By Category</h3>
+                    <div class="breakdown-item">
+                        <span>Pediatrics</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%; background-color: #4a90e2;"></div>
+                        </div>
+                        <span>65%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>General Health</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 20%; background-color: #28a745;"></div>
+                        </div>
+                        <span>20%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Infectious Diseases</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 15%; background-color: #ffc107;"></div>
+                        </div>
+                        <span>15%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Engagement -->
+            <div class="section-card">
+                <h2>👥 Patient Engagement</h2>
+                <div class="engagement-grid">
+                    <div class="engagement-item">
+                        <div class="engagement-icon">💬</div>
+                        <div class="engagement-value">1,248</div>
+                        <div class="engagement-label">Total Interactions</div>
+                    </div>
+                    <div class="engagement-item">
+                        <div class="engagement-icon">👍</div>
+                        <div class="engagement-value">892</div>
+                        <div class="engagement-label">Likes Received</div>
+                    </div>
+                    <div class="engagement-item">
+                        <div class="engagement-icon">👥</div>
+                        <div class="engagement-value">1.2K</div>
+                        <div class="engagement-label">Followers</div>
+                    </div>
+                    <div class="engagement-item">
+                        <div class="engagement-icon">⭐</div>
+                        <div class="engagement-value">4.9</div>
+                        <div class="engagement-label">Avg Rating</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Time Analytics -->
+            <div class="section-card">
+                <h2>⏱️ Response Time Breakdown</h2>
+                <div class="response-stats">
+                    <div class="response-item">
+                        <div class="response-time">< 30 min</div>
+                        <div class="response-percentage">45%</div>
+                        <div class="response-count">203 questions</div>
+                    </div>
+                    <div class="response-item">
+                        <div class="response-time">30 min - 1 hr</div>
+                        <div class="response-percentage">30%</div>
+                        <div class="response-count">135 questions</div>
+                    </div>
+                    <div class="response-item">
+                        <div class="response-time">1 hr - 3 hrs</div>
+                        <div class="response-percentage">20%</div>
+                        <div class="response-count">90 questions</div>
+                    </div>
+                    <div class="response-item">
+                        <div class="response-time">> 3 hrs</div>
+                        <div class="response-percentage">5%</div>
+                        <div class="response-count">22 questions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Performing Answers -->
+            <div class="section-card">
+                <h2>🏆 Top Performing Answers</h2>
+                <div class="top-answers">
+                    <div class="top-answer-item">
+                        <div class="answer-rank">1</div>
+                        <div class="answer-info">
+                            <strong>Can I give my baby honey for cough?</strong>
+                            <div class="answer-stats">👍 245 likes • 💬 52 comments • 👁️ 3.2K views</div>
+                        </div>
+                    </div>
+                    <div class="top-answer-item">
+                        <div class="answer-rank">2</div>
+                        <div class="answer-info">
+                            <strong>Best way to treat heat rash?</strong>
+                            <div class="answer-stats">👍 189 likes • 💬 38 comments • 👁️ 2.8K views</div>
+                        </div>
+                    </div>
+                    <div class="top-answer-item">
+                        <div class="answer-rank">3</div>
+                        <div class="answer-info">
+                            <strong>When should I start solid foods for my baby?</strong>
+                            <div class="answer-stats">👍 167 likes • 💬 45 comments • 👁️ 2.5K views</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/doctor.js"></script>
+    <script>
+        // Load doctor profile picture on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedPicture = localStorage.getItem('doctorProfilePicture');
+            if (savedPicture) {
+                const avatars = ['analyticsMobileAvatar', 'analyticsDesktopAvatar'];
+                avatars.forEach(avatarId => {
+                    const avatar = document.getElementById(avatarId);
+                    if (avatar) {
+                        avatar.textContent = '';
+                        avatar.style.background = 'none';
+                        const img = document.createElement('img');
+                        img.src = savedPicture;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.borderRadius = '50%';
+                        img.style.objectFit = 'cover';
+                        avatar.appendChild(img);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

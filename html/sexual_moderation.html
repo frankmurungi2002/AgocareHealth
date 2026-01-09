@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Moderation - AgoCare Admin</title>
+    <script src="../js/navigation.js"></script>
+    <script src="../js/admin.js"></script>
+    <link rel="stylesheet" href="../css/moderation.css">
+</head>
+<body>
+    <!-- Top Bar -->
+
+        .back-btn {
+            background: #f5f5f5;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .category-header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .category-icon {
+            font-size: 32px;
+        }
+
+        .category-title h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .category-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .stat-box label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .stat-box .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .filters-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #4a90e2;
+            color: white;
+            border-color: #4a90e2;
+        }
+
+        .filter-btn:hover {
+            border-color: #4a90e2;
+        }
+
+        .search-filter {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-filter input {
+            width: 100%;
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+        }
+
+        .posts-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .post-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .post-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .post-author {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .author-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .author-info h4 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .author-info p {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .post-status {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-badge.flagged {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.verified {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.impersonation {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.misleading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+
+        .post-content {
+            margin-bottom: 15px;
+        }
+
+        .post-content h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .post-content p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .post-flags {
+            background: #fff5f5;
+            border-left: 3px solid #ff6b6b;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .flag-item {
+            font-size: 13px;
+            color: #721c24;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flag-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .view-btn {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .view-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .warn-btn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .warn-btn:hover {
+            background: #ffb300;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+        }
+
+        .block-btn {
+            background: #333;
+            color: white;
+        }
+
+        .block-btn:hover {
+            background: #222;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .trending-post {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .trending-post:hover {
+            background: #f9f9f9;
+            padding-left: 10px;
+            border-radius: 5px;
+        }
+
+        .trending-post:last-child {
+            border-bottom: none;
+        }
+
+        .trending-post h4 {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .trending-meta {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .alert-box h4 {
+            font-size: 14px;
+            color: #856404;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .alert-box p {
+            font-size: 12px;
+            color: #856404;
+            line-height: 1.5;
+        }
+
+        .quick-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quick-stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .quick-stat-item label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .quick-stat-item .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success { background: #27ae60; }
+        .toast.error { background: #ff6b6b; }
+        .toast.warning { background: #ffc107; color: #333; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .modal-btn.cancel {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .modal-btn.confirm {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .modal-btn.confirm:hover {
+            background: #ff5252;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        @media (max-width: 968px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 15px;
+            }
+
+            .category-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                flex-wrap: wrap;
+            }
+
+            .post-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-section">
+            <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+            <div class="logo">
+                <span class="logo-ago">Ago</span><span class="logo-care">care</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Category Header -->
+        <div class="category-header">
+            <div class="category-title">
+                <span class="category-icon" id="categoryIcon">❤️</span>
+                <h1 id="categoryName">Sexual Health</h1>
+            </div>
+            <div class="category-stats">
+                <div class="stat-box">
+                    <label>Total Posts</label>
+                    <div class="value">421</div>
+                </div>
+                <div class="stat-box">
+                    <label>Flagged Posts</label>
+                    <div class="value">9</div>
+                </div>
+                <div class="stat-box">
+                    <label>Active Today</label>
+                    <div class="value">18</div>
+                </div>
+                <div class="stat-box">
+                    <label>Sensitive Topics</label>
+                    <div class="value">7</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterPosts('all')">All Posts</button>
+                <button class="filter-btn" onclick="filterPosts('flagged')">Flagged Only</button>
+                <button class="filter-btn" onclick="filterPosts('impersonation')">Impersonation</button>
+                <button class="filter-btn" onclick="filterPosts('misleading')">Misleading Info</button>
+            </div>
+            <div class="search-filter">
+                <input type="text" placeholder="Search posts..." id="searchPosts" oninput="searchPosts()">
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Posts Section -->
+            <div class="posts-section" id="postsSection">
+                <!-- Post Card 1 - Flagged -->
+                <div class="post-card" data-category="flagged misleading">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">AN</div>
+                            <div class="author-info">
+                                <h4>Dr. Alice Nakirya</h4>
+                                <p>Reproductive Health Specialist • 4 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="post-status">
+                            <span class="status-badge flagged">🚩 Flagged</span>
+                            <span class="status-badge misleading">⚠️ Misleading</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h3>Emergency Contraception Safety</h3>
+                        <p>Emergency contraception can be used as many times as needed every month without any health consequences. It is safer than regular family planning methods...</p>
+                    </div>
+                    <div class="post-flags">
+                        <div class="flag-item">🚩 Reported by 3 verified clinicians - Overstates safety of repeated EC use</div>
+                        <div class="flag-item">⚠️ May discourage users from using regular family planning methods</div>
+                    </div>
+                    <div class="post-meta">
+                        <div class="meta-item">👁️ 1,102 views</div>
+                        <div class="meta-item">💬 25 comments</div>
+                        <div class="meta-item">👍 33 reactions</div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn view-btn" onclick="viewPost(1)">View Full Post</button>
+                        <button class="action-btn warn-btn" onclick="warnUser('Dr. Alice Nakirya', 1)">Warn Author</button>
+                        <button class="action-btn delete-btn" onclick="deletePost(1)">Delete Post</button>
+                        <button class="action-btn block-btn" onclick="blockUser('Dr. Alice Nakirya')">Block User</button>
+                    </div>
+                </div>
+
+                <!-- Post Card 2 - Impersonation -->
+                <div class="post-card" data-category="flagged impersonation">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">HL</div>
+                            <div class="author-info">
+                                <h4>HelpsLove Clinic</h4>
+                                <p>Claims to be Counseling Centre • 7 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="post-status">
+                            <span class="status-badge flagged">🚩 Flagged</span>
+                            <span class="status-badge impersonation">🚨 Impersonation</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h3>We Guarantee 100% Safe Abortion at Any Month</h3>
+                        <p>Our centre provides safe abortions up to 9 months of pregnancy with no complications. No need to involve hospitals or legal processes...</p>
+                    </div>
+                    <div class="post-flags">
+                        <div class="flag-item">🚨 Extremely unsafe and illegal claim around late-term abortions</div>
+                        <div class="flag-item">🚩 Reported by 6 users - May be operating outside legal framework</div>
+                        <div class="flag-item">⚠️ Serious risk to users’ safety</div>
+                    </div>
+                    <div class="post-meta">
+                        <div class="meta-item">👁️ 856 views</div>
+                        <div class="meta-item">💬 37 comments</div>
+                        <div class="meta-item">👍 4 reactions</div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn view-btn" onclick="viewPost(2)">View Full Post</button>
+                        <button class="action-btn warn-btn" onclick="warnUser('HelpsLove Clinic', 2)">Warn Author</button>
+                        <button class="action-btn delete-btn" onclick="deletePost(2)">Delete Post</button>
+                        <button class="action-btn block-btn" onclick="blockUser('HelpsLove Clinic')">Block User</button>
+                    </div>
+                </div>
+
+                <!-- Post Card 3 - Normal Post -->
+                <div class="post-card" data-category="all">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">EO</div>
+                            <div class="author-info">
+                                <h4>Dr. Emmanuel Okello</h4>
+                                <p>Sexual Health Expert • 1 day ago</p>
+                            </div>
+                        </div>
+                        <div class="post-status">
+                            <span class="status-badge verified">✓ Verified</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h3>Understanding STIs and Routine Testing</h3>
+                        <p>Regular STI testing is an important part of sexual health. Here is how often different groups should test, and how to talk to partners about results...</p>
+                    </div>
+                    <div class="post-meta">
+                        <div class="meta-item">👁️ 2,789 views</div>
+                        <div class="meta-item">💬 48 comments</div>
+                        <div class="meta-item">👍 173 reactions</div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn view-btn" onclick="viewPost(3)">View Full Post</button>
+                        <button class="action-btn delete-btn" onclick="deletePost(3)">Delete Post</button>
+                    </div>
+                </div>
+
+                <!-- Post Card 4 - Flagged -->
+                <div class="post-card" data-category="flagged">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">YM</div>
+                            <div class="author-info">
+                                <h4>Young Member</h4>
+                                <p>User • 2 days ago</p>
+                            </div>
+                        </div>
+                        <div class="post-status">
+                            <span class="status-badge flagged">🚩 Flagged</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h3>Condoms Are Not Necessary in Long-Term Relationships</h3>
+                        <p>Once you trust your partner and you have been together for a long time, there is no need for condoms even if you never tested together...</p>
+                    </div>
+                    <div class="post-flags">
+                        <div class="flag-item">🚩 Reported by 2 users - Downplays importance of HIV and STI testing</div>
+                    </div>
+                    <div class="post-meta">
+                        <div class="meta-item">👁️ 603 views</div>
+                        <div class="meta-item">💬 19 comments</div>
+                        <div class="meta-item">👍 7 reactions</div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn view-btn" onclick="viewPost(4)">View Full Post</button>
+                        <button class="action-btn warn-btn" onclick="warnUser('Young Member', 4)">Warn Author</button>
+                        <button class="action-btn delete-btn" onclick="deletePost(4)">Delete Post</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Alert Box -->
+                <div class="sidebar-card">
+                    <div class="alert-box">
+                        <h4>⚠️ Sensitive Content</h4>
+                        <p>Some posts in this category may involve minors or non-consensual situations. Review carefully and escalate when needed.</p>
+                    </div>
+                    <div class="quick-stats">
+                        <div class="quick-stat-item">
+                            <label>Flagged Today</label>
+                            <div class="value">4</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <label>Pending Review</label>
+                            <div class="value">10</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <label>Resolved</label>
+                            <div class="value">19</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trending Posts -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">Trending in Sexual Health</h3>
+                    <div class="trending-post" onclick="showToast('Loading post...', 'success')">
+                        <h4>Myths and Facts About HIV Transmission</h4>
+                        <p class="trending-meta">HIV Program Uganda • 4.9k views</p>
+                    </div>
+                    <div class="trending-post" onclick="showToast('Loading post...', 'success')">
+                        <h4>Choosing the Right Family Planning Method</h4>
+                        <p class="trending-meta">Family Planning Clinic • 3.2k views</p>
+                    </div>
+                    <div class="trending-post" onclick="showToast('Loading post...', 'success')">
+                        <h4>Consent and Healthy Relationships</h4>
+                        <p class="trending-meta">Youth counsellor • 2.8k views</p>
+                    </div>
+                    <div class="trending-post" onclick="showToast('Loading post...', 'success')">
+                        <h4>Where to Access Free STI Testing</h4>
+                        <p class="trending-meta">Public Health Hotline • 2.4k views</p>
+                    </div>
+                </div>
+
+                <!-- Reviews Summary -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">Community Reviews</h3>
+                    <div class="quick-stats">
+                        <div class="quick-stat-item">
+                            <label>⭐ Average Rating</label>
+                            <div class="value">4.5/5</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <label>📝 Total Reviews</label>
+                            <div class="value">879</div>
+                        </div>
+                        <div class="quick-stat-item">
+                            <label>👍 Helpful Posts</label>
+                            <div class="value">88%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Delete Confirmation -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2 class="modal-header">Delete Post</h2>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+                <p style="margin-top: 10px;"><strong>Reason for deletion (optional):</strong></p>
+                <textarea id="deleteReason" placeholder="Enter reason for deletion..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmDelete()">Delete Post</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Warning User -->
+    <div class="modal" id="warnModal">
+        <div class="modal-content">
+            <h2 class="modal-header">Send Warning</h2>
+            <div class="modal-body">
+                <p>Send a warning to <strong id="warnUserName"></strong> regarding their post.</p>
+                <p style="margin-top: 10px;"><strong>Warning message:</strong></p>
+                <textarea id="warnMessage" placeholder="Enter warning message...">Your recent post has been flagged for review. Please ensure all sexual health information shared respects our guidelines and local laws, and is based on verified medical sources.</textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('warnModal')">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmWarn()">Send Warning</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Block User -->
+    <div class="modal" id="blockModal">
+        <div class="modal-content">
+            <h2 class="modal-header">Block User</h2>
+            <div class="modal-body">
+                <p>Are you sure you want to block <strong id="blockUserName"></strong>? They will no longer be able to post or comment.</p>
+                <p style="margin-top: 10px;"><strong>Reason for blocking:</strong></p>
+                <textarea id="blockReason" placeholder="Enter reason for blocking..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('blockModal')">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmBlock()">Block User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentPostId = null;
+        let currentUserName = null;
+
+        // Category data
+        const categories = {
+            'pediatrics': { icon: '👶', name: 'Pediatrics' },
+            'pregnancy': { icon: '🤰', name: 'Pregnancy' },
+            'infectious': { icon: '🦠', name: 'Infectious Diseases' },
+            'sexual': { icon: '❤️', name: 'Sexual Health' },
+            'mental': { icon: '🧠', name: 'Mental Health' }
+        };
+
+        // Initialize category from URL or default
+        function initCategory() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category') || 'sexual';
+            
+            if (categories[category]) {
+                document.getElementById('categoryIcon').textContent = categories[category].icon;
+                document.getElementById('categoryName').textContent = categories[category].name;
+            }
+        }
+
+        // Filter posts
+        function filterPosts(filter) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const posts = document.querySelectorAll('.post-card');
+            posts.forEach(post => {
+                if (filter === 'all') {
+                    post.style.display = 'block';
+                } else {
+                    const categories = post.getAttribute('data-category');
+                    if (categories.includes(filter)) {
+                        post.style.display = 'block';
+                    } else {
+                        post.style.display = 'none';
+                    }
+                }
+            });
+
+            showToast(`Showing ${filter === 'all' ? 'all' : filter} posts`, 'success');
+        }
+
+        // Search posts
+        function searchPosts() {
+            const searchTerm = document.getElementById('searchPosts').value.toLowerCase();
+            const posts = document.querySelectorAll('.post-card');
+
+            posts.forEach(post => {
+                const content = post.textContent.toLowerCase();
+                if (content.includes(searchTerm)) {
+                    post.style.display = 'block';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+
+        // View post
+        function viewPost(postId) {
+            showToast(`Opening post #${postId}...`, 'success');
+        }
+
+        // Delete post
+        function deletePost(postId) {
+            currentPostId = postId;
+            openModal('deleteModal');
+        }
+
+        function confirmDelete() {
+            const reason = document.getElementById('deleteReason').value;
+            const post = document.querySelector(`[onclick*="deletePost(${currentPostId})"]`).closest('.post-card');
+            
+            post.style.opacity = '0';
+            post.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                post.remove();
+                showToast('✓ Post deleted successfully', 'success');
+            }, 300);
+
+            closeModal('deleteModal');
+            document.getElementById('deleteReason').value = '';
+        }
+
+        // Warn user
+        function warnUser(userName, postId) {
+            currentUserName = userName;
+            currentPostId = postId;
+            document.getElementById('warnUserName').textContent = userName;
+            openModal('warnModal');
+        }
+
+        function confirmWarn() {
+            const message = document.getElementById('warnMessage').value;
+            showToast(`⚠️ Warning sent to ${currentUserName}`, 'warning');
+            closeModal('warnModal');
+        }
+
+        // Block user
+        function blockUser(userName) {
+            currentUserName = userName;
+            document.getElementById('blockUserName').textContent = userName;
+            openModal('blockModal');
+        }
+
+        function confirmBlock() {
+            const reason = document.getElementById('blockReason').value;
+            showToast(`🚫 ${currentUserName} has been blocked`, 'error');
+            closeModal('blockModal');
+            document.getElementById('blockReason').value = '';
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Go back
+        function goBack() {
+            window.history.back();
+        }
+
+        // Initialize
+        initCategory();
+    </script>
+</body>
+</html>
+
+

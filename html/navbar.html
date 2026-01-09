@@ -1,0 +1,69 @@
+<!-- Reusable Navigation Header Component -->
+<header id="main-header" class="bg-white shadow">
+    <link rel="stylesheet" href="../css/navbar.css">
+    <div class="nav-container">
+        <div class="nav-left">
+            <!-- Logo -->
+            <a href="#" onclick="navigateToDashboard(); return false;">
+                <div>
+                    <span>Ago</span><span>care</span>
+                </div>
+            </a>
+
+            <!-- Navigation Menu -->
+            <nav id="nav-menu" class="md-show">
+                <a href="#" onclick="navigateToDashboard(); return false;" class="nav-item">Dashboard</a>
+                <a href="appointments.html" class="nav-item">Appointments</a>
+                <a href="medical_centers.html" class="nav-item">Medical Centers</a>
+                <a href="medical-library(1).html" class="nav-item">Medical Library</a>
+                <a href="questions-feed.html" class="nav-item">Questions</a>
+            </nav>
+        </div>
+
+        <!-- Right Side Actions -->
+        <div class="nav-right">
+            <div id="user-info">
+                <span id="username">User</span>
+                <div id="avatar" onclick="toggleUserMenu()">U</div>
+            </div>
+
+            <!-- User Menu Dropdown -->
+            <div id="user-menu">
+                <a href="settings(1).html" class="nav-item">Settings</a>
+                <a href="doctor-profile(1).html" class="nav-item">Profile</a>
+                <hr>
+                <a href="#" onclick="logout(); return false;" class="nav-item">Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script>
+    // Initialize header with user info
+    function initializeHeader() {
+        const user = getCurrentUser();
+        if (user) {
+            document.getElementById('username').textContent = user.name || user.username || 'User';
+            const initials = (user.name || user.username || 'U').split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('avatar').textContent = initials;
+        }
+    }
+
+    // Toggle user menu dropdown
+    function toggleUserMenu() {
+        const menu = document.getElementById('user-menu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Close menus when clicking outside
+    document.addEventListener('click', function(event) {
+        const userMenu = document.getElementById('user-menu');
+        const avatar = document.getElementById('avatar');
+        if (!avatar.contains(event.target) && !userMenu.contains(event.target)) {
+            userMenu.style.display = 'none';
+        }
+    });
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', initializeHeader);
+</script>

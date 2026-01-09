@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Patients - Agocare</title>
+<link rel="stylesheet" href="../css/doctor.css">
+<script src="../js/navigation.js"></script>
+<script src="../js/doctor.js"></script>
+<style>
+.patient-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.patient-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.patient-avatar-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #4a90e2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.patient-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.patient-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.patient-info {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.patient-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background-color: #d4edda;
+    color: #28a745;
+}
+
+.status-badge.followup {
+    background-color: #fff3cd;
+    color: #ffc107;
+}
+
+.status-badge.completed {
+    background-color: #e7e7e7;
+    color: #666;
+}
+
+.patient-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-patient-action {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-view {
+    background: white;
+    border: 1px solid #4a90e2;
+    color: #4a90e2;
+}
+
+.btn-view:hover {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.btn-contact {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-contact:hover {
+    background-color: #218838;
+}
+
+.search-filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #4a90e2;
+}
+
+@media (max-width: 768px) {
+    .patient-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .patient-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .btn-patient-action {
+        width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu-header">
+<h2>Menu</h2>
+<button class="mobile-menu-close" id="mobileMenuClose">×</button>
+</div>
+<div class="mobile-menu-content">
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">MAIN</div>
+<a href="doctor-dashboard.html" class="mobile-menu-item">
+<span class="nav-icon">🏠</span>
+<span>Dashboard</span>
+</a>
+<a href="questions-feed.html" class="mobile-menu-item">
+<span class="nav-icon">❓</span>
+<span>Questions Feed</span>
+</a>
+<a href="my-patients.html" class="mobile-menu-item active">
+<span class="nav-icon">👥</span>
+<span>My Patients</span>
+</a>
+<a href="appointments.html" class="mobile-menu-item">
+<span class="nav-icon">📅</span>
+<span>Appointments</span>
+</a>
+</div>
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">RESOURCES</div>
+<a href="medical-library(1).html" class="mobile-menu-item">
+<span class="nav-icon">📚</span>
+<span>Medical Library</span>
+</a>
+<a href="analytics.html" class="mobile-menu-item">
+<span class="nav-icon">📊</span>
+<span>Analytics</span>
+</a>
+<a href="settings(1).html" class="mobile-menu-item">
+<span class="nav-icon">⚙</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="mobile-menu-section">
+<div class="mobile-menu-label">ACCOUNT</div>
+<div class="mobile-menu-profile">
+<div class="user-avatar" id="patientsMobileAvatar">DN</div>
+<div>
+<div class="mobile-profile-name">Dr. Nabirye</div>
+<div class="mobile-profile-specialty">Pediatrician</div>
+</div>
+</div>
+<a href="doctor-profile(1).html" class="mobile-menu-item">
+<span class="nav-icon">👤</span>
+<span>My Profile</span>
+</a>
+<a href="#" class="mobile-menu-item" data-page="logout">
+<span class="nav-icon">🚪</span>
+<span>Logout</span>
+</a>
+</div>
+</div>
+</div>
+
+<!-- Header -->
+<header>
+<div class="header-left">
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+<span></span>
+<span></span>
+<span></span>
+</button>
+<div class="logo">Ago<span>care</span></div>
+<div class="header-icons desktop-only">
+<button class="icon-btn">📍</button>
+<button class="icon-btn">🔔</button>
+<button class="icon-btn">👤</button>
+</div>
+<div class="search-bar desktop-only">
+<span>🔍</span>
+<input type="text" placeholder="Search patients...">
+</div>
+</div>
+<div class="header-right">
+<div class="user-info desktop-only">
+<div class="user-avatar" id="patientsDesktopAvatar">DN</div>
+<span>Dr. Nabirye</span>
+</div>
+<button class="ask-question-btn">Ask Question</button>
+</div>
+</header>
+
+<!-- Main Container -->
+<div class="container">
+<!-- Left Sidebar -->
+<aside class="left-sidebar desktop-only">
+<nav class="nav-section">
+<div class="category-header">MAIN</div>
+<a href="doctor-dashboard.html" class="nav-item">
+<span class="nav-icon">🏠</span>
+<span>Dashboard</span>
+</a>
+<a href="questions-feed.html" class="nav-item">
+<span class="nav-icon">❓</span>
+<span>Questions Feed</span>
+</a>
+<a href="my-patients.html" class="nav-item active">
+<span class="nav-icon">👥</span>
+<span>My Patients</span>
+</a>
+<a href="appointments.html" class="nav-item">
+<span class="nav-icon">📅</span>
+<span>Appointments</span>
+</a>
+</nav>
+<div class="nav-section">
+<div class="category-header">RESOURCES</div>
+<a href="medical-library(1).html" class="nav-item">
+<span class="nav-icon">📚</span>
+<span>Medical Library</span>
+</a>
+<a href="analytics.html" class="nav-item">
+<span class="nav-icon">📊</span>
+<span>Analytics</span>
+</a>
+<a href="settings(1).html" class="nav-item">
+<span class="nav-icon">⚙</span>
+<span>Settings</span>
+</a>
+</div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+<h1>👥 My Patients</h1>
+<button class="ask-question-btn" onclick="addNewPatient()">+ Add Patient</button>
+</div>
+
+<!-- Patient Stats -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+<div class="stat-card">
+<div class="stat-label">Total Patients</div>
+<div class="stat-value">287</div>
+<div class="stat-change positive">↑ 12 this month</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Active Cases</div>
+<div class="stat-value">45</div>
+<div class="stat-change info">Ongoing treatment</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Follow-ups Due</div>
+<div class="stat-value">18</div>
+<div class="stat-change" style="color: #ffc107;">⚠ Needs attention</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">This Week</div>
+<div class="stat-value">34</div>
+<div class="stat-change positive">New consultations</div>
+</div>
+</div>
+
+<!-- Search and Filter -->
+<div class="section-card" style="margin-bottom: 20px;">
+<div class="search-filter-bar">
+<input type="text" class="search-input" id="patientSearch" placeholder="🔍 Search patients by name or ID...">
+<select class="period-selector" id="statusFilter">
+<option value="all">All Status</option>
+<option value="active">Active</option>
+<option value="followup">Follow-up Due</option>
+<option value="completed">Completed</option>
+</select>
+<select class="period-selector" id="sortBy">
+<option value="recent">Most Recent</option>
+<option value="name">Name (A-Z)</option>
+<option value="priority">Priority</option>
+</select>
+</div>
+</div>
+
+<!-- Patients List -->
+<div class="section-card">
+<h2 style="margin-bottom: 20px;">Patient Records</h2>
+
+<!-- Patient 1 - Active -->
+<div class="patient-card" onclick="viewPatientDetails(1)">
+<div class="patient-avatar-large">👶</div>
+<div class="patient-details">
+<div class="patient-name">Baby Emma Nakato</div>
+<div class="patient-info">2 years old • Female • Patient ID: PT-2847</div>
+<div class="patient-status">
+<span class="status-badge active">Active</span>
+<span style="color: #666;">Last visit: 2 days ago • Recurring fever</span>
+</div>
+</div>
+<div class="patient-actions">
+<button class="btn-patient-action btn-view" onclick="event.stopPropagation(); viewPatientDetails(1)">View</button>
+<button class="btn-patient-action btn-contact" onclick="event.stopPropagation(); contactPatient(1)">Contact</button>
+</div>
+</div>
+
+<!-- Patient 2 - Follow-up -->
+<div class="patient-card" onclick="viewPatientDetails(2)">
+<div class="patient-avatar-large" style="background-color: #ffc107;">🤰</div>
+<div class="patient-details">
+<div class="patient-name">Grace Akinyi</div>
+<div class="patient-info">28 years old • Female • Patient ID: PT-2756</div>
+<div class="patient-status">
+<span class="status-badge followup">Follow-up Due</span>
+<span style="color: #666;">Last visit: 2 weeks ago • Antenatal checkup</span>
+</div>
+</div>
+<div class="patient-actions">
+<button class="btn-patient-action btn-view" onclick="event.stopPropagation(); viewPatientDetails(2)">View</button>
+<button class="btn-patient-action btn-contact" onclick="event.stopPropagation(); contactPatient(2)">Contact</button>
+</div>
+</div>
+
+<!-- Patient 3 - Active -->
+<div class="patient-card" onclick="viewPatientDetails(3)">
+<div class="patient-avatar-large" style="background-color: #28a745;">👦</div>
+<div class="patient-details">
+<div class="patient-name">Joshua Okello</div>
+<div class="patient-info">7 years old • Male • Patient ID: PT-2823</div>
+<div class="patient-status">
+<span class="status-badge active">Active</span>
+<span style="color: #666;">Last visit: 4 days ago • Malaria treatment</span>
+</div>
+</div>
+<div class="patient-actions">
+<button class="btn-patient-action btn-view" onclick="event.stopPropagation(); viewPatientDetails(3)">View</button>
+<button class="btn-patient-action btn-contact" onclick="event.stopPropagation(); contactPatient(3)">Contact</button>
+</div>
+</div>
+
+<!-- Patient 4 - Completed -->
+<div class="patient-card" onclick="viewPatientDetails(4)">
+<div class="patient-avatar-large" style="background-color: #999;">👧</div>
+<div class="patient-details">
+<div class="patient-name">Sarah Namugga</div>
+<div class="patient-info">5 years old • Female • Patient ID: PT-2801</div>
+<div class="patient-status">
+<span class="status-badge completed">Completed</span>
+<span style="color: #666;">Last visit: 1 month ago • Vaccination complete</span>
+</div>
+</div>
+<div class="patient-actions">
+<button class="btn-patient-action btn-view" onclick="event.stopPropagation(); viewPatientDetails(4)">View</button>
+<button class="btn-patient-action btn-contact" onclick="event.stopPropagation(); contactPatient(4)">Contact</button>
+</div>
+</div>
+
+<!-- Patient 5 - Follow-up -->
+<div class="patient-card" onclick="viewPatientDetails(5)">
+<div class="patient-avatar-large" style="background-color: #ffc107;">🧒</div>
+<div class="patient-details">
+<div class="patient-name">Moses Mugisha</div>
+<div class="patient-info">4 years old • Male • Patient ID: PT-2789</div>
+<div class="patient-status">
+<span class="status-badge followup">Follow-up Due</span>
+<span style="color: #666;">Last visit: 10 days ago • Respiratory infection</span>
+</div>
+</div>
+<div class="patient-actions">
+<button class="btn-patient-action btn-view" onclick="event.stopPropagation(); viewPatientDetails(5)">View</button>
+<button class="btn-patient-action btn-contact" onclick="event.stopPropagation(); contactPatient(5)">Contact</button>
+</div>
+</div>
+
+<!-- Patient 6 - Active -->
+<div class="patient-card" onclick="viewPatientDetails(6)">
+<div class="patient-avatar-large" style="background-color: #4a90e2;">👶</div>
+<div class="patient-details">
+<div class="patient-name">Baby Brian Ssemakula</div>
+<div class="patient-info">8 months old • Male • Patient ID: PT-2845</div>
+<div class="patient-status">
+<span class="status-badge active">Active</span>
+<span style="color: #666;">Last visit: 1 day ago • Routine checkup</span>
+</div>
+</div>
+<div class="patient-actions">
+<button class="btn-patient-action btn-view" onclick="event.stopPropagation(); viewPatientDetails(6)">View</button>
+<button class="btn-patient-action btn-contact" onclick="event.stopPropagation(); contactPatient(6)">Contact</button>
+</div>
+</div>
+
+<!-- Patient 7 - Active -->
+<div class="patient-card" onclick="viewPatientDetails(7)">
+<div class="patient-avatar-large" style="background-color: #e63946;">👧</div>
+<div class="patient-details">
+<div class="patient-name">Patricia Nabwire</div>
+<div class="patient-info">6 years old • Female • Patient ID: PT-2812</div>
+<div class="patient-status">
+<span class="status-badge active">Active</span>
+<span style="color: #666;">Last visit: 3 days ago • Skin condition</span>
+</div>
+</div>
+<div class="patient-actions">
+<button class="btn-patient-action btn-view" onclick="event.stopPropagation(); viewPatientDetails(7)">View</button>
+<button class="btn-patient-action btn-contact" onclick="event.stopPropagation(); contactPatient(7)">Contact</button>
+</div>
+</div>
+
+<!-- Patient 8 - Completed -->
+<div class="patient-card" onclick="viewPatientDetails(8)">
+<div class="patient-avatar-large" style="background-color: #999;">🧒</div>
+<div class="patient-details">
+<div class="patient-name">James Kato</div>
+<div class="patient-info">9 years old • Male • Patient ID: PT-2765</div>
+<div class="patient-status">
+<span class="status-badge completed">Completed</span>
+<span style="color: #666;">Last visit: 3 weeks ago • Dental checkup</span>
+</div>
+</div>
+<div class="patient-actions">
+<button class="btn-patient-action btn-view" onclick="event.stopPropagation(); viewPatientDetails(8)">View</button>
+<button class="btn-patient-action btn-contact" onclick="event.stopPropagation(); contactPatient(8)">Contact</button>
+</div>
+</div>
+
+<!-- Load More -->
+<div style="text-align: center; margin-top: 24px;">
+<button class="btn-answer" style="width: auto; padding: 12px 32px;">Load More Patients</button>
+</div>
+</div>
+</main>
+
+<!-- Right Sidebar -->
+<aside class="right-sidebar desktop-only">
+<div class="sidebar-card">
+<h3>Quick Actions</h3>
+<button class="quick-action-btn primary" onclick="addNewPatient()">+ Add New Patient</button>
+<button class="quick-action-btn secondary" onclick="scheduleFollowup()">📅 Schedule Follow-up</button>
+<button class="quick-action-btn tertiary" onclick="exportRecords()">📄 Export Records</button>
+</div>
+
+<div class="sidebar-card">
+<h3>Today's Schedule</h3>
+<div class="activity-list">
+<div class="activity-item">
+<div class="activity-text">Follow-up: Grace Akinyi</div>
+<div class="activity-time">10:00 AM</div>
+</div>
+<div class="activity-item">
+<div class="activity-text">Checkup: Baby Emma</div>
+<div class="activity-time">2:00 PM</div>
+</div>
+<div class="activity-item">
+<div class="activity-text">Consultation: Moses Mugisha</div>
+<div class="activity-time">4:30 PM</div>
+</div>
+</div>
+</div>
+
+<div class="urgent-help-card">
+<h3>Patient Care Tips</h3>
+<p style="font-size: 13px; line-height: 1.6;">
+• Maintain regular follow-ups<br>
+• Document all interactions<br>
+• Respond promptly to urgent cases<br>
+• Keep patient records updated
+</p>
+</div>
+</aside>
+</div>
+
+<script src="../js/doctor.js"></script>
+<script>
+function viewPatientDetails(id) {
+    alert(`👤 Opening Patient Record\n\nPatient ID: ${id}\n\nIn production, this would show:\n• Complete medical history\n• Previous consultations\n• Test results\n• Prescriptions\n• Treatment plans\n• Appointment history`);
+}
+
+function contactPatient(id) {
+    alert(`📱 Contact Patient\n\nPatient ID: ${id}\n\nContact options:\n• Send Message\n• Schedule Call\n• Send Reminder\n• Request Follow-up`);
+}
+
+function addNewPatient() {
+    alert(`➕ Add New Patient\n\nIn production, this would open a form to:\n• Register new patient\n• Enter personal details\n• Add medical history\n• Set up first appointment`);
+}
+
+function scheduleFollowup() {
+    alert(`📅 Schedule Follow-up\n\nThis would allow you to:\n• Select patient\n• Choose date and time\n• Set reminder\n• Send notification`);
+}
+
+function exportRecords() {
+    alert(`📄 Export Patient Records\n\nExport options:\n• Export all records (CSV/PDF)\n• Export selected patients\n• Generate reports\n• Download summary`);
+}
+
+// Search functionality
+document.getElementById('patientSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    console.log('Searching for:', searchTerm);
+    // In production, filter patient cards based on search
+});
+
+// Status filter
+document.getElementById('statusFilter').addEventListener('change', function() {
+    console.log('Filter by status:', this.value);
+});
+
+// Sort functionality
+document.getElementById('sortBy').addEventListener('change', function() {
+    console.log('Sort by:', this.value);
+});
+
+// Load doctor profile picture on page load
+window.addEventListener('DOMContentLoaded', function() {
+    const savedPicture = localStorage.getItem('doctorProfilePicture');
+    if (savedPicture) {
+        const avatars = ['patientsMobileAvatar', 'patientsDesktopAvatar'];
+        avatars.forEach(avatarId => {
+            const avatar = document.getElementById(avatarId);
+            if (avatar) {
+                avatar.textContent = '';
+                avatar.style.background = 'none';
+                const img = document.createElement('img');
+                img.src = savedPicture;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                avatar.appendChild(img);
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>

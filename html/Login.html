@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agocare - Login</title>
+    <link rel="stylesheet" href="../css/login.css">
+    <!-- <script src="../js/navigation.js"></script> -->
+    <!-- <script src="../js/api-client.js"></script> -->
+    <script src="../js/login.js"></script>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <h1 class="logo"><span class="text-red">Ago</span><span class="text-blue">care</span></h1>
+                <p id="header-subtitle">Welcome back! Please login to your account.</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)" method="post"
+            action="../php/login.php">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input name="username" type="text" id="login-username" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input name="password" type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <div class="form-actions">
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                </div>
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+
+            <!-- Footer -->
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="Signup.html">Sign up here</a></p>
+                <a href="patientDashboard.html">Continue as guest</a>
+            </div>
+        </div>
+    </div>
+    <script src="../js/login.js"></script>
+</body>
+</html>

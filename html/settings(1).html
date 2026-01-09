@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Agocare</title>
+    <link rel="stylesheet" href="../css/doctor.css">
+    <script src="../js/navigation.js"></script>
+</head>
+<body class="no-sidebar">
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h2>Menu</h2>
+            <button class="mobile-menu-close" id="mobileMenuClose">×</button>
+        </div>
+        
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">MAIN</div>
+                <a href="doctor-dashboard.html" class="mobile-menu-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="questions-feed.html" class="mobile-menu-item">
+                    <span class="nav-icon">❓</span>
+                    <span>Questions Feed</span>
+                </a>
+                <a href="my-patients.html" class="mobile-menu-item">
+                    <span class="nav-icon">👥</span>
+                    <span>My Patients</span>
+                </a>
+                <a href="appointments.html" class="mobile-menu-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Appointments</span>
+                </a>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">RESOURCES</div>
+                <a href="medical-library(1).html" class="mobile-menu-item">
+                    <span class="nav-icon">📚</span>
+                    <span>Medical Library</span>
+                </a>
+                <a href="analytics.html" class="mobile-menu-item">
+                    <span class="nav-icon">📊</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="settings(1).html" class="mobile-menu-item active">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-label">ACCOUNT</div>
+                <div class="mobile-menu-profile">
+                    <div class="user-avatar" id="settingsMobileAvatar">DN</div>
+                    <div>
+                        <div class="mobile-profile-name">Dr. Nabirye</div>
+                        <div class="mobile-profile-specialty">Pediatrician</div>
+                    </div>
+                </div>
+                <a href="doctor-profile(1).html" class="mobile-menu-item">
+                    <span class="nav-icon">👤</span>
+                    <span>My Profile</span>
+                </a>
+                <a href="#" class="mobile-menu-item" data-page="logout">
+                    <span class="nav-icon">🚪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="logo">Ago<span>care</span></div>
+            <div class="header-icons desktop-only">
+                <button class="icon-btn">📍</button>
+                <button class="icon-btn">🔔</button>
+                <button class="icon-btn">👤</button>
+            </div>
+            <div class="search-bar desktop-only">
+                <span>🔍</span>
+                <input type="text" placeholder="Search Agocare...">
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-info desktop-only">
+                <div class="user-avatar" id="settingsDesktopAvatar">DN</div>
+                <span>Dr. Nabirye</span>
+            </div>
+            <button class="ask-question-btn">Ask Question</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar desktop-only">
+            <nav class="nav-section">
+                <div class="category-header">MAIN</div>
+                <a href="doctor-dashboard.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">❓</span>
+                    <span>Questions Feed</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>My Patients</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Appointments</span>
+                </a>
+            </nav>
+
+            <div class="nav-section">
+                <div class="category-header">RESOURCES</div>
+                <a href="medical-library(1).html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>Medical Library</span>
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="settings(1).html" class="nav-item active">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 style="margin-bottom: 24px;">⚙️ Settings</h1>
+
+            <!-- Notification Settings -->
+            <div class="section-card">
+                <h2>🔔 Notification Settings</h2>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Email Notifications</strong>
+                        <p>Receive email updates for new questions and appointments</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="emailNotif" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Push Notifications</strong>
+                        <p>Get instant push notifications on your device</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pushNotif" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>SMS Alerts</strong>
+                        <p>Receive SMS for urgent patient questions</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="smsNotif">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Privacy Settings -->
+            <div class="section-card">
+                <h2>🔒 Privacy Settings</h2>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Profile Visibility</strong>
+                        <p>Make your profile visible to patients searching for doctors</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="profileVisible" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Show Online Status</strong>
+                        <p>Let patients know when you're available</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="onlineStatus" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Accept New Patients</strong>
+                        <p>Allow new patients to book appointments with you</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="acceptPatients" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Availability Settings -->
+            <div class="section-card">
+                <h2>📅 Availability Settings</h2>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Consultation Fee</strong>
+                        <p>Set your consultation fee per session</p>
+                    </div>
+                    <input type="number" class="setting-input" value="50000" placeholder="Amount in UGX">
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Session Duration</strong>
+                        <p>Default duration for each consultation</p>
+                    </div>
+                    <select class="setting-input">
+                        <option value="15">15 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60">60 minutes</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Automatic Replies</strong>
+                        <p>Send automatic acknowledgment when patients ask questions</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoReply" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="section-card">
+                <h2>🔐 Security Settings</h2>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Two-Factor Authentication</strong>
+                        <p>Add an extra layer of security to your account</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="twoFactor">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Change Password</strong>
+                        <p>Update your account password</p>
+                    </div>
+                    <button class="setting-btn">Change Password</button>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <strong>Login Sessions</strong>
+                        <p>View and manage active login sessions</p>
+                    </div>
+                    <button class="setting-btn">Manage Sessions</button>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="section-card" style="text-align: center;">
+                <button class="btn-save-settings" onclick="saveSettings()">💾 Save Settings</button>
+                <button class="btn-cancel-settings" onclick="window.history.back()">Cancel</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/doctor.js"></script>
+    <script>
+        function saveSettings() {
+            // In production: API call to save settings
+            alert('✅ Settings Saved Successfully!\n\nYour preferences have been updated.');
+            console.log('Settings saved:', {
+                emailNotif: document.getElementById('emailNotif').checked,
+                pushNotif: document.getElementById('pushNotif').checked,
+                smsNotif: document.getElementById('smsNotif').checked,
+                profileVisible: document.getElementById('profileVisible').checked,
+                onlineStatus: document.getElementById('onlineStatus').checked,
+                acceptPatients: document.getElementById('acceptPatients').checked,
+                autoReply: document.getElementById('autoReply').checked,
+                twoFactor: document.getElementById('twoFactor').checked
+            });
+        }
+
+        // Load doctor profile picture on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedPicture = localStorage.getItem('doctorProfilePicture');
+            if (savedPicture) {
+                const avatars = ['settingsMobileAvatar', 'settingsDesktopAvatar'];
+                avatars.forEach(avatarId => {
+                    const avatar = document.getElementById(avatarId);
+                    if (avatar) {
+                        avatar.textContent = '';
+                        avatar.style.background = 'none';
+                        const img = document.createElement('img');
+                        img.src = savedPicture;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.borderRadius = '50%';
+                        img.style.objectFit = 'cover';
+                        avatar.appendChild(img);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

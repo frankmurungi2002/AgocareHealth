@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgoCare Admin Dashboard</title>
+    <script src="../js/navigation.js"></script>
+    <script src="../js/admin.js"></script>
+    <link rel="stylesheet" href="../css/AdminDassboardstyle.css">
+</head>
+<body onload="requireRole('admin')">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-section">
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            <div class="logo" onclick="goHome()">
+                <span class="logo-ago">Ago</span><span class="logo-care">care</span>
+            </div>
+            <div class="top-icons">
+                <div class="icon-btn" onclick="goHome()">🏠</div>
+                <div class="icon-btn" onclick="openMessages()">@</div>
+                <div class="icon-btn" onclick="openProfile()">👤</div>
+                <span class="all-text">All that</span>
+            </div>
+        </div>
+        
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search Agocare..." id="searchInput">
+        </div>
+
+        <div class="user-info">
+            <span id="adminName" style="font-size: 14px; color: #666;">Jane Doe</span>
+            <div class="user-avatar" id="adminAvatar" onclick="openProfile()">JD</div>
+            <button class="add-question-btn" onclick="openProfile()">Admin Settings</button>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileMenu()"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-item active" onclick="switchTab('home')">
+                    <span class="sidebar-icon">📊</span>
+                    <span>Home</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('medical-centers')">
+                    <span class="sidebar-icon">🏥</span>
+                    <span>Medical Centers</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('dashboard')">
+                    <span class="sidebar-icon">👤</span>
+                    <span>My Dashboard</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">Categories</div>
+                <div class="sidebar-item" onclick="switchTab('pediatrics')">
+                    <span class="sidebar-icon">👶</span>
+                    <span>Pediatrics</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('pregnancy')">
+                    <span class="sidebar-icon">🤰</span>
+                    <span>Pregnancy</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('infectious')">
+                    <span class="sidebar-icon">🦠</span>
+                    <span>Infectious Diseases</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('sexual')">
+                    <span class="sidebar-icon">❤️</span>
+                    <span>Sexual Health</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('mental')">
+                    <span class="sidebar-icon">🧠</span>
+                    <span>Mental Health</span>
+                </div>
+                <div class="sidebar-item" style="color: #4a90e2;" onclick="showToast('Loading all topics...', 'success')">
+                    <span>See all topics</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">Resources</div>
+                <div class="sidebar-item" onclick="showToast('Loading emergency contacts...', 'success')">
+                    <span class="sidebar-icon">📞</span>
+                    <span>Emergency Contacts</span>
+                </div>
+                <div class="sidebar-item" onclick="showToast('Admin Panel - Current page', 'success')">
+                    <span class="sidebar-icon">🏛️</span>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Admin Dashboard</h1>
+                <div class="header-buttons">
+                    <button class="export-btn" onclick="exportReport()">Export Report</button>
+                    <button class="settings-btn" onclick="showToast('Opening settings...', 'success')">Settings</button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card" data-target="users">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value">355</div>
+                    <div class="stat-change">↑ 65% this week</div>
+                </div>
+                <div class="stat-card" data-target="doctors">
+                    <div class="stat-label">Doctors</div>
+                    <div class="stat-value">85</div>
+                    <div class="stat-change">10 Pending Verification</div>
+                </div>
+                <div class="stat-card" data-target="questions">
+                    <div class="stat-label">Questions</div>
+                    <div class="stat-value">3,204</div>
+                    <div class="stat-change">↑ 5% this week</div>
+                </div>
+                <div class="stat-card" data-target="reports">
+                    <div class="stat-label">Reports</div>
+                    <div class="stat-value">5</div>
+                    <div class="stat-change">Needs Action</div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Pending Doctor Verifications -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Pending Doctor Verifications</h3>
+                        <span class="pending-badge">2 Pending</span>
+                    </div>
+                    <div class="doctor-item">
+                        <div class="doctor-info">
+                            <h4>Dr. Peter Musisi</h4>
+                            <p>LMCMC-4552</p>
+                        </div>
+                        <button class="approve-btn" onclick="approveDoctor('Dr. Peter Musisi')">Approve</button>
+                    </div>
+                    <div class="doctor-item">
+                        <div class="doctor-info">
+                            <h4>Dr. Grace Atiao</h4>
+                            <p>LMCMC-8821</p>
+                        </div>
+                        <button class="approve-btn" onclick="approveDoctor('Dr. Grace Atiao')">Approve</button>
+                    </div>
+                    <div class="view-all-link" onclick="showToast('Loading all pending verifications...', 'success')">View All Requests</div>
+                </div>
+
+                <!-- Flagged Content -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Flagged Content</h3>
+                    </div>
+                    <div class="flagged-item">
+                        <div class="flagged-header">
+                            <span class="alert-icon">⚠️</span>
+                            <div class="flagged-title">User comment containing misinformation about vaccines</div>
+                        </div>
+                        <div class="flagged-meta">Reported by 2 users • 5 hours ago</div>
+                        <div class="action-buttons">
+                            <button class="delete-btn" onclick="deleteContent('vaccine comment')">Delete</button>
+                            <button class="ignore-btn" onclick="ignore Report('vaccine comment')">Ignore</button>
+                        </div>
+                    </div>
+                    <div class="flagged-item">
+                        <div class="flagged-header">
+                            <span class="alert-icon">⚠️</span>
+                            <div class="flagged-title">Spam link posted in nutrition topic</div>
+                        </div>
+                        <div class="flagged-meta">Reported by 1 user • 6 hours ago</div>
+                        <div class="action-buttons">
+                            <button class="delete-btn" onclick="deleteContent('spam link')">Delete</button>
+                            <button class="ignore-btn" onclick="ignoreReport('spam link')">Ignore</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar -->
+                <div>
+                    <div class="help-card">
+                        <h3 class="help-title">Need Urgent Help?</h3>
+                        <p class="help-text">Connect with verified specialists instantly via chat or video consultation</p>
+                        <button class="talk-btn" onclick="showToast('Connecting to available doctor...', 'success')">
+                            <span>💬</span>
+                            <span>Talk to Doctor</span>
+                        </button>
+                    </div>
+
+                    <div class="trending-section">
+                        <h3 class="trending-title">Trending in Uganda</h3>
+                        <div class="trending-item" onclick="showToast('Opening: Malaria Prevention', 'success')">
+                            <h4>Malaria Prevention in Rainy Season</h4>
+                            <p class="trending-meta">Health • 2.4k views</p>
+                        </div>
+                        <div class="trending-item" onclick="showToast('Opening: Red Eye Alert', 'success')">
+                            <h4>Red Eye Conjunctivitis Alert</h4>
+                            <p class="trending-meta">Alert • 1.8k views</p>
+                        </div>
+                        <div class="trending-item" onclick="showToast('Opening: Antenatal Care', 'success')">
+                            <h4>Free Antenatal Care Camps</h4>
+                            <p class="trending-meta">Health • 1.2k views</p>
+                        </div>
+                    </div>
+
+                    <div class="contributor-card">
+                        <h3 class="contributor-header">Top Contributor</h3>
+                        <div class="contributor-profile">
+                            <div class="contributor-avatar"></div>
+                            <div class="contributor-info">
+                                <h4>Dr. Sarah Nabirye</h4>
+                                <p>Pediatrician • 433 Answers</p>
+                            </div>
+                        </div>
+                        <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Admin Profile Modal -->
+    <div class="profile-modal-overlay" id="profileModalOverlay" onclick="closeProfile()"></div>
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-modal-header">
+            <h2>Admin Profile</h2>
+            <button class="profile-close-btn" onclick="closeProfile()">×</button>
+        </div>
+        <form class="profile-form" onsubmit="saveProfile(event)">
+            <div class="profile-field profile-avatar-field">
+                <label>Profile picture</label>
+                <div class="profile-avatar-row">
+                    <div class="user-avatar profile-avatar-preview" id="profileAvatarPreview">JD</div>
+                    <input type="file" id="profileAvatarFile" accept="image/*">
+                </div>
+            </div>
+            <div class="profile-field">
+                <label for="profileName">Full name</label>
+                <input type="text" id="profileName" required>
+            </div>
+            <div class="profile-field">
+                <label for="profileEmail">Email</label>
+                <input type="email" id="profileEmail" placeholder="admin@example.com">
+            </div>
+            <div class="profile-field">
+                <label for="profileRole">Role</label>
+                <input type="text" id="profileRole" placeholder="System Administrator">
+            </div>
+            <div class="profile-actions">
+                <button type="button" class="profile-btn secondary" onclick="closeProfile()">Cancel</button>
+                <button type="submit" class="profile-btn primary">Save</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

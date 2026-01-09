@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Centers - AgoCare Admin</title>
+    <script src="../js/navigation.js"></script>
+    <script src="../js/admin.js"></script>
+    <link rel="stylesheet" href="../css/AdminDassboardstyle.css">
+    <link rel="stylesheet" href="../css/medical_centers.css">
+</head>
+<body onload="requireAuth()">
+    <div class="top-bar">
+        <div class="logo-section">
+            <button class="mobile-menu-btn" onclick="navigateToDashboard()">←</button>
+            <div class="logo" onclick="navigateToDashboard()">
+                <span class="logo-ago">Ago</span><span class="logo-care">care</span>
+            </div>
+        </div>
+        <div class="user-info">
+            <span style="font-size: 14px; color: #666;">Manage Medical Centers</span>
+        </div>
+    </div>
+
+    <div class="mc-container">
+        <div class="mc-header">
+            <div>
+                <div class="mc-title">Medical Centers</div>
+                <div style="font-size: 13px; color: #777; margin-top: 4px;">
+                    Track centers in the system, block or remove them, and choose which ones are featured at the top for users.
+                </div>
+            </div>
+            <div class="mc-actions">
+                <button class="mc-btn secondary" onclick="window.location.href='agocare_admin_exact (1).html'">Back to Dashboard</button>
+                <button class="mc-btn primary" onclick="openAddCenter()">+ Add Center</button>
+            </div>
+        </div>
+
+        <div class="mc-search">
+            <input type="text" id="mcSearch" placeholder="Search medical centers by name or district...">
+        </div>
+
+        <div class="mc-table-wrapper">
+            <table class="mc-table" id="mcTable">
+                <thead>
+                    <tr>
+                        <th>Center</th>
+                        <th>District</th>
+                        <th>Status</th>
+                        <th>Featured</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="mcBody">
+                    <!-- Rows are injected by script -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Simple add/edit prompt uses browser prompt for now -->
+    <script>
+        const centers = [
+            { id: 1, name: 'Mulago National Referral Hospital', district: 'Kampala', status: 'active', featured: true },
+            { id: 2, name: 'Mbarara Regional Referral Hospital', district: 'Mbarara', status: 'active', featured: false },
+            { id: 3, name: 'Gulu Regional Referral Hospital', district: 'Gulu', status: 'blocked', featured: false },
+            { id: 4, name: 'Lira Community Health Centre', district: 'Lira', status: 'active', featured: false }
+        ];
+
+        function renderCenters(filter = '') {
+            const body = document.getElementById('mcBody');
+            if (!body) return;
+            body.innerHTML = '';
+
+            const term = filter.toLowerCase();
+
+            // Featured centers first, then others
+            const sorted = [...centers].sort((a, b) => {
+                if (a.featured === b.featured) return a.name.localeCompare(b.name);
+                return a.featured ? -1 : 1;
+            });
+
+            sorted
+                .filter(c => !term || c.name.toLowerCase().includes(term) || c.district.toLowerCase().includes(term))
+                .forEach(center => {
+                    const tr = document.createElement('tr');
+
+                    const nameTd = document.createElement('td');
+                    nameTd.textContent = center.name;
+                    if (center.featured) {
+                        const badge = document.createElement('span');
+                        badge.className = 'mc-badge-top';
+                        badge.textContent = ' • Featured to users';
+                        nameTd.appendChild(badge);
+                    }
+
+                    const districtTd = document.createElement('td');
+                    districtTd.textContent = center.district;
+
+                    const statusTd = document.createElement('td');
+                    const statusSpan = document.createElement('span');
+                    statusSpan.className = 'mc-status ' + (center.status === 'blocked' ? 'blocked' : 'active');
+                    statusSpan.textContent = center.status === 'blocked' ? 'Blocked' : 'Active';
+                    statusTd.appendChild(statusSpan);
+
+                    const featuredTd = document.createElement('td');
+                    featuredTd.textContent = center.featured ? 'Yes' : 'No';
+
+                    const actionsTd = document.createElement('td');
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'mc-row-actions';
+
+                    const featureBtn = document.createElement('button');
+                    featureBtn.className = 'feature';
+                    featureBtn.textContent = center.featured ? 'Unfeature' : 'Feature';
+                    featureBtn.onclick = () => toggleFeatured(center.id);
+
+                    const blockBtn = document.createElement('button');
+                    if (center.status === 'blocked') {
+                        blockBtn.className = 'unblock';
+                        blockBtn.textContent = 'Unblock';
+                    } else {
+                        blockBtn.className = 'block';
+                        blockBtn.textContent = 'Block';
+                    }
+                    blockBtn.onclick = () => toggleBlocked(center.id);
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove';
+                    removeBtn.textContent = 'Remove';
+                    removeBtn.onclick = () => removeCenter(center.id);
+
+                    actionsDiv.appendChild(featureBtn);
+                    actionsDiv.appendChild(blockBtn);
+                    actionsDiv.appendChild(removeBtn);
+                    actionsTd.appendChild(actionsDiv);
+
+                    tr.appendChild(nameTd);
+                    tr.appendChild(districtTd);
+                    tr.appendChild(statusTd);
+                    tr.appendChild(featuredTd);
+                    tr.appendChild(actionsTd);
+
+                    body.appendChild(tr);
+                });
+        }
+
+        function toggleFeatured(id) {
+            const center = centers.find(c => c.id === id);
+            if (!center) return;
+            center.featured = !center.featured;
+            renderCenters(document.getElementById('mcSearch').value);
+        }
+
+        function toggleBlocked(id) {
+            const center = centers.find(c => c.id === id);
+            if (!center) return;
+            center.status = center.status === 'blocked' ? 'active' : 'blocked';
+            renderCenters(document.getElementById('mcSearch').value);
+        }
+
+        function removeCenter(id) {
+            const idx = centers.findIndex(c => c.id === id);
+            if (idx === -1) return;
+            if (confirm('Remove this medical center from the system?')) {
+                centers.splice(idx, 1);
+                renderCenters(document.getElementById('mcSearch').value);
+            }
+        }
+
+        function openAddCenter() {
+            const name = prompt('Enter medical center name:');
+            if (!name) return;
+            const district = prompt('Enter district:');
+            if (!district) return;
+            const id = Date.now();
+            centers.push({ id, name, district, status: 'active', featured: false });
+            renderCenters(document.getElementById('mcSearch').value);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('mcSearch');
+            if (search) {
+                search.addEventListener('input', () => renderCenters(search.value));
+            }
+            renderCenters();
+        });
+    </script>
+</body>
+</html>
+
+
