@@ -1,0 +1,130 @@
+.mc-container {
+    padding: 30px;
+}
+.mc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.mc-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+.mc-actions {
+    display: flex;
+    gap: 10px;
+}
+.mc-btn {
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+.mc-btn.primary {
+    background: #4a90e2;
+    color: #fff;
+}
+.mc-btn.secondary {
+    background: #f5f5f5;
+    color: #333;
+}
+.mc-table-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+table.mc-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.mc-table thead {
+    background: #fafafa;
+}
+.mc-table th,
+.mc-table td {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+}
+.mc-table th {
+    color: #777;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+.mc-status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.mc-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+.mc-status.blocked {
+    background: #f8d7da;
+    color: #721c24;
+}
+.mc-status.featured {
+    background: #fff3cd;
+    color: #856404;
+}
+.mc-row-actions {
+    display: flex;
+    gap: 6px;
+}
+.mc-row-actions button {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+}
+.mc-row-actions .feature {
+    background: #4a90e2;
+    color: #fff;
+}
+.mc-row-actions .block {
+    background: #ff6b6b;
+    color: #fff;
+}
+.mc-row-actions .unblock {
+    background: #27ae60;
+    color: #fff;
+}
+.mc-row-actions .remove {
+    background: #999;
+    color: #fff;
+}
+.mc-badge-top {
+    font-size: 11px;
+    color: #4a90e2;
+    font-weight: 600;
+}
+.mc-search {
+    margin-bottom: 15px;
+}
+.mc-search input {
+    width: 100%;
+    max-width: 320px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+.mc-pill {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #f0f4ff;
+    color: #4a90e2;
+    margin-left: 8px;
+}
+
+

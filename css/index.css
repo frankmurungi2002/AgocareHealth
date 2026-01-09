@@ -1,0 +1,149 @@
+/* index.html styles */
+
+.sidebar-scroll { 
+    height: calc(100vh - 96px); 
+}
+
+.sidebar-item.active {
+    background-color: #fef2f2;
+    color: #dc2626;
+    font-weight: 600;
+}
+
+article[data-category] { 
+    display: block; 
+}
+
+article[data-category].hidden { 
+    display: none; 
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.modal-content h2 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.modal-content p {
+    margin-bottom: 1.5rem;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.modal-btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-btn-primary {
+    background-color: #dc2626;
+    color: white;
+}
+
+.modal-btn-primary:hover {
+    background-color: #b91c1c;
+}
+
+.modal-btn-secondary {
+    background-color: #e5e7eb;
+    color: #1f2937;
+}
+
+.modal-btn-secondary:hover {
+    background-color: #d1d5db;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+/* User menu styles */
+#user-menu {
+    display: none; 
+    position: absolute; 
+    top: 70px; 
+    right: 20px; 
+    background: white; 
+    border: 1px solid #e5e7eb; 
+    border-radius: 0.375rem; 
+    padding: 0.5rem 0; 
+    min-width: 160px; 
+    z-index: 50; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#user-section {
+    display: none;
+}
+
+/* Link styles */
+a[href="index.html"] {
+    text-decoration: none;
+}
+
+a[href="patientDashboard.html"],
+a[href="settings(1).html"],
+a[href="doctor-profile(1).html"] {
+    padding: 0.5rem 1rem;
+    color: #1f2937;
+    text-decoration: none;
+    display: block;
+    font-size: 0.875rem;
+}
+
+hr {
+    margin: 0.25rem 0;
+    border: none;
+    border-top: 1px solid #e5e7eb;
+}
+
+a[onclick*="logout"] {
+    padding: 0.5rem 1rem;
+    color: #dc2626;
+    text-decoration: none;
+    display: block;
+    font-size: 0.875rem;
+}
