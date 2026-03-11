@@ -1,0 +1,320 @@
+/* index.html styles - Professional Healthcare Theme */
+
+/* Base Styles */
+body {
+    background-color: #f8fafc;
+}
+
+/* Sidebar */
+.sidebar-scroll { 
+    height: calc(100vh - 96px); 
+}
+
+.sidebar-item.active {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    color: #dc2626;
+    font-weight: 600;
+    border-left: 3px solid #dc2626;
+}
+
+/* Question Cards - Professional Style */
+article[data-category] { 
+    display: block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e5e7eb;
+}
+
+article[data-category]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+article[data-category].hidden { 
+    display: none; 
+}
+
+/* Modal Overlay - Professional */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+/* Modal Content - Clean & Professional */
+.modal-content {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    position: relative;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.modal-content p {
+    margin-bottom: 1.5rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Modal Buttons - Professional */
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.modal-btn {
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.modal-btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+}
+
+.modal-btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.modal-btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #f3f4f6;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.modal-close-btn:hover {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+/* Form Elements in Modals */
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background: #f9fafb;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background: white;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+/* User menu styles */
+#user-menu {
+    display: none; 
+    position: absolute; 
+    top: 70px; 
+    right: 20px; 
+    background: white; 
+    border: 1px solid #e5e7eb; 
+    border-radius: 0.75rem; 
+    padding: 0.5rem 0; 
+    min-width: 180px; 
+    z-index: 50; 
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    animation: slideUp 0.2s ease;
+}
+
+#user-menu a {
+    padding: 0.75rem 1rem;
+    color: #374151;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+#user-menu a:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+#user-section {
+    display: none;
+}
+
+/* Link styles */
+a[href="index.html"] {
+    text-decoration: none;
+}
+
+a[href="patientDashboard.html"],
+a[href="settings(1).html"],
+a[href="doctor-profile(1).html"] {
+    padding: 0.75rem 1rem;
+    color: #374151;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+a[href="patientDashboard.html"]:hover,
+a[href="settings(1).html"]:hover,
+a[href="doctor-profile(1).html"]:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+hr {
+    margin: 0.5rem 0;
+    border: none;
+    border-top: 1px solid #e5e7eb;
+}
+
+a[onclick*="logout"] {
+    padding: 0.75rem 1rem;
+    color: #dc2626;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+}
+
+a[onclick*="logout"]:hover {
+    background: #fef2f2;
+}
+
+/* Question Card Enhancements */
+.question-card {
+    transition: all 0.3s ease;
+}
+
+.question-card:hover {
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+}
+
+/* Category Badges - Professional */
+.category-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Answer Button - Professional */
+.answer-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.answer-btn:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+}
+
+/* Ask Question Button - Professional */
+.ask-question-btn {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3);
+}
+
+.ask-question-btn:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.4);
+}

@@ -364,3 +364,132 @@ header {
         grid-template-columns: repeat(4, 1fr);
     }
 }
+
+/* ===== RESPONSIVE: TABLET (max 768px) ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 16px;
+    }
+
+    .welcome {
+        padding: 20px;
+    }
+
+    .welcome h1 {
+        font-size: 20px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .ask-btn {
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+
+    .section {
+        padding: 16px;
+    }
+}
+
+/* ===== RESPONSIVE: MOBILE (max 480px) ===== */
+@media (max-width: 480px) {
+    header {
+        padding: 12px 16px;
+    }
+
+    .logo {
+        font-size: 16px;
+    }
+
+    .ask-btn {
+        padding: 7px 12px;
+        font-size: 13px;
+        border-radius: 16px;
+    }
+
+    .container {
+        padding: 12px;
+    }
+
+    .welcome {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .welcome h1 {
+        font-size: 17px;
+    }
+
+    .welcome p {
+        font-size: 13px;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 14px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    .section {
+        padding: 14px;
+    }
+
+    .section h2 {
+        font-size: 16px;
+    }
+
+    .question-item {
+        padding: 12px;
+    }
+
+    .question-text {
+        font-size: 13px;
+    }
+
+    .btn-answer {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .modal-content {
+        padding: 16px;
+        width: 95%;
+    }
+
+    .modal-header h2 {
+        font-size: 16px;
+    }
+}
+
+/* ===== RESPONSIVE: VERY SMALL (max 360px) ===== */
+@media (max-width: 360px) {
+    .logo {
+        font-size: 14px;
+    }
+
+    .ask-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .welcome h1 {
+        font-size: 15px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+}

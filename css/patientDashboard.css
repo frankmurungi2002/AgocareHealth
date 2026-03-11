@@ -189,3 +189,32 @@ a[onclick*="logout"] {
     display: block;
     font-size: 0.875rem;
 }
+
+/* ===== RESPONSIVE: MOBILE ===== */
+@media (max-width: 1024px) {
+    .sidebar-scroll {
+        height: auto;
+        max-height: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .modal-content {
+        padding: 1.25rem;
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .modal-header h2 {
+        font-size: 1rem;
+    }
+
+    .form-buttons {
+        flex-direction: column;
+    }
+
+    #user-menu {
+        right: 8px;
+        min-width: 140px;
+    }
+}

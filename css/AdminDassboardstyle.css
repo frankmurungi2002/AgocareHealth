@@ -853,24 +853,26 @@ body {
 
     .header-buttons {
         width: 100%;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .export-btn, .settings-btn {
-        width: 100%;
+        flex: 1;
+        min-width: 120px;
     }
 
     .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
 
     .dashboard-title {
-        font-size: 24px;
+        font-size: 22px;
     }
 
     .stat-value {
-        font-size: 28px;
+        font-size: 26px;
     }
 }
 
