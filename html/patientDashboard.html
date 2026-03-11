@@ -1,486 +1,493 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%; overflow: hidden; margin: 0; padding-bottom: 20px;">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Patient Dashboard</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="../js/navigation.js"></script>
+        <script src="../js/api-client.js"></script>
         <script src="../js/patientDashboard.js"></script>
         <link rel="stylesheet" href="../css/patientDashboard.css">
+        <link rel="stylesheet" href="../css/questions-modern.css">
+        <link rel="stylesheet" href="../css/logo.css">
+        <link rel="stylesheet" href="../css/doctor.css">
+        <link rel="stylesheet" href="../css/modern.css">
+        <style>
+            /* Custom scrollbar for sidebars */ 
+            .left-sidebar-scroll::-webkit-scrollbar { display: none; }
+            .main-feed::-webkit-scrollbar { display: none; }
+            .right-sidebar-scroll::-webkit-scrollbar { display: none; }
+        </style>
+        <style>
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            /* Hide scrollbars but keep functionality */
+            .scroll-section::-webkit-scrollbar { display: none; }
+            .scroll-section { scrollbar-width: none; -ms-overflow-style: none; }
+        </style>
     </head>
-    <body class="bg-gray-100 text-gray-800" onload="requireAuth()">
-        <!-- Header -->
-        <header class="bg-white shadow">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <div class="flex items-center space-x-4">
-                        <a href="patientDashboard.html" style="text-decoration: none;">
-                            <div class="text-2xl font-extrabold text-blue-600">Ago<span class="text-red-500">care</span></div>
-                        </a>
-                        <nav class="hidden md:flex items-center space-x-3 text-sm text-gray-600">
-                            <a href="patientDashboard.html" class="px-2 py-1 rounded hover:bg-gray-50">Home</a>
-                            <a href="medical_centers.html" class="px-2 py-1 rounded hover:bg-gray-50">Medical Centers</a>
-                            <a href="medical-library(1).html" class="px-2 py-1 rounded hover:bg-gray-50">Medical Library</a>
-                        </nav>
-                    </div>
+    <body style="min-height: 100vh; background: #f8fafc; color: #1f2937; margin: 0; padding: 0; overflow: hidden;">
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
-                    <div class="flex-1 mx-6">
-                        <div class="relative">
-                            <input type="text" placeholder="Search Agocare..." class="w-full rounded-md border-gray-200 shadow-sm focus:ring-0" />
-                        </div>
-                    </div>
+        <!-- Modern Header - Fixed at top -->
+        <header style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: white; border-bottom: 1px solid #e5e7eb; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; height: 60px; box-sizing: border-box;">
+            <!-- Left side: Logo -->
+            <div style="display: flex; align-items: center;">
+                <a href="patientDashboard.html" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                    <img src="../images/logo.svg" alt="Agocare" style="height: 40px;">
+                </a>
+            </div>
 
-                    <div class="flex items-center space-x-4">
-                        <div class="hidden sm:flex items-center space-x-3">
-                            <span id="user-name" class="text-sm">User</span>
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-400 cursor-pointer" id="patientAvatar" onclick="toggleUserMenu()" style="position: relative; overflow: hidden;"></div>
+            <!-- Center: Search -->
+            <div style="flex: 1; max-width: 400px; position: relative; margin: 0 24px;">
+                <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" placeholder="Search questions, topics, doctors..." id="patientSearchInput" style="width: 100%; padding: 8px 12px 8px 40px; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 14px;">
+            </div>
+
+            <!-- Right: Login/Signup or User buttons -->
+            <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+                <!-- Guest Section -->
+                <div id="guest-section" style="display: flex; align-items: center; gap: 12px;">
+                    <a href="Login.html" style="padding: 8px 16px; color: #4b5563; text-decoration: none; font-weight: 500;">Login</a>
+                    <a href="Signup.html" style="padding: 8px 20px; background: #0d9488; color: white; text-decoration: none; border-radius: 20px; font-weight: 600; font-size: 14px;">Sign Up</a>
+                </div>
+
+                <!-- User Section -->
+                <div id="user-section" style="display: none; align-items: center; gap: 12px;">
+                    <button style="display: flex; align-items: center; gap: 8px; padding: 8px 20px; background: #0d9488; color: white; border: none; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer;" onclick="document.getElementById('askQuestionModal').classList.add('show');">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 5v14M5 12h14"/></svg>
+                        Ask Question
+                    </button>
+                    <button title="Notifications" onclick="toggleNotifications()" style="padding: 8px; background: none; border: none; cursor: pointer; position: relative;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" width="20" height="20">
+                            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                        </svg>
+                        <span id="notification-badge" style="display: none; position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 2px solid white;"></span>
+                    </button>
+                    <div>
+                        <div id="patientAvatar" onclick="toggleUserMenu()" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0d9488, #14b8a6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; cursor: pointer;">
                             <input type="file" id="patientProfilePicInput" accept="image/*" style="display: none;" onchange="updatePatientProfilePicture(event)">
                         </div>
-                        <button class="bg-red-500 text-white px-4 py-2 rounded-full text-sm" onclick="openAskQuestionModal()">Add Question</button>
                     </div>
                 </div>
             </div>
-
-            <!-- User Menu Dropdown -->
-            <div id="user-menu" style="display: none; position: absolute; top: 70px; right: 20px; background: white; border: 1px solid #e5e7eb; border-radius: 0.375rem; padding: 0.5rem 0; min-width: 160px; z-index: 50; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <a href="#" onclick="openPatientProfileEditor(); return false;" style="padding: 0.5rem 1rem; color: #1f2937; text-decoration: none; display: block; font-size: 0.875rem;">Edit Profile</a>
-                <a href="settings(1).html" style="padding: 0.5rem 1rem; color: #1f2937; text-decoration: none; display: block; font-size: 0.875rem;">Settings</a>
-                <hr style="margin: 0.25rem 0; border: none; border-top: 1px solid #e5e7eb;">
-                <a href="#" onclick="logout(); return false;" style="padding: 0.5rem 1rem; color: #dc2626; text-decoration: none; display: block; font-size: 0.875rem;">Logout</a>
-            </div>
         </header>
 
+        <!-- User Menu Dropdown -->
+        <div id="user-menu" style="display: none; position: absolute; top: 60px; right: 20px; min-width: 200px; padding: 0; z-index: 2500;">
+            <div class="user-menu-header">
+                <div id="user-name" class="user-menu-name">User</div>
+                <div id="user-email" class="user-menu-email"></div>
+            </div>
+            <div style="padding: 4px 0;">
+                <a href="#" onclick="openPatientProfileEditor(); return false;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Edit Profile
+                </a>
+                <a href="settings(1).html">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    Settings
+                </a>
+            </div>
+            <div class="logout-item">
+                <a href="#" onclick="logout(); return false;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                    Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Notifications Dropdown -->
+        <div id="notifications-menu" style="display: none; position: absolute; top: 60px; right: 80px; width: 320px; max-height: 400px; background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 0; z-index: 2500; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12); overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: #1f2937; font-size: 14px;">Notifications</span>
+                <button onclick="markAllNotificationsRead()" style="background: none; border: none; color: #0d9488; font-size: 12px; cursor: pointer;">Mark all read</button>
+            </div>
+            <div id="notifications-list" style="max-height: 320px; overflow-y: auto;">
+                <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2" width="32" height="32" style="margin: 0 auto 8px;">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                    No new notifications
+                </div>
+            </div>
+        </div>
+
         <script>
+            // Toast notifications
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const icons = {
+                    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>',
+                    error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                    warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+                };
+                
+                toast.innerHTML = `
+                    <span class="toast-icon">${icons[type]}</span>
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.remove()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                `;
+                
+                container.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.animation = 'slideDown 0.3s ease-out reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
             function toggleUserMenu() {
                 const menu = document.getElementById('user-menu');
+                const notifMenu = document.getElementById('notifications-menu');
                 menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+                if (notifMenu) notifMenu.style.display = 'none';
+            }
+
+            function toggleNotifications() {
+                const menu = document.getElementById('notifications-menu');
+                const userMenu = document.getElementById('user-menu');
+                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+                if (userMenu) userMenu.style.display = 'none';
+            }
+
+            function markAllNotificationsRead() {
+                const list = document.getElementById('notifications-list');
+                list.innerHTML = '<div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;"><svg viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2" width="32" height="32" style="margin: 0 auto 8px;"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>No new notifications</div>';
+            }
+
+
+            // Toggle comment section
+            function toggleCommentSection(button) {
+                const article = button.closest('article');
+                const commentSection = article.querySelector('.comment-section');
+                if (commentSection.style.display === 'none') {
+                    commentSection.style.display = 'block';
+                } else {
+                    commentSection.style.display = 'none';
+                }
+            }
+
+            // Post comment (creates an answer via API)
+            async function postComment(questionId) {
+                const input = document.getElementById('comment-input-' + questionId);
+                const comment = input.value.trim();
+                if (!comment) {
+                    showToast('Please write an answer first!', 'warning');
+                    return;
+                }
+                
+                const user = getCurrentUser ? getCurrentUser() : null;
+                if (!user || !user.id) {
+                    showToast('Please login to post an answer', 'error');
+                    return;
+                }
+
+                const userName = user.name || user.username || 'You';
+                const submitBtn = input.nextElementSibling || input.parentElement.querySelector('button');
+                if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Posting...'; }
+
+                try {
+                    await AnswersAPI.create({ questionId: questionId, userId: user.id, content: comment });
+
+                    // Show optimistic UI update
+                    const commentSection = input.closest('.comment-section');
+                    const commentsContainer = document.getElementById('answers-' + questionId);
+                    
+                    const newComment = document.createElement('div');
+                    newComment.style.cssText = 'padding: 12px; background: white; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #0d9488;';
+                    newComment.innerHTML = '<div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">' + userName + '</div><div style="color: #4b5563; font-size: 14px;">' + comment + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 8px;">Just now</div>';
+                    
+                    if (commentsContainer) {
+                        commentsContainer.insertBefore(newComment, commentsContainer.firstChild);
+                    }
+                    input.value = '';
+                    
+                    // Update answer count badge
+                    const article = commentSection.closest('article');
+                    const commentBtn = article.querySelector('button[onclick*="toggleCommentSection"]');
+                    const commentCountSpan = commentBtn.querySelector('.comment-count');
+                    let count = parseInt(commentCountSpan.textContent.replace(/[()]/g, '')) || 0;
+                    count = count + 1;
+                    commentCountSpan.textContent = '(' + count + ')';
+
+                    // Update the answer status banner
+                    const statusBanner = article.querySelector('div[style*="background: #fff7ed"], div[style*="background: #f0fdf4"]');
+                    if (statusBanner) {
+                        statusBanner.style.background = '#f0fdf4';
+                        statusBanner.querySelector('div').style.color = '#16a34a';
+                        statusBanner.querySelector('div').textContent = '\u2705 ' + count + ' answer' + (count !== 1 ? 's' : '') + ' available';
+                    }
+
+                    showToast('Answer posted successfully!', 'success');
+
+                    // Reload answers from server to get authorRole badges
+                    if (commentsContainer) { commentsContainer.dataset.loaded = 'false'; }
+                    loadAnswersForQuestion(questionId);
+                } catch (err) {
+                    console.error('Failed to post answer:', err);
+                    showToast('Failed to post answer: ' + err.message, 'error');
+                } finally {
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Post Answer'; }
+                }
+            }
+
+            // Share question
+            function shareQuestion(questionId) {
+                const url = window.location.href.split('?')[0] + '?question=' + questionId;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Agocare Health Question',
+                        text: 'Check out this health question on Agocare',
+                        url: url
+                    });
+                } else {
+                    navigator.clipboard.writeText(url);
+                    showToast('Link copied to clipboard!', 'success');
+                }
+            }
+
+            // Toggle follow/subscribe button
+            function toggleFollow(button) {
+                const isFollowing = button.textContent.trim() === 'Following';
+                if (isFollowing) {
+                    button.textContent = 'Follow';
+                    button.style.background = 'white';
+                    button.style.color = '#0d9488';
+                } else {
+                    button.textContent = 'Following';
+                    button.style.background = '#0d9488';
+                    button.style.color = 'white';
+                }
             }
 
             document.addEventListener('click', function(event) {
                 const menu = document.getElementById('user-menu');
-                const avatar = document.querySelector('.w-8.h-8');
+                const notifMenu = document.getElementById('notifications-menu');
+                const avatar = document.getElementById('patientAvatar');
+                const notifBtn = event.target.closest('button[onclick*="toggleNotifications"]');
                 if (avatar && !avatar.contains(event.target) && !menu.contains(event.target)) {
                     menu.style.display = 'none';
                 }
+                if (notifMenu && !notifMenu.contains(event.target) && !notifBtn) {
+                    notifMenu.style.display = 'none';
+                }
             });
 
-            // Initialize user name
             window.addEventListener('DOMContentLoaded', function() {
-                const user = getCurrentUser();
-                if (user) {
-                    document.getElementById('user-name').textContent = user.name || user.username || 'User';
+                const user = getCurrentUser ? getCurrentUser() : null;
+                const guestSection = document.getElementById('guest-section');
+                const userSection = document.getElementById('user-section');
+                
+                if (user && user.id) {
+                    // User is logged in - show user section, hide guest section
+                    if (guestSection) guestSection.style.display = 'none';
+                    if (userSection) userSection.style.display = 'flex';
+                    
+                    // Update user name
+                    const userNameEl = document.getElementById('user-name');
+                    if (userNameEl) userNameEl.textContent = user.name || user.username || 'User';
+                } else {
+                    // User is not logged in - show guest section, hide user section
+                    if (guestSection) guestSection.style.display = 'flex';
+                    if (userSection) userSection.style.display = 'none';
                 }
             });
         </script>
 
+        <script>
+            // Highlight active route in sidebar
+            document.addEventListener('DOMContentLoaded', function() {
+                const currentRoute = window.location.pathname.split('/').pop().replace('.html', '').replace(/\(1\)/, '');
+                const queryParams = new URLSearchParams(window.location.search);
+                const topic = queryParams.get('topic');
+                
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    const route = item.getAttribute('data-route');
+                    
+                    // Check for direct route match
+                    let isActive = false;
+                    
+                    if (route === 'dashboard' && currentRoute === 'patientDashboard') {
+                        isActive = true;
+                    } else if (route === 'questions' && (currentRoute === 'questions' || currentRoute === 'patientDashboard')) {
+                        isActive = currentRoute === 'questions';
+                    } else if (route === topic) {
+                        isActive = true;
+                    } else if (currentRoute.includes(route)) {
+                        isActive = true;
+                    }
+                    
+                    if (isActive) {
+                        item.classList.add('active');
+                    }
+                });
+            });
+        </script>
+
         <!-- Body -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-            <div class="grid grid-cols-12 gap-6">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 80px 24px 20px 24px; height: 100vh; box-sizing: border-box; overflow: hidden;">
+            <div style="display: grid; grid-template-columns: 260px 1fr 300px; gap: 24px; height: 100%;">
                 <!-- Left Sidebar -->
-                <aside class="col-span-12 lg:col-span-3">
-                    <div class="bg-white rounded-lg shadow sidebar-scroll p-4 sticky top-24">
-                        <div class="mb-4">
-                            <a href="patientDashboard.html" class="flex items-center space-x-3 px-2 py-2 rounded bg-red-50 text-red-700 font-semibold">
-                                <span>🏠</span>
-                                <span>All Questions</span>
+                <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
+                    <div style="background: white; border-radius: 12px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
+                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Main</div>
+                            <a href="patientDashboard.html" class="nav-item active" data-route="dashboard">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                Dashboard
+                            </a>
+                            <a href="questions.html" class="nav-item" data-route="questions">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                Questions
+                            </a>
+                            <a href="appointments.html" class="nav-item" data-route="appointments">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                My Appointments
                             </a>
                         </div>
 
-                        <div class="space-y-2">
-                            <div class="text-xs font-semibold text-gray-500 uppercase">Health Topics</div>
-                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('pediatrics')">
-                                <span>👶</span>
-                                <span>Pediatrics</span>
-                            </div>
-                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('pregnancy')">
-                                <span>🤰</span>
-                                <span>Pregnancy</span>
-                            </div>
-                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('infectious')">
-                                <span>🦠</span>
-                                <span>Infectious</span>
-                            </div>
-                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('sexual')">
-                                <span>💚</span>
-                                <span>Sexual Health</span>
-                            </div>
-                            <div class="sidebar-item flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="switchTab('mental')">
-                                <span>🧠</span>
-                                <span>Mental Health</span>
-                            </div>
+                        <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
+                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Health Topics</div>
+                            <a href="questions.html?topic=pediatrics" class="nav-item" data-route="pediatrics">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 12h6M12 9v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Pediatrics
+                            </a>
+                            <a href="questions.html?topic=pregnancy" class="nav-item" data-route="pregnancy">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 8v8M8 12h8"/></svg>
+                                Pregnancy
+                            </a>
+                            <a href="questions.html?topic=infectious" class="nav-item" data-route="infectious">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                                Infectious
+                            </a>
+                            <a href="questions.html?topic=diabetes" class="nav-item" data-route="diabetes">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                Diabetes
+                            </a>
+                            <a href="questions.html?topic=hypertension" class="nav-item" data-route="hypertension">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                                Hypertension
+                            </a>
+                            <a href="questions.html?topic=mental_health" class="nav-item" data-route="mental_health">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a10 10 0 1010 10H12V2z"/><path d="M12 2a10 10 0 00-10 10"/></svg>
+                                Mental Health
+                            </a>
+                            <a href="questions.html?topic=sexual" class="nav-item" data-route="sexual">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                Sexual Health
+                            </a>
                         </div>
 
-                        <div class="mt-6 text-xs text-gray-500">
-                            <div class="font-semibold mb-2">Resources</div>
-                            <a href="appointments.html" class="block text-sm text-gray-700 hover:underline mb-2">My Appointments</a>
-                            <a href="medical_centers.html" class="block text-sm text-gray-700 hover:underline mb-2">Find Medical Centers</a>
-                            <a href="medical-library(1).html" class="block text-sm text-gray-700 hover:underline">Medical Library</a>
+                        <div style="padding: 8px 12px;">
+                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Resources</div>
+                            <a href="medical_centers.html" class="nav-item" data-route="medical_centers">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                Find Medical Centers
+                            </a>
+                            <a href="medical-library(1).html" class="nav-item" data-route="medical_library">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                                Medical Library
+                            </a>
                         </div>
                     </div>
                 </aside>
 
-                <!-- Main Feed -->
-                <main class="col-span-12 lg:col-span-6">
-                    <!-- Ask Question Button -->
-                    <div class="bg-white rounded-lg shadow p-6 mb-6">
-                        <button onclick="openAskQuestionModal()" class="w-full bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-600 transition">
-                            ❓ Ask a Question
-                        </button>
+                <!-- Main Feed (Questions) -->
+                <main class="scroll-section" style="height: 100%; overflow-y: auto;">
+                    <!-- Post Creation Interface -->
+                    <div style="background: #1f2937; border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <!-- Input Row -->
+                            <div style="display: flex; align-items: flex-start; gap: 16px;">
+                                <!-- Profile Avatar -->
+                                <div id="postAvatar" style="width: 48px; height: 48px; min-width: 48px; border-radius: 50%; background: linear-gradient(135deg, #0d9488, #14b8a6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px;">
+                                    U
+                                </div>
+                                
+                                <!-- Input Field -->
+                                <input type="text" id="postInput" placeholder="What do you want to ask or share?" style="flex: 1; padding: 14px 20px; background: #374151; border: none; border-radius: 24px; font-size: 15px; color: #f9fafb; outline: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div style="display: flex; justify-content: space-around; padding: 0 8px;">
+                                <button onclick="openAskModal()" onmouseover="this.style.background='#374151';this.style.color='#f9fafb'" onmouseout="this.style.background='transparent';this.style.color='#9ca3af'" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: transparent; border: none; border-radius: 8px; cursor: pointer; color: #9ca3af; font-size: 14px; font-weight: 500; transition: all 0.2s;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                                        <path d="M12 8v.01M12 12v.01M12 16v.01"/>
+                                    </svg>
+                                    Ask
+                                </button>
+                                <button onclick="openAnswerModal()" onmouseover="this.style.background='#374151';this.style.color='#f9fafb'" onmouseout="this.style.background='transparent';this.style.color='#9ca3af'" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: transparent; border: none; border-radius: 8px; cursor: pointer; color: #9ca3af; font-size: 14px; font-weight: 500; transition: all 0.2s;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                        <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                                        <path d="M2 2l7.586 7.586"/>
+                                        <circle cx="11" cy="11" r="2"/>
+                                    </svg>
+                                    Answer
+                                </button>
+                                <button onclick="openPostModal()" onmouseover="this.style.background='#0d9488';this.style.color='#ffffff'" onmouseout="this.style.background='transparent';this.style.color='#0d9488'" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: transparent; border: none; border-radius: 8px; cursor: pointer; color: #0d9488; font-size: 14px; font-weight: 500; transition: all 0.2s;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Post
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Question Card 1 - Pediatrics -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="pediatrics">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">Pediatrics</span>
-                                    <span class="text-xs text-gray-500">2 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">My 3-year-old child developed a heat rash that won't go away</h3>
-                                <p class="text-gray-700 mb-4">We live in Bushenyi and it has been very hot lately. The rash is mostly on the neck and back. We tried cool baths but it persists. Is this dangerous?</p>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-sm">Dr. Sarah Nabirye ✓</div>
-                                            <div class="text-xs text-gray-500">Pediatrician • Mulago Hospital</div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700 text-sm">Heat rash (miliaria) is common in hot climates. Keep the area dry and cool. Avoid applying heavy creams. If it develops pus or fever, visit a clinic immediately. Calamine lotion can help soothe itching.</p>
-                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 45 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
+                    <!-- Questions List - Loaded dynamically from API -->
+                    <div id="questions-list" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Loading State -->
+                        <div id="questions-loading" style="text-align: center; padding: 40px;">
+                            <div style="width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid #0d9488; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
+                            <p style="color: #6b7280;">Loading questions from community...</p>
                         </div>
-                    </article>
-
-                    <!-- Question Card 2 - Pediatrics -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="pediatrics">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">Pediatrics</span>
-                                    <span class="text-xs text-gray-500">4 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">My baby won't stop crying and has diarrhea</h3>
-                                <p class="text-gray-700 mb-4">My 1-year-old has been having frequent loose stools for 2 days now. He's still drinking milk but seems uncomfortable. Should I change his diet?</p>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-sm">Dr. James Okonkwo ✓</div>
-                                            <div class="text-xs text-gray-500">Pediatric Specialist • Kenyatta Hospital</div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700 text-sm">Diarrhea in infants can be caused by viral infections or dietary changes. Ensure proper hydration with oral rehydration solution. Continue breastfeeding if possible. If symptoms persist beyond 3 days or you notice blood in stool, seek medical attention.</p>
-                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 67 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
+                        <!-- Error State (hidden by default) -->
+                        <div id="questions-error" style="display: none; text-align: center; padding: 40px; background: #fef2f2; border-radius: 12px;">
+                            <p style="color: #dc2626; font-weight: 600;">Failed to load questions</p>
+                            <button onclick="loadQuestions()" style="margin-top: 12px; padding: 8px 20px; background: #0d9488; color: white; border: none; border-radius: 8px; cursor: pointer;">Retry</button>
                         </div>
-                    </article>
-
-                    <!-- Question Card 3 - Pregnancy (Unanswered) -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="pregnancy">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Pregnancy</span>
-                                    <span class="text-xs text-red-500 font-semibold">UNANSWERED</span>
-                                    <span class="text-xs text-gray-500">10 mins ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">What are the early warning signs of preeclampsia?</h3>
-                                <p class="text-gray-700">I am 7 months pregnant and feeling a bit dizzy with swollen feet. My blood pressure was slightly elevated at my last clinic visit. Should I be worried?</p>
-                                
-                                <div class="mt-4 p-3 bg-orange-50 rounded-lg text-sm text-orange-800">
-                                    ⚠️ This question is still waiting for a doctor's response. Doctors can provide verified answers.
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600 mt-4">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 2 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Answer</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Question Card 4 - Pregnancy -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="pregnancy">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Pregnancy</span>
-                                    <span class="text-xs text-gray-500">8 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Is it safe to exercise during the third trimester?</h3>
-                                <p class="text-gray-700 mb-4">I'm currently 8 months pregnant and have been doing light walking and yoga. My OB said it's fine, but I'm worried about the baby. What type of exercise is safest at this stage?</p>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-500 to-orange-500"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-sm">Dr. Victoria Mukasa ✓</div>
-                                            <div class="text-xs text-gray-500">Obstetrician • Kampala Women's Hospital</div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700 text-sm">Light exercise like walking, swimming, and prenatal yoga is beneficial during the third trimester. Avoid high-impact activities and heavy lifting. Always listen to your body and stop if you feel dizzy or short of breath. Regular exercise helps with labor and postpartum recovery.</p>
-                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 89 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Question Card 5 - Infectious -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="infectious">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">Infectious</span>
-                                    <span class="text-xs text-gray-500">5 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Persistent headache and fever in the evenings</h3>
-                                <p class="text-gray-700 mb-4">I have been having high fevers only at night for the past 3 days, accompanied by joint pain. Could this be Malaria even if I sleep under a net?</p>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-green-500 to-blue-500"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-sm">Dr. Amina Kaggwa ✓</div>
-                                            <div class="text-xs text-gray-500">General Practitioner • Nsambya Hospital</div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700 text-sm">Yes, it is possible. Evening fevers are a classic sign of Malaria. Please visit the nearest health center for a blood smear test immediately. Do not self-medicate.</p>
-                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 120 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Question Card 6 - Infectious -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="infectious">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-semibold">Infectious</span>
-                                    <span class="text-xs text-gray-500">6 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Red eyes and itching - could it be conjunctivitis?</h3>
-                                <p class="text-gray-700 mb-4">For the past 2 days, both my eyes have been red, itchy, and producing a yellow discharge. A colleague at work also has the same symptoms. Is this contagious and how can I treat it at home?</p>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-500 to-cyan-500"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-sm">Dr. Hassan Mwangi ✓</div>
-                                            <div class="text-xs text-gray-500">Eye Specialist • Nairobi Eye Center</div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700 text-sm">Yellow discharge suggests bacterial conjunctivitis, which is highly contagious. Avoid touching your eyes and wash your hands frequently. Seek medical attention for antibiotic eye drops. Do not share towels or eye cosmetics with others.</p>
-                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 156 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Question Card 7 - Sexual Health -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="sexual">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-semibold">Sexual Health</span>
-                                    <span class="text-xs text-gray-500">3 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">What are the symptoms of STIs and how are they treated?</h3>
-                                <p class="text-gray-700 mb-4">I'm concerned about potential STI symptoms but I'm too embarrassed to visit a clinic. What should I look out for and are there medications I can get without seeing a doctor?</p>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-sm">Dr. Grace Kipchoge ✓</div>
-                                            <div class="text-xs text-gray-500">Sexual Health Counselor • Kenyatta Hospital</div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700 text-sm">Common STI symptoms include unusual discharge, pain during urination, and pelvic pain. A medical diagnosis is essential as treatments vary. Healthcare providers maintain confidentiality. Early treatment prevents complications. Consider visiting a sexual health clinic where staff are trained and non-judgmental.</p>
-                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 234 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Question Card 8 - Sexual Health (Unanswered) -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="sexual">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-semibold">Sexual Health</span>
-                                    <span class="text-xs text-red-500 font-semibold">UNANSWERED</span>
-                                    <span class="text-xs text-gray-500">30 mins ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Is it safe to use contraception while breastfeeding?</h3>
-                                <p class="text-gray-700">I'm 3 months postpartum and still breastfeeding exclusively. I want to start family planning but I'm worried it might affect my milk production. What are my options?</p>
-                                
-                                <div class="mt-4 p-3 bg-orange-50 rounded-lg text-sm text-orange-800">
-                                    ⚠️ This question is still waiting for a doctor's response. Doctors can provide verified answers.
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600 mt-4">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 8 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Answer</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Question Card 9 - Mental Health -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="mental">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Mental Health</span>
-                                    <span class="text-xs text-gray-500">1 hour ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">How do I manage anxiety and panic attacks?</h3>
-                                <p class="text-gray-700 mb-4">I've been experiencing sudden panic attacks with chest tightness and shortness of breath. They happen without warning and make me feel like something is seriously wrong. How can I manage these episodes?</p>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-lime-500 to-green-500"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-sm">Dr. David Kariuki ✓</div>
-                                            <div class="text-xs text-gray-500">Psychiatrist • Mental Health Center</div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700 text-sm">Panic attacks are treatable. During an attack: breathe slowly (4 in, 6 out), ground yourself using the 5-4-3-2-1 technique, and reassure yourself it will pass. Long-term management includes CBT therapy and sometimes medication. Speaking with a mental health professional is crucial for proper diagnosis and treatment plan.</p>
-                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 312 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Question Card 10 - Mental Health -->
-                    <article class="bg-white rounded-lg shadow p-6 mb-6" data-category="mental">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Mental Health</span>
-                                    <span class="text-xs text-gray-500">2 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-3 cursor-pointer hover:text-red-500">Dealing with depression after job loss</h3>
-                                <p class="text-gray-700 mb-4">I lost my job 2 months ago and since then I've felt hopeless and unmotivated. I'm isolating myself and losing interest in things I used to enjoy. My family is worried about me. What can I do?</p>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold text-sm">Dr. Amara Obi ✓</div>
-                                            <div class="text-xs text-gray-500">Clinical Psychologist • Wellness Institute</div>
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-700 text-sm">Job loss is a significant life stressor. What you're experiencing is valid. Reach out to friends and family, maintain daily routines, and consider professional counseling. Therapy can help process grief and rebuild confidence. Don't self-isolate - connection and professional support are key to recovery.</p>
-                                    <div class="mt-2 text-xs text-green-600">🛡️ Verified by multiple doctors</div>
-                                </div>
-
-                                <div class="flex items-center gap-4 text-sm text-gray-600">
-                                    <button class="flex items-center gap-1 hover:text-red-500">👍 278 Helpful</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">💬 Reply</button>
-                                    <button class="flex items-center gap-1 hover:text-red-500">🔗 Share</button>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
+                    </div>
                 </main>
 
-                <!-- Right Sidebar -->
-                <aside class="col-span-12 lg:col-span-3">
-                    <div class="bg-white rounded-lg shadow p-4 sticky top-24">
-                        <h3 class="font-bold text-lg mb-4">🔥 Trending Topics</h3>
-                        <div class="space-y-3">
-                            <div onclick="switchTab('infectious')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
-                                <div class="text-sm font-semibold text-red-500">Malaria Prevention</div>
-                                <div class="text-xs text-gray-600">24 questions</div>
-                            </div>
-                            <div onclick="switchTab('pregnancy')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
-                                <div class="text-sm font-semibold text-pink-500">Pregnancy Care</div>
-                                <div class="text-xs text-gray-600">18 questions</div>
-                            </div>
-                            <div onclick="switchTab('pediatrics')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
-                                <div class="text-sm font-semibold text-green-500">Child Nutrition</div>
-                                <div class="text-xs text-gray-600">15 questions</div>
-                            </div>
-                            <div onclick="switchTab('mental')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
-                                <div class="text-sm font-semibold text-blue-500">Mental Wellness</div>
-                                <div class="text-xs text-gray-600">22 questions</div>
-                            </div>
-                            <div onclick="switchTab('sexual')" class="block p-3 rounded hover:bg-gray-50 cursor-pointer">
-                                <div class="text-sm font-semibold text-purple-500">Sexual Health</div>
-                                <div class="text-xs text-gray-600">12 questions</div>
-                            </div>
+                <!-- Right Sidebar - Loaded dynamically -->
+                <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
+                    <div id="trending-topics-container" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
+                        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1f2937;">🔥 Trending Topics</h3>
+                        <div id="trending-topics-list">
+                            <p style="color: #9ca3af; font-size: 13px;">Loading topics...</p>
                         </div>
+                    </div>
 
-                        <div class="mt-6 pt-6 border-t">
-                            <h4 class="font-bold text-sm mb-3">👨‍⚕️ Top Doctors</h4>
-                            <div class="space-y-3">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500"></div>
-                                    <div>
-                                        <div class="text-xs font-semibold">Dr. Sarah Nabirye</div>
-                                        <div class="text-xs text-gray-500">450 Answers</div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-blue-500"></div>
-                                    <div>
-                                        <div class="text-xs font-semibold">Dr. Amina Kaggwa</div>
-                                        <div class="text-xs text-gray-500">320 Answers</div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div id="my-appointments-container" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4 style="font-size: 14px; font-weight: 700;">📅 My Appointments</h4>
+                            <button onclick="loadMyAppointments()" style="background: none; border: none; cursor: pointer; color: #6b7280; font-size: 13px;" title="Refresh">↻</button>
+                        </div>
+                        <div id="my-appointments-list">
+                            <p style="color: #9ca3af; font-size: 13px;">Loading appointments...</p>
+                        </div>
+                    </div>
+
+                    <div id="top-doctors-container" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px;">👨‍⚕️ Available Doctors</h4>
+                        <div id="top-doctors-list">
+                            <p style="color: #9ca3af; font-size: 13px;">Loading doctors...</p>
                         </div>
                     </div>
                 </aside>
@@ -492,7 +499,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Ask a Question</h2>
-                    <button class="close-btn" onclick="closeAskQuestionModal()">✕</button>
                 </div>
 
                 <form id="askQuestionForm" onsubmit="handleAskQuestion(event)">
@@ -534,50 +540,61 @@
 
                     <div class="form-buttons">
                         <button type="submit" class="btn-submit">Post Question</button>
-                        <button type="button" class="btn-cancel" onclick="closeAskQuestionModal()">Cancel</button>
+                        <button type="button" class="btn-cancel" onclick="document.getElementById('askQuestionModal').classList.remove('show')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Book Appointment Modal -->
+        <div id="bookAppointmentModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; padding-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="font-size: 18px; font-weight: 700; color: #1f2937;">📅 Book Appointment</h2>
+                    <button onclick="closeBookingModal()" style="background: none; border: none; cursor: pointer; padding: 4px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <form id="bookAppointmentForm" onsubmit="handleBookAppointment(event)" style="margin-top: 16px;">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #1f2937; font-size: 14px;">Doctor *</label>
+                        <select id="booking-doctor" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                            <option value="">-- Select Doctor --</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #1f2937; font-size: 14px;">Preferred Date & Time *</label>
+                        <input type="datetime-local" id="booking-date" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; box-sizing: border-box;" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 6px; color: #1f2937; font-size: 14px;">Reason for Visit *</label>
+                        <textarea id="booking-reason" rows="3" required placeholder="Briefly describe why you need to see the doctor..." style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; resize: vertical; box-sizing: border-box;"></textarea>
+                    </div>
+                    <p style="font-size: 12px; color: #6b7280; margin-bottom: 16px;">Your appointment request will be sent to the doctor for approval. The doctor may confirm or suggest a different date.</p>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" onclick="closeBookingModal()" style="padding: 10px 20px; background: #f3f4f6; color: #4b5563; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Cancel</button>
+                        <button type="submit" id="submit-booking-btn" style="padding: 10px 24px; background: #0d9488; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Request Appointment</button>
                     </div>
                 </form>
             </div>
         </div>
 
         <script>
-            function toggleUserMenu() {
-                const menu = document.getElementById('user-menu');
-                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-            }
-
             // Category filtering with switchTab
             function switchTab(topic) {
-                // Remove active class from all sidebar items
-                const items = document.querySelectorAll('.sidebar-item');
-                items.forEach(item => item.classList.remove('active'));
-                
-                // Add active class to clicked item
-                if (event && event.currentTarget) {
-                    event.currentTarget.classList.add('active');
-                }
-                
                 // Filter questions by category
                 const articles = document.querySelectorAll('article[data-category]');
+                const topicUpper = topic.toUpperCase();
                 articles.forEach(article => {
                     const category = article.getAttribute('data-category');
-                    if (category === topic) {
+                    if (category === topicUpper) {
+                        article.classList.remove('hidden');
+                    } else if (topic === 'all') {
                         article.classList.remove('hidden');
                     } else {
                         article.classList.add('hidden');
                     }
                 });
-            }
-
-            // Ask Question Modal Functions
-            function openAskQuestionModal() {
-                document.getElementById('askQuestionModal').classList.add('show');
-            }
-
-            function closeAskQuestionModal() {
-                document.getElementById('askQuestionModal').classList.remove('show');
-                document.getElementById('askQuestionForm').reset();
-                document.getElementById('categoryHint').style.display = 'none';
             }
 
             // Keyword-based auto-categorization
@@ -646,43 +663,59 @@
                     return;
                 }
 
-                // Store the question (would normally send to backend)
-                const question = {
-                    id: Date.now(),
-                    title: title,
-                    description: description,
-                    category: category,
-                    author: getCurrentUser().name || getCurrentUser().username,
-                    timestamp: new Date(),
-                    answered: false,
-                    views: 0
-                };
-
-                // Save to localStorage
-                let questions = JSON.parse(localStorage.getItem('userQuestions') || '[]');
-                questions.push(question);
-                localStorage.setItem('userQuestions', JSON.stringify(questions));
-
-                alert('Question posted successfully!');
-                closeAskQuestionModal();
-
-                // Optionally refresh or update the page
-                // window.location.reload();
-            }
-
-            document.addEventListener('click', function(event) {
-                const menu = document.getElementById('user-menu');
-                const avatar = document.getElementById('patientAvatar');
-                if (avatar && !avatar.contains(event.target) && !menu.contains(event.target)) {
-                    menu.style.display = 'none';
+                // Post to backend API
+                const user = getCurrentUser();
+                
+                if (!user || !user.id) {
+                    alert('Please login to post a question');
+                    return;
                 }
-            });
+
+                // Map category from form value to backend enum name
+                const categoryMap = {
+                    pediatrics: 'PEDIATRICS',
+                    pregnancy: 'PREGNANCY',
+                    infectious: 'INFECTIOUS',
+                    sexual: 'SEXUAL_HEALTH',
+                    mental: 'MENTAL_HEALTH'
+                };
+                const backendCategory = categoryMap[category] || 'GENERAL';
+                
+                // Call API
+                apiCreateQuestion(user.id, title, description, backendCategory)
+                    .then(res => {
+                        if (res && res.question) {
+                            showToast('Question posted successfully! It is now visible to all users and doctors.', 'success');
+                            document.getElementById('askQuestionModal').classList.remove('show');
+                            // Reset form
+                            document.getElementById('askQuestionForm').reset();
+                            document.getElementById('categoryHint').style.display = 'none';
+                            // Reload the feed so the new question appears
+                            loadQuestions();
+                        } else {
+                            showToast('Failed to post question: ' + (res.error || 'Unknown error'), 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('❌ Error posting question:', err);
+                        showToast('Failed to post question: ' + err.message, 'error');
+                    });
+                
+                return false;
+            }
 
             // Initialize user name and profile picture
             window.addEventListener('DOMContentLoaded', function() {
                 const user = getCurrentUser();
                 if (user) {
                     document.getElementById('user-name').textContent = user.name || user.username || 'User';
+                    
+                    // Update post creation avatar
+                    const postAvatar = document.getElementById('postAvatar');
+                    if (postAvatar) {
+                        const initials = (user.name || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                        postAvatar.textContent = initials;
+                    }
                 }
                 
                 // Load patient profile picture
@@ -698,6 +731,24 @@
                     avatar.appendChild(img);
                 }
             });
+
+            // Post creation functions
+            function openAskModal() {
+                document.getElementById('askQuestionModal').classList.add('show');
+            }
+            
+            function openAnswerModal() {
+                showToast('Select a question to answer from the feed below', 'info');
+            }
+            
+            function openPostModal() {
+                const postInput = document.getElementById('postInput');
+                if (postInput && postInput.value.trim()) {
+                    showToast('Post functionality coming soon!', 'info');
+                } else {
+                    showToast('Please enter something to post', 'info');
+                }
+            }
 
             // Patient Profile Picture Upload
             function updatePatientProfilePicture(event) {
@@ -920,7 +971,7 @@
                         avatar.appendChild(img);
                         window.tempPatientPicture = null;
                     } catch(e) {
-                        console.log('Failed to save picture');
+                        // Picture save failed silently
                     }
                 }
                 
@@ -955,6 +1006,559 @@
                 document.body.appendChild(toast);
                 setTimeout(() => toast.remove(), 3000);
             }
+
+            // Function to get category emoji
+            function getCategoryEmoji(category) {
+                const emojis = {
+                    'PEDIATRICS': '👶',
+                    'PREGNANCY': '🤰',
+                    'INFECTIOUS': '🦠',
+                    'SEXUAL_HEALTH': '💑',
+                    'MENTAL_HEALTH': '🧠'
+                };
+                return emojis[category] || '📋';
+            }
+
+            // Function to get category color
+            function getCategoryColor(category) {
+                const colors = {
+                    'PEDIATRICS': { bg: 'bg-blue-100', text: 'text-blue-800' },
+                    'PREGNANCY': { bg: 'bg-pink-100', text: 'text-pink-800' },
+                    'INFECTIOUS': { bg: 'bg-yellow-100', text: 'text-yellow-800' },
+                    'SEXUAL_HEALTH': { bg: 'bg-purple-100', text: 'text-purple-800' },
+                    'MENTAL_HEALTH': { bg: 'bg-green-100', text: 'text-green-800' }
+                };
+                return colors[category] || { bg: 'bg-gray-100', text: 'text-gray-800' };
+            }
+
+            // Function to format time ago
+            function getTimeAgo(timestamp) {
+                const now = new Date();
+                const then = new Date(timestamp);
+                const diff = Math.floor((now - then) / 1000); // in seconds
+                
+                if (diff < 60) return 'just now';
+                if (diff < 3600) return Math.floor(diff / 60) + ' mins ago';
+                if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
+                if (diff < 604800) return Math.floor(diff / 86400) + ' days ago';
+                return Math.floor(diff / 604800) + ' weeks ago';
+            }
+
+            // ==================== DYNAMIC DATA LOADING ====================
+
+            // Load questions from API
+            async function loadQuestions() {
+                const loadingDiv = document.getElementById('questions-loading');
+                const errorDiv = document.getElementById('questions-error');
+                const questionsList = document.getElementById('questions-list');
+
+                if (loadingDiv) loadingDiv.style.display = 'block';
+                if (errorDiv) errorDiv.style.display = 'none';
+
+                try {
+                    const questions = await apiGetApprovedQuestions();
+
+                    if (loadingDiv) loadingDiv.style.display = 'none';
+
+                    if (questions && questions.length > 0 && questionsList) {
+                        // Count categories for trending topics
+                        window._categoryCounts = {};
+                        questions.forEach(q => {
+                            const cat = q.category || 'GENERAL';
+                            window._categoryCounts[cat] = (window._categoryCounts[cat] || 0) + 1;
+                        });
+                        loadTrendingTopics(window._categoryCounts);
+
+                        const questionsHTML = questions.map(q => {
+                            const authorName = q.authorName || 'Anonymous';
+                            const authorInitials = authorName.substring(0, 2).toUpperCase();
+                            const categoryColors = {
+                                'PEDIATRICS': { bg: '#dbeafe', color: '#1e40af' },
+                                'PREGNANCY': { bg: '#fce7f3', color: '#be185d' },
+                                'INFECTIOUS': { bg: '#fef3c7', color: '#92400e' },
+                                'SEXUAL_HEALTH': { bg: '#f3e8ff', color: '#7c3aed' },
+                                'MENTAL_HEALTH': { bg: '#d1fae5', color: '#065f46' }
+                            };
+                            const catStyle = categoryColors[q.category] || { bg: '#f3f4f6', color: '#374151' };
+
+                            return `
+                            <article style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" data-category="${q.category}" data-question-id="${q.id}">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0d9488, #14b8a6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px;">${authorInitials}</div>
+                                        <div>
+                                            <div style="font-weight: 600; color: #1f2937;">${authorName}</div>
+                                            <div style="font-size: 13px; color: #6b7280;">${getTimeAgo(q.createdAt)}</div>
+                                        </div>
+                                    </div>
+                                    <button onclick="toggleFollow(this)" style="padding: 6px 16px; background: white; border: 1px solid #0d9488; color: #0d9488; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;">Follow</button>
+                                </div>
+
+                                <div style="margin-bottom: 12px;">
+                                    <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: ${catStyle.bg}; color: ${catStyle.color};">${getCategoryEmoji(q.category)} ${(q.category || 'GENERAL').replace('_', ' ')}</span>
+                                </div>
+                                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1f2937;">${q.title}</h3>
+                                <p style="color: #4b5563; margin-bottom: 16px; line-height: 1.6;">${q.content || ''}</p>
+
+                                ${q.answerCount > 0 ?
+                                    `<div style="background: #f0fdf4; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                        <div style="color: #16a34a; font-weight: 600; font-size: 14px;">✅ ${q.answerCount} answer${q.answerCount !== 1 ? 's' : ''} available</div>
+                                    </div>` :
+                                    `<div style="background: #fff7ed; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                        <div style="color: #ea580c; font-weight: 600; font-size: 14px;">⏳ No answers yet — be the first to respond!</div>
+                                    </div>`}
+
+                                ${q.upvotes > 0 ? `<div style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">👁️ ${q.viewCount || 0} views • 👍 ${q.upvotes} upvotes</div>` : ''}
+
+                                <!-- Action Buttons -->
+                                <div style="display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                                    <button id="upvote-btn-${q.id}" onclick="handleVote(this, ${q.id}, 'upvote')" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: #4b5563; transition: all 0.2s;"><span>👍</span> <span class="upvote-count">${q.upvotes || 0}</span></button>
+                                    <button id="downvote-btn-${q.id}" onclick="handleVote(this, ${q.id}, 'downvote')" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: #4b5563; transition: all 0.2s;"><span>👎</span> <span class="downvote-count">${q.downvoteCount || 0}</span></button>
+                                    <button onclick="toggleCommentSection(this)" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: #4b5563;"><span>💬</span> Answers <span class="comment-count">(${q.answerCount || 0})</span></button>
+                                    <button onclick="shareQuestion(${q.id})" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: #4b5563;"><span>🔗</span> Share</button>
+                                </div>
+
+                                <!-- Comment Section (answers) -->
+                                <div class="comment-section" style="display: none; margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                                    <div style="margin-bottom: 12px;">
+                                        <input type="text" id="comment-input-${q.id}" placeholder="Write your answer or comment..." style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                                    </div>
+                                    <button onclick="postComment(${q.id})" style="padding: 8px 20px; background: #0d9488; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Post Answer</button>
+                                    <div class="answers-container" id="answers-${q.id}" style="margin-top: 16px;">
+                                        <div style="text-align: center; padding: 12px;">
+                                            <div style="width: 24px; height: 24px; border: 3px solid #e5e7eb; border-top-color: #0d9488; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 8px;"></div>
+                                            <p style="color: #9ca3af; font-size: 13px;">Loading answers...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>`;
+                        }).join('');
+
+                        // Remove loading placeholder, insert questions
+                        questionsList.innerHTML = questionsHTML;
+
+                        // Load user's existing vote states
+                        const user = getCurrentUser ? getCurrentUser() : null;
+                        if (user && user.id) {
+                            questions.forEach(async (q) => {
+                                try {
+                                    const result = await apiGetVoteStatus(q.id, user.id);
+                                    const vote = result && result.userVote ? result.userVote : 'none';
+                                    if (vote !== 'none') {
+                                        applyVoteStyle(q.id, vote);
+                                    }
+                                } catch (e) { /* ignore - vote status not critical */ }
+                            });
+                        }
+                    } else {
+                        questionsList.innerHTML = `
+                            <div style="text-align: center; padding: 40px; background: white; border-radius: 12px;">
+                                <p style="color: #6b7280; font-size: 16px;">No questions yet. Be the first to ask!</p>
+                            </div>`;
+                    }
+                } catch (error) {
+                    console.error('❌ Error loading questions:', error);
+                    if (loadingDiv) loadingDiv.style.display = 'none';
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                        errorDiv.querySelector('p').textContent = 'Failed to load questions: ' + error.message;
+                    }
+                }
+            }
+
+            // Handle vote toggle (upvote/downvote) via API
+            async function handleVote(button, questionId, voteType) {
+                const user = getCurrentUser ? getCurrentUser() : null;
+                if (!user || !user.id) {
+                    alert('Please login to vote on questions');
+                    return;
+                }
+                try {
+                    let result;
+                    if (voteType === 'upvote') {
+                        result = await apiUpvoteQuestion(questionId, user.id);
+                    } else {
+                        result = await apiDownvoteQuestion(questionId, user.id);
+                    }
+
+                    // Update both buttons for this question
+                    const upBtn = document.getElementById('upvote-btn-' + questionId);
+                    const downBtn = document.getElementById('downvote-btn-' + questionId);
+
+                    if (upBtn) {
+                        const upCount = upBtn.querySelector('.upvote-count');
+                        if (upCount) upCount.textContent = result.upvotes || 0;
+                    }
+                    if (downBtn) {
+                        const downCount = downBtn.querySelector('.downvote-count');
+                        if (downCount) downCount.textContent = result.downvotes || 0;
+                    }
+
+                    // Apply visual state based on userVote
+                    applyVoteStyle(questionId, result.userVote || 'none');
+                } catch (err) {
+                    console.error('Vote failed:', err);
+                    showToast('Vote failed. Please try again.', 'error');
+                }
+            }
+
+            // Apply visual styling based on the user's current vote
+            function applyVoteStyle(questionId, userVote) {
+                const upBtn = document.getElementById('upvote-btn-' + questionId);
+                const downBtn = document.getElementById('downvote-btn-' + questionId);
+
+                // Reset both buttons
+                if (upBtn) {
+                    upBtn.style.background = '#f3f4f6';
+                    upBtn.style.color = '#4b5563';
+                }
+                if (downBtn) {
+                    downBtn.style.background = '#f3f4f6';
+                    downBtn.style.color = '#4b5563';
+                }
+
+                // Highlight active vote
+                if (userVote === 'upvote' && upBtn) {
+                    upBtn.style.background = '#0d9488';
+                    upBtn.style.color = 'white';
+                } else if (userVote === 'downvote' && downBtn) {
+                    downBtn.style.background = '#ef4444';
+                    downBtn.style.color = 'white';
+                }
+            }
+
+            // Load answers when comment section is toggled
+            async function loadAnswersForQuestion(questionId) {
+                const container = document.getElementById('answers-' + questionId);
+                if (!container || container.dataset.loaded === 'true') return;
+
+                try {
+                    const answers = await AnswersAPI.getByQuestion(questionId);
+                    container.dataset.loaded = 'true';
+
+                    if (answers && answers.length > 0) {
+                        container.innerHTML = answers.map(a => {
+                            const name = a.authorName || 'Anonymous';
+                            const role = a.authorRole || '';
+                            const isDoc = role === 'DOCTOR' || role === 'NURSE' || role === 'HEALTH_WORKER';
+                            const roleLabel = role === 'DOCTOR' ? 'Doctor' : role === 'NURSE' ? 'Nurse' : role === 'HEALTH_WORKER' ? 'Health Worker' : '';
+                            const initials = name.substring(0, 2).toUpperCase();
+                            return `<div style="padding: 12px; background: white; border-radius: 8px; margin-bottom: 8px; ${isDoc ? 'border-left: 3px solid #0d9488; box-shadow: 0 1px 3px rgba(13,148,136,0.15);' : 'border-left: 3px solid #e5e7eb;'}">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${isDoc ? 'linear-gradient(135deg, #0d9488, #14b8a6)' : '#e5e7eb'}; display: flex; align-items: center; justify-content: center; color: ${isDoc ? 'white' : '#6b7280'}; font-weight: 600; font-size: 12px;">${initials}</div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 14px; color: #1f2937;">${name}</div>
+                                        ${isDoc ? '<div style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; font-size: 11px; color: #0d9488; font-weight: 600;"><svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Verified ' + roleLabel + '</div>' : '<div style="font-size: 11px; color: #9ca3af;">Community Member</div>'}
+                                    </div>
+                                </div>
+                                <div style="color: #4b5563; font-size: 14px; line-height: 1.6;">${a.content}</div>
+                                <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                                    <span style="font-size: 12px; color: #9ca3af;">${getTimeAgo(a.createdAt)}</span>
+                                    <button onclick="AnswersAPI.upvote('${a.id}').then(()=>this.style.color='#0d9488').catch(()=>{})" style="background: none; border: none; cursor: pointer; font-size: 12px; color: #6b7280;">👍 ${a.upvotes || 0}</button>
+                                    <button onclick="AnswersAPI.markHelpful('${a.id}').then(()=>{this.style.color='#0d9488';showToast('Marked as helpful','success')}).catch(()=>{})" style="background: none; border: none; cursor: pointer; font-size: 12px; color: #6b7280;">❤️ Helpful ${a.helpfulCount || 0}</button>
+                                </div>
+                            </div>`;
+                        }).join('');
+                    } else {
+                        container.innerHTML = '<p style="color: #9ca3af; font-size: 13px;">No answers yet. Be the first to respond!</p>';
+                    }
+                } catch (err) {
+                    container.innerHTML = '<p style="color: #ef4444; font-size: 13px;">Failed to load answers</p>';
+                }
+            }
+
+            // Override toggleCommentSection to also load answers
+            const _origToggle = toggleCommentSection;
+            toggleCommentSection = function(button) {
+                _origToggle(button);
+                const article = button.closest('article');
+                const qId = article.dataset.questionId;
+                if (qId) loadAnswersForQuestion(parseInt(qId));
+            };
+
+            // Load trending topics from real category counts
+            function loadTrendingTopics(categoryCounts) {
+                const topicsList = document.getElementById('trending-topics-list');
+                if (!topicsList) return;
+
+                const topicMeta = {
+                    'INFECTIOUS': { label: 'Infectious Diseases', color: '#ef4444', route: 'infectious' },
+                    'PREGNANCY': { label: 'Pregnancy Care', color: '#db2777', route: 'pregnancy' },
+                    'PEDIATRICS': { label: 'Pediatrics', color: '#10b981', route: 'pediatrics' },
+                    'MENTAL_HEALTH': { label: 'Mental Wellness', color: '#3b82f6', route: 'mental_health' },
+                    'SEXUAL_HEALTH': { label: 'Sexual Health', color: '#7c3aed', route: 'sexual' },
+                    'GENERAL': { label: 'General Health', color: '#6b7280', route: 'general' }
+                };
+
+                const sorted = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
+
+                if (sorted.length === 0) {
+                    topicsList.innerHTML = '<p style="color: #9ca3af; font-size: 13px;">No trending topics yet</p>';
+                    return;
+                }
+
+                topicsList.innerHTML = sorted.map(([cat, count]) => {
+                    const meta = topicMeta[cat] || { label: cat, color: '#6b7280', route: cat.toLowerCase() };
+                    return `<a href="questions.html?topic=${meta.route}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 8px; color: #4b5563; text-decoration: none;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background=''">
+                        <span style="color: ${meta.color}; font-weight: 600;">${getCategoryEmoji(cat)} ${meta.label}</span>
+                        <span style="margin-left: auto; font-size: 12px; color: #6b7280;">${count} question${count !== 1 ? 's' : ''}</span>
+                    </a>`;
+                }).join('');
+            }
+
+            // Load available doctors from API
+            async function loadAvailableDoctors() {
+                const doctorsList = document.getElementById('top-doctors-list');
+                if (!doctorsList) return;
+
+                try {
+                    const doctors = await apiGetAvailableDoctors();
+
+                    if (doctors && doctors.length > 0) {
+                        const gradients = [
+                            'linear-gradient(135deg, #0ea5e9, #3b82f6)',
+                            'linear-gradient(135deg, #10b981, #059669)',
+                            'linear-gradient(135deg, #f59e0b, #d97706)',
+                            'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                            'linear-gradient(135deg, #ec4899, #db2777)'
+                        ];
+
+                        doctorsList.innerHTML = doctors.map((doc, i) => {
+                            const name = doc.name || doc.username || 'Doctor';
+                            const initials = name.replace('Dr. ', '').substring(0, 2).toUpperCase();
+                            const spec = doc.specialization || 'General';
+                            const hospital = doc.hospitalAffiliation || '';
+                            const rating = doc.rating ? `⭐ ${doc.rating}` : '';
+
+                            return `<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 8px; border-radius: 8px;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+                                <div style="width: 40px; height: 40px; min-width: 40px; border-radius: 50%; background: ${gradients[i % gradients.length]}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">${initials}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 14px; font-weight: 600;">${name}</div>
+                                    <div style="font-size: 12px; color: #6b7280;">${spec}${hospital ? ' • ' + hospital : ''}</div>
+                                    ${rating ? `<div style="font-size: 11px; color: #f59e0b;">${rating}</div>` : ''}
+                                </div>
+                                <button onclick="openBookingModal(${doc.id}, '${name.replace(/'/g, "\\'")}', '${spec.replace(/'/g, "\\'")}')" style="padding: 5px 12px; background: #0d9488; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;" onmouseover="this.style.background='#0f766e'" onmouseout="this.style.background='#0d9488'">Book</button>
+                            </div>`;
+                        }).join('');
+                    } else {
+                        doctorsList.innerHTML = '<p style="color: #9ca3af; font-size: 13px;">No doctors available right now</p>';
+                    }
+                } catch (err) {
+                    console.error('Failed to load doctors:', err);
+                    doctorsList.innerHTML = '<p style="color: #9ca3af; font-size: 13px;">Could not load doctors</p>';
+                }
+            }
+
+            // Load summary card counts from API
+            async function loadSummaryCounts() {
+                const user = getCurrentUser ? getCurrentUser() : null;
+                if (!user || !user.id) return;
+
+                try {
+                    // Load appointment count
+                    const appointments = await apiGetPatientAppointments(user.id);
+                    const appointmentCount = Array.isArray(appointments) ? appointments.length : 0;
+                    const appointmentCard = document.querySelector('[data-summary-key="appointments"]');
+                    if (appointmentCard) appointmentCard.textContent = appointmentCount;
+
+                    // Load questions count (from already loaded data)
+                    const questionCard = document.querySelector('[data-summary-key="questions"]');
+                    if (questionCard) {
+                        const allQ = await apiGetApprovedQuestions();
+                        questionCard.textContent = Array.isArray(allQ) ? allQ.length : 0;
+                    }
+                } catch (err) {
+                    console.error('Failed to load summary counts:', err);
+                }
+            }
+
+            // ==================== APPOINTMENT BOOKING ====================
+            let availableDoctorsCache = [];
+
+            function openBookingModal(doctorId, doctorName, specialization) {
+                const modal = document.getElementById('bookAppointmentModal');
+                modal.style.display = 'flex';
+
+                // Set minimum date to tomorrow
+                const now = new Date();
+                now.setDate(now.getDate() + 1);
+                now.setHours(8, 0, 0, 0);
+                document.getElementById('booking-date').min = now.toISOString().slice(0, 16);
+
+                // Populate doctor dropdown
+                const doctorSelect = document.getElementById('booking-doctor');
+                doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
+
+                apiGetAvailableDoctors().then(doctors => {
+                    availableDoctorsCache = doctors || [];
+                    doctors.forEach(doc => {
+                        const name = doc.name || doc.username || 'Doctor';
+                        const spec = doc.specialization || 'General';
+                        const opt = document.createElement('option');
+                        opt.value = doc.id;
+                        opt.textContent = `${name} (${spec})`;
+                        doctorSelect.appendChild(opt);
+                    });
+                    // Pre-select the doctor if provided
+                    if (doctorId) {
+                        doctorSelect.value = doctorId;
+                    }
+                }).catch(() => {});
+            }
+
+            function closeBookingModal() {
+                document.getElementById('bookAppointmentModal').style.display = 'none';
+                document.getElementById('bookAppointmentForm').reset();
+            }
+
+            async function handleBookAppointment(event) {
+                event.preventDefault();
+                const user = getCurrentUser ? getCurrentUser() : null;
+                if (!user || !user.id) {
+                    showToast('Please login to book an appointment', 'error');
+                    return;
+                }
+
+                const doctorId = document.getElementById('booking-doctor').value;
+                const dateValue = document.getElementById('booking-date').value;
+                const reason = document.getElementById('booking-reason').value.trim();
+
+                if (!doctorId || !dateValue || !reason) {
+                    showToast('Please fill in all fields', 'error');
+                    return;
+                }
+
+                const submitBtn = document.getElementById('submit-booking-btn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+
+                try {
+                    // Format date as ISO string for backend
+                    const appointmentDate = new Date(dateValue).toISOString().replace('Z', '');
+                    await apiCreateAppointment(user.id, doctorId, appointmentDate, reason);
+                    showToast('Appointment request sent! The doctor will review and confirm.', 'success');
+                    closeBookingModal();
+                    loadMyAppointments();
+                } catch (err) {
+                    showToast('Failed to book appointment: ' + (err.message || 'Unknown error'), 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Request Appointment';
+                }
+            }
+
+            // ==================== MY APPOINTMENTS ====================
+            async function loadMyAppointments() {
+                const container = document.getElementById('my-appointments-list');
+                if (!container) return;
+
+                const user = getCurrentUser ? getCurrentUser() : null;
+                if (!user || !user.id) {
+                    container.innerHTML = '<p style="color: #9ca3af; font-size: 13px;">Please login to see appointments</p>';
+                    return;
+                }
+
+                try {
+                    const appointments = await apiGetPatientAppointments(user.id);
+                    const list = Array.isArray(appointments) ? appointments : [];
+
+                    if (list.length === 0) {
+                        container.innerHTML = '<p style="color: #9ca3af; font-size: 13px; text-align: center;">No appointments yet. Book one with a doctor!</p>';
+                        return;
+                    }
+
+                    // Sort by date (newest first)
+                    list.sort((a, b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
+
+                    const statusConfig = {
+                        'SCHEDULED': { label: 'Pending', bg: '#fef3c7', color: '#d97706', icon: '⏳' },
+                        'CONFIRMED': { label: 'Confirmed', bg: '#d1fae5', color: '#059669', icon: '✅' },
+                        'COMPLETED': { label: 'Completed', bg: '#e0e7ff', color: '#4338ca', icon: '✔️' },
+                        'CANCELLED': { label: 'Cancelled', bg: '#fee2e2', color: '#dc2626', icon: '❌' },
+                        'NO_SHOW': { label: 'Missed', bg: '#f3f4f6', color: '#6b7280', icon: '⚠️' }
+                    };
+
+                    container.innerHTML = list.slice(0, 5).map(apt => {
+                        const cfg = statusConfig[apt.status] || statusConfig['SCHEDULED'];
+                        const date = new Date(apt.appointmentDate);
+                        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                        return `<div style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; border-left: 3px solid ${cfg.color}; background: ${cfg.bg}20; margin-bottom: 8px;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 13px; font-weight: 600; color: #1f2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${apt.doctorName || 'Doctor'}</div>
+                                <div style="font-size: 11px; color: #6b7280;">${dateStr} at ${timeStr}</div>
+                                <div style="font-size: 11px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${apt.reason || ''}</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                <span style="padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; background: ${cfg.bg}; color: ${cfg.color};">${cfg.icon} ${cfg.label}</span>
+                                ${apt.status === 'SCHEDULED' ? `<button onclick="cancelMyAppointment(${apt.id})" style="padding: 2px 6px; background: none; border: 1px solid #dc2626; color: #dc2626; border-radius: 4px; font-size: 10px; cursor: pointer;">Cancel</button>` : ''}
+                            </div>
+                        </div>`;
+                    }).join('');
+
+                    if (list.length > 5) {
+                        container.innerHTML += `<a href="appointments.html" style="display: block; text-align: center; font-size: 12px; color: #0d9488; margin-top: 8px;">View all ${list.length} appointments →</a>`;
+                    }
+                } catch (err) {
+                    container.innerHTML = '<p style="color: #9ca3af; font-size: 13px;">Could not load appointments</p>';
+                }
+            }
+
+            async function cancelMyAppointment(appointmentId) {
+                if (!confirm('Are you sure you want to cancel this appointment?')) return;
+                try {
+                    await apiCancelAppointment(appointmentId);
+                    showToast('Appointment cancelled', 'success');
+                    loadMyAppointments();
+                } catch (err) {
+                    showToast('Failed to cancel appointment', 'error');
+                }
+            }
+
+            // ==================== INITIALIZE DASHBOARD ====================
+            document.addEventListener('DOMContentLoaded', function() {
+                // Load all dynamic data
+                loadQuestions();
+                loadAvailableDoctors();
+                loadMyAppointments();
+                loadSummaryCounts();
+
+                // Search functionality
+                const searchInput = document.getElementById('patientSearchInput');
+                if (searchInput) {
+                    let searchTimeout;
+                    searchInput.addEventListener('input', function() {
+                        clearTimeout(searchTimeout);
+                        const query = this.value.trim().toLowerCase();
+                        searchTimeout = setTimeout(() => {
+                            const articles = document.querySelectorAll('article[data-question-id]');
+                            if (!query) {
+                                articles.forEach(a => a.style.display = '');
+                                return;
+                            }
+                            articles.forEach(article => {
+                                const title = (article.querySelector('h3') || {}).textContent || '';
+                                const content = (article.querySelector('p') || {}).textContent || '';
+                                const category = article.dataset.category || '';
+                                const author = article.querySelector('[style*="font-weight: 600"]');
+                                const authorName = author ? author.textContent : '';
+                                const searchText = (title + ' ' + content + ' ' + category + ' ' + authorName).toLowerCase();
+                                article.style.display = searchText.includes(query) ? '' : 'none';
+                            });
+                        }, 300);
+                    });
+
+                    // Clear search on Escape
+                    searchInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') {
+                            this.value = '';
+                            this.dispatchEvent(new Event('input'));
+                            this.blur();
+                        }
+                    });
+                }
+            });
         </script>
     </body>
 </html>

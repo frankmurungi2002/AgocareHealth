@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Sarah Nabirye - Agocare</title>
+    <title>Doctor Profile - Agocare</title>
     <link rel="stylesheet" href="../css/doctor.css">
     <script src="../js/navigation.js"></script>
-    <script src="../js/doctor.js"></script>
+    <script src="../js/api-client.js"></script>
 </head>
 <body class="no-sidebar">
     <!-- Mobile Menu Overlay -->
@@ -158,12 +158,12 @@
                     <div class="profile-avatar-large" id="docAvatarPreview" style="cursor: pointer; position: relative;" onclick="document.getElementById('doctorProfilePicInput').click()" title="Click to change profile picture">👨‍⚕️</div>
                     <input type="file" id="doctorProfilePicInput" accept="image/*" style="display: none;" onchange="updateDoctorProfilePicture(event)">
                     <div class="profile-details">
-                        <h1 id="docName">Dr. Sarah Nabirye <span class="verified-badge">✓ Verified</span></h1>
-                        <p class="profile-specialty">Pediatrician • Mulago National Referral Hospital</p>
+                        <h1 id="docName">Loading... <span class="verified-badge">✓ Verified</span></h1>
+                        <p class="profile-specialty">Loading...</p>
                         <div class="profile-stats">
-                            <span><strong>450</strong> Answers</span>
-                            <span><strong>1.2K</strong> Followers</span>
-                            <span class="response-time">⏱ 1 hr response</span>
+                            <span><strong>-</strong> Consultations</span>
+                            <span><strong>-</strong> Rating</span>
+                            <span><strong>-</strong> Yrs Experience</span>
                         </div>
                     </div>
                     <div class="profile-actions">
@@ -182,16 +182,7 @@
 
                 <div class="tab-content active" id="about-tab">
                     <h3>About</h3>
-                    <p>Dr. Sarah is a dedicated Pediatrician with over 10 years of experience at Mulago National Referral Hospital. Passionate about community health education and preventative care. Specialized in treating pediatric infections and developmental disorders.</p>
-
-                    <h3 style="margin-top: 24px;">Credentials</h3>
-                    <ul class="credentials-list">
-                        <li>MBChB, Makerere University Medical School</li>
-                        <li>Master of Medicine in Pediatrics, Mbarara University of Science and Technology</li>
-                        <li>Registered with Uganda Medical and Dental Practitioners Council</li>
-                    </ul>
-
-                    <button class="btn-book-appointment">Book Appointment</button>
+                    <p>Loading profile information...</p>
                 </div>
 
                 <div class="tab-content" id="availability-tab">
@@ -211,40 +202,11 @@
             </div>
 
             <!-- Recent Answers Section -->
-            <div class="section-card">
-                <h2>Recent Answers</h2>
-
-                <div class="answer-item">
-                    <h4>Can I give my baby honey for cough?</h4>
-                    <p>No, you should not give honey to an infant under 1 year old due to the risk of botulism...</p>
-                    <div class="answer-meta">
-                        <span>👍 45 likes</span>
-                        <span>💬 12 comments</span>
-                        <span>2 days ago</span>
-                    </div>
+            <div class="section-card" id="recent-activity-section">
+                <h2>Recent Activity</h2>
+                <div id="recent-activity-container">
+                    <p style="text-align:center;color:#6b7280;padding:20px;">Loading activity...</p>
                 </div>
-
-                <div class="answer-item">
-                    <h4>Best way to treat heat rash?</h4>
-                    <p>Keep the area cool and dry. Use calamine lotion if itching persists...</p>
-                    <div class="answer-meta">
-                        <span>👍 32 likes</span>
-                        <span>💬 8 comments</span>
-                        <span>5 days ago</span>
-                    </div>
-                </div>
-
-                <div class="answer-item">
-                    <h4>When should I start solid foods for my baby?</h4>
-                    <p>Most babies are ready for solid foods around 6 months. Look for signs like sitting with support and showing interest in food...</p>
-                    <div class="answer-meta">
-                        <span>👍 67 likes</span>
-                        <span>💬 23 comments</span>
-                        <span>1 week ago</span>
-                    </div>
-                </div>
-
-                <a href="#" class="view-all-link">View All Answers →</a>
             </div>
         </main>
 
@@ -276,15 +238,14 @@
                 <div class="trending-divider"></div>
 
                 <div class="top-contributor">
-                    <h4>Top Contributor</h4>
+                    <h4>Your Profile</h4>
                     <div class="contributor-profile">
                         <div class="contributor-avatar">👨‍⚕️</div>
                         <div>
-                            <strong>Dr. Sarah Nabirye</strong>
-                            <div class="contributor-stats">Pediatrician · 140 Answers</div>
+                            <strong id="sidebar-doc-name">Doctor</strong>
+                            <div class="contributor-stats" id="sidebar-doc-specialty">Loading...</div>
                         </div>
                     </div>
-                    <button class="follow-btn">Follow</button>
                 </div>
             </div>
         </aside>
@@ -292,45 +253,134 @@
 
     <script src="../js/doctor.js"></script>
     <script>
+        let currentDoctor = null;
+        let doctorProfile = null;
+
+        async function init() {
+            if (!isAuthenticated()) {
+                window.location.href = 'Login.html';
+                return;
+            }
+            currentDoctor = getCurrentUser();
+            if (!currentDoctor) {
+                console.error('No current user found');
+                return;
+            }
+            updateHeaderInfo();
+            await loadProfile();
+        }
+
+        function updateHeaderInfo() {
+            const name = currentDoctor.name || currentDoctor.username || 'Doctor';
+            const initials = getInitials(name);
+            const avatarEls = ['docProfileMobileAvatar', 'docProfileDesktopAvatar'];
+            avatarEls.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = initials;
+            });
+            const nameSpan = document.querySelector('.header-right .user-info span');
+            if (nameSpan) nameSpan.textContent = 'Dr. ' + name;
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        async function loadProfile() {
+            try {
+                doctorProfile = await API.doctors.getProfile(currentDoctor.id);
+                renderProfile(doctorProfile);
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                // Show basic info from current user if profile doesn't exist yet
+                renderFallbackProfile();
+            }
+        }
+
+        function renderProfile(profile) {
+            const name = profile.name || currentDoctor.name || 'Doctor';
+            const specialization = profile.specialization || 'General Practice';
+            const hospital = profile.hospitalAffiliation || 'Not specified';
+            const yearsExp = profile.yearsOfExperience || 0;
+            const consultations = profile.totalConsultations || 0;
+            const rating = profile.rating || 0;
+            const fee = profile.consultationFee || 'N/A';
+            const isVerified = currentDoctor.verificationBadge || currentDoctor.userType === 'VERIFIED_DOCTOR';
+
+            document.getElementById('docName').innerHTML = `Dr. ${name} ${isVerified ? '<span class="verified-badge">✓ Verified</span>' : ''}`;
+            document.querySelector('.profile-specialty').textContent = `${specialization} • ${hospital}`;
+
+            // Update stats with real data
+            document.querySelector('.profile-stats').innerHTML = `
+                <span><strong>${consultations}</strong> Consultations</span>
+                <span><strong>${rating.toFixed(1)}</strong> Rating</span>
+                <span><strong>${yearsExp}</strong> Yrs Experience</span>
+            `;
+
+            // Update About section
+            const aboutTab = document.getElementById('about-tab');
+            aboutTab.innerHTML = `
+                <h3>About</h3>
+                <p>Dr. ${name} is a dedicated ${specialization} with ${yearsExp > 0 ? yearsExp + ' years of' : ''} experience at ${hospital}.</p>
+                <h3 style="margin-top: 24px;">Professional Details</h3>
+                <ul class="credentials-list">
+                    <li>Specialization: ${specialization}</li>
+                    <li>License: ${profile.licenseNumber || 'Not provided'}</li>
+                    <li>Hospital: ${hospital}</li>
+                    <li>Consultation Fee: ${fee}</li>
+                    <li>Available: ${profile.isAvailable ? 'Yes' : 'No'}</li>
+                </ul>
+                <button class="btn-book-appointment" onclick="window.location.href='doctor-appointments.html'">View Appointments</button>
+            `;
+
+            // Update avatar
+            if (profile.profilePicture) {
+                setAvatarImage('docAvatarPreview', profile.profilePicture);
+            } else {
+                document.getElementById('docAvatarPreview').textContent = '👨‍⚕️';
+            }
+        }
+
+        function renderFallbackProfile() {
+            const name = currentDoctor.name || currentDoctor.username || 'Doctor';
+            document.getElementById('docName').textContent = `Dr. ${name}`;
+            document.querySelector('.profile-specialty').textContent = 'Profile not set up yet';
+            document.querySelector('.profile-stats').innerHTML = `
+                <span><strong>0</strong> Consultations</span>
+                <span><strong>0</strong> Rating</span>
+            `;
+        }
+
+        function setAvatarImage(elementId, src) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.textContent = '';
+                const img = document.createElement('img');
+                img.src = src;
+                img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;';
+                el.appendChild(img);
+            }
+        }
+
         // Doctor Profile Picture Upload
         function updateDoctorProfilePicture(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Compress and optimize image
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        
-                        // Set canvas size (limit to 300x300 to reduce file size)
                         canvas.width = 300;
                         canvas.height = 300;
-                        
-                        // Draw image centered and cropped
                         ctx.drawImage(img, 0, 0, 300, 300);
-                        
-                        // Convert to base64 with compression
                         const compressedData = canvas.toDataURL('image/jpeg', 0.8);
-                        
-                        // Update avatar
-                        const avatarPreview = document.getElementById('docAvatarPreview');
-                        avatarPreview.textContent = '';
-                        const displayImg = document.createElement('img');
-                        displayImg.src = compressedData;
-                        displayImg.style.width = '100%';
-                        displayImg.style.height = '100%';
-                        displayImg.style.borderRadius = '50%';
-                        displayImg.style.objectFit = 'cover';
-                        avatarPreview.appendChild(displayImg);
-                        
-                        // Store in localStorage
+                        setAvatarImage('docAvatarPreview', compressedData);
                         try {
                             localStorage.setItem('doctorProfilePicture', compressedData);
-                            showToast('✅ Profile picture updated successfully!', 'success');
+                            showToast('Profile picture updated!', 'success');
                         } catch(e) {
-                            showToast('⚠️ Image too large. Using smaller size...', 'info');
                             const smallerData = canvas.toDataURL('image/jpeg', 0.6);
                             localStorage.setItem('doctorProfilePicture', smallerData);
                         }
@@ -344,238 +394,85 @@
         function openDoctorProfileEditor() {
             const modal = document.createElement('div');
             modal.id = 'doctorProfileModal';
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 1000;
-            `;
-            
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;';
+
+            const p = doctorProfile || {};
             const content = document.createElement('div');
-            content.style.cssText = `
-                background: white;
-                border-radius: 12px;
-                padding: 32px;
-                width: 90%;
-                max-width: 500px;
-                max-height: 80vh;
-                overflow-y: auto;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            `;
-            
+            content.style.cssText = 'background:white;border-radius:12px;padding:32px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);';
             content.innerHTML = `
-                <h2 style="margin-bottom: 24px; font-size: 20px; font-weight: 600;">Edit Profile</h2>
-                
+                <h2 style="margin-bottom:24px;font-size:20px;font-weight:600;">Edit Profile</h2>
                 <form id="doctorProfileForm" onsubmit="saveDoctorProfile(event)">
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Profile Picture</label>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <div id="docPreviewImage" style="width: 80px; height: 80px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer;">👨‍⚕️</div>
-                            <input type="file" id="doctorPicInput" accept="image/*" style="display: none;" onchange="previewDoctorImage(event)">
-                            <button type="button" onclick="document.getElementById('doctorPicInput').click()" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Upload Picture</button>
-                        </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block;margin-bottom:8px;font-weight:500;">Specialization</label>
+                        <input type="text" id="docSpecialty" value="${p.specialization || ''}" required style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box;">
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label for="docFullName" style="display: block; margin-bottom: 8px; font-weight: 500;">Full Name</label>
-                        <input type="text" id="docFullName" value="Dr. Sarah Nabirye" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block;margin-bottom:8px;font-weight:500;">Hospital Affiliation</label>
+                        <input type="text" id="docHospital" value="${p.hospitalAffiliation || ''}" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box;">
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label for="docEmail" style="display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
-                        <input type="email" id="docEmail" value="doctor@example.com" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block;margin-bottom:8px;font-weight:500;">Years of Experience</label>
+                        <input type="number" id="docYearsExp" value="${p.yearsOfExperience || ''}" min="0" max="60" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box;">
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label for="docSpecialty" style="display: block; margin-bottom: 8px; font-weight: 500;">Specialty</label>
-                        <input type="text" id="docSpecialty" value="Pediatrician" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block;margin-bottom:8px;font-weight:500;">Consultation Fee</label>
+                        <input type="text" id="docFee" value="${p.consultationFee || ''}" placeholder="e.g. 50,000 UGX" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box;">
                     </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label for="docBio" style="display: block; margin-bottom: 8px; font-weight: 500;">Bio</label>
-                        <textarea id="docBio" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical;" rows="4"></textarea>
-                    </div>
-
-                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                        <button type="button" onclick="closeDoctorProfileModal()" style="padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Cancel</button>
-                        <button type="submit" style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Save Changes</button>
+                    <div style="display:flex;gap:12px;justify-content:flex-end;">
+                        <button type="button" onclick="closeDoctorProfileModal()" style="padding:10px 20px;background:#e5e7eb;color:#374151;border:none;border-radius:6px;cursor:pointer;font-weight:500;">Cancel</button>
+                        <button type="submit" id="saveProfileBtn" style="padding:10px 20px;background:#10b981;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500;">Save Changes</button>
                     </div>
                 </form>
             `;
-            
+
             modal.appendChild(content);
             document.body.appendChild(modal);
-            
-            // Load existing picture in preview
-            const savedPicture = localStorage.getItem('doctorProfilePicture');
-            if (savedPicture) {
-                const preview = document.getElementById('docPreviewImage');
-                preview.textContent = '';
-                const img = document.createElement('img');
-                img.src = savedPicture;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.borderRadius = '50%';
-                img.style.objectFit = 'cover';
-                preview.appendChild(img);
-            }
-            
             modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    closeDoctorProfileModal();
-                }
+                if (e.target === modal) closeDoctorProfileModal();
             });
         }
 
-        function previewDoctorImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.width = 300;
-                        canvas.height = 300;
-                        ctx.drawImage(img, 0, 0, 300, 300);
-                        
-                        const preview = document.getElementById('docPreviewImage');
-                        preview.textContent = '';
-                        const previewImg = document.createElement('img');
-                        previewImg.src = canvas.toDataURL('image/jpeg', 0.8);
-                        previewImg.style.width = '100%';
-                        previewImg.style.height = '100%';
-                        previewImg.style.borderRadius = '50%';
-                        previewImg.style.objectFit = 'cover';
-                        preview.appendChild(previewImg);
-                        
-                        // Store the compressed data in a temporary variable
-                        window.tempDocPicture = previewImg.src;
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function saveDoctorProfile(event) {
+        async function saveDoctorProfile(event) {
             event.preventDefault();
-            
-            const name = document.getElementById('docFullName').value;
-            const email = document.getElementById('docEmail').value;
-            const specialty = document.getElementById('docSpecialty').value;
-            const bio = document.getElementById('docBio').value;
-            
-            // Save to localStorage
-            const profileData = {
-                name: name,
-                email: email,
-                specialty: specialty,
-                bio: bio
+            const btn = document.getElementById('saveProfileBtn');
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+
+            const data = {
+                specialization: document.getElementById('docSpecialty').value,
+                hospitalAffiliation: document.getElementById('docHospital').value,
+                yearsOfExperience: document.getElementById('docYearsExp').value,
+                consultationFee: document.getElementById('docFee').value
             };
-            localStorage.setItem('doctorProfile', JSON.stringify(profileData));
-            
-            // If a new picture was uploaded, save it
-            if (window.tempDocPicture) {
-                try {
-                    localStorage.setItem('doctorProfilePicture', window.tempDocPicture);
-                    const avatarPreview = document.getElementById('docAvatarPreview');
-                    avatarPreview.textContent = '';
-                    const img = document.createElement('img');
-                    img.src = window.tempDocPicture;
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.borderRadius = '50%';
-                    img.style.objectFit = 'cover';
-                    avatarPreview.appendChild(img);
-                    window.tempDocPicture = null;
-                } catch(e) {
-                    console.log('Failed to save picture');
-                }
+
+            try {
+                await API.doctors.updateProfile(currentDoctor.id, data);
+                showToast('Profile updated successfully!', 'success');
+                closeDoctorProfileModal();
+                await loadProfile(); // Reload profile data
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                showToast('Failed to save profile: ' + (error.message || 'Unknown error'), 'error');
+            } finally {
+                btn.textContent = 'Save Changes';
+                btn.disabled = false;
             }
-            
-            // Update the page
-            document.getElementById('docName').textContent = name + ' ✓ Verified';
-            
-            showToast('✅ Profile saved successfully!', 'success');
-            closeDoctorProfileModal();
         }
 
         function closeDoctorProfileModal() {
             const modal = document.getElementById('doctorProfileModal');
-            if (modal) {
-                modal.remove();
-            }
+            if (modal) modal.remove();
         }
-
-        // Load doctor profile from localStorage on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            const savedProfile = localStorage.getItem('doctorProfile');
-            if (savedProfile) {
-                const profile = JSON.parse(savedProfile);
-                document.getElementById('docName').textContent = profile.name + ' ✓ Verified';
-            }
-            
-            const savedPicture = localStorage.getItem('doctorProfilePicture');
-            if (savedPicture) {
-                const avatarPreview = document.getElementById('docAvatarPreview');
-                avatarPreview.textContent = '';
-                const img = document.createElement('img');
-                img.src = savedPicture;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.borderRadius = '50%';
-                img.style.objectFit = 'cover';
-                avatarPreview.appendChild(img);
-            }
-        });
 
         function showToast(message, type) {
             const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                padding: 16px 20px;
-                background: ${type === 'success' ? '#10b981' : '#ef4444'};
-                color: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                z-index: 1001;
-            `;
+            toast.style.cssText = `position:fixed;bottom:20px;right:20px;padding:16px 20px;background:${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};color:white;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1001;`;
             toast.textContent = message;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Load doctor profile picture on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            const savedPicture = localStorage.getItem('doctorProfilePicture');
-            if (savedPicture) {
-                const avatars = ['docProfileMobileAvatar', 'docProfileDesktopAvatar'];
-                avatars.forEach(avatarId => {
-                    const avatar = document.getElementById(avatarId);
-                    if (avatar) {
-                        avatar.textContent = '';
-                        avatar.style.background = 'none';
-                        const img = document.createElement('img');
-                        img.src = savedPicture;
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.borderRadius = '50%';
-                        img.style.objectFit = 'cover';
-                        avatar.appendChild(img);
-                    }
-                });
-            }
-        });
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>

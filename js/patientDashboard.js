@@ -108,16 +108,16 @@
     });
   }
 
-  // Small helper to hydrate summary numbers if data-* attributes available
+  // Small helper to hydrate summary numbers from API data
   function hydrateSummaryCards() {
     const cards = document.querySelectorAll('[data-summary-key]');
     if (!cards.length) return;
-    // Example: <div data-summary-key="questions">12</div>
+    // Summary counts are loaded dynamically by loadSummaryCounts() in the HTML
+    // Set initial placeholder values
     cards.forEach(c => {
-      const key = c.getAttribute('data-summary-key');
-      // In a real app this would be fetched from an API; we'll stub local values
-      const stub = { questions: 12, saved: 5, appointments: 1 };
-      if (stub[key] !== undefined) c.textContent = stub[key];
+      if (!c.textContent || c.textContent === '0') {
+        c.textContent = '...';
+      }
     });
   }
 

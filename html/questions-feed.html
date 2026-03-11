@@ -5,11 +5,520 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Questions Feed - Agocare</title>
 <link rel="stylesheet" href="../css/doctor.css">
+<link rel="stylesheet" href="../css/questions-modern.css">
+<link rel="stylesheet" href="../css/questions-qa.css">
+<link rel="stylesheet" href="../css/logo.css">
+<link rel="stylesheet" href="../css/modern.css">
+<script src="../js/utils/storage.js"></script>
+<script src="../js/utils/toast.js"></script>
+<script src="../js/utils/ui.js"></script>
 <script src="../js/navigation.js"></script>
-<script src="../js/doctor.js"></script>
+<script src="../js/api-client.js"></script>
+<script src="../js/questions-modern.js"></script>
+<style>
+/* Quora-style Questions Feed Styles */
+:root {
+    --primary-blue: #2563eb;
+    --primary-red: #dc2626;
+    --bg-gray: #f8f9fa;
+    --border-color: #e5e7eb;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --verified-blue: #1d9bf0;
+}
+
+.questions-feed-container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.feed-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ask-question-btn {
+    background: linear-gradient(135deg, var(--primary-red), #b91c1c);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ask-question-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.filters-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background: white;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
+}
+
+.search-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 12px 20px 12px 45px;
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-container input:focus {
+    border-color: var(--primary-blue);
+}
+
+.search-container .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+/* Question Card */
+.question-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.question-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.author-info {
+    display: flex;
+    gap: 12px;
+}
+
+.author-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-initials {
+    font-size: 14px;
+}
+
+.author-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.author-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+}
+
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--verified-blue);
+    color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.health-worker-label {
+    background: #dbeafe;
+    color: var(--primary-blue);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.author-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.category-tag {
+    background: #f3f4f6;
+    color: var(--text-secondary);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.question-content {
+    margin-bottom: 15px;
+}
+
+.question-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.question-text {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.question-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    background: #f3f4f6;
+    border-radius: 20px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: #e5e7eb;
+    color: var(--text-primary);
+}
+
+.action-btn .icon {
+    font-size: 14px;
+}
+
+.action-btn .count {
+    font-weight: 600;
+}
+
+.resolved-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #d1fae5;
+    color: #059669;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+/* Loading State */
+.loading-spinner {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state, .error-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon, .error-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.empty-state h3, .error-state h3 {
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.empty-state p, .error-state p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: var(--text-primary);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Modal Styles */
+.ask-modal, .answer-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.ask-modal.show, .answer-modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body .form-group {
+    margin-bottom: 15px;
+}
+
+.modal-body label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+}
+
+.modal-body input,
+.modal-body textarea,
+.modal-body select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+}
+
+.modal-body input:focus,
+.modal-body textarea:focus,
+.modal-body select:focus {
+    border-color: var(--primary-blue);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+}
+</style>
 </head>
-<body>
-<!-- Mobile Menu Overlay -->
+<body onload="QuestionsFeed.init()">
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Share Modal -->
+<div class="modal-overlay" id="shareModal">
+    <div class="modal" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3>Share Question</h3>
+            <button class="modal-close" onclick="closeShareModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p class="text-gray-600 text-sm mb-4" id="shareQuestionTitle">Share this question</p>
+            <div class="share-options">
+                <button class="share-option whatsapp" onclick="shareVia('whatsapp')">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    WhatsApp
+                </button>
+                <button class="share-option facebook" onclick="shareVia('facebook')">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    Facebook
+                </button>
+                <button class="share-option twitter" onclick="shareVia('twitter')">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    X (Twitter)
+                </button>
+                <button class="share-option copy" onclick="shareVia('copy')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                    Copy Link
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Media Upload Modal -->
+<div class="modal-overlay" id="mediaUploadModal">
+    <div class="modal" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3>Add Media</h3>
+            <button class="modal-close" onclick="closeMediaUploadModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="media-upload">
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('mediaInput').click()">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                    </svg>
+                    <div class="upload-text">Drag & drop or click to upload</div>
+                    <div class="upload-hint">Supports images and videos</div>
+                    <div class="upload-formats">
+                        <span class="format-badge">JPG</span>
+                        <span class="format-badge">PNG</span>
+                        <span class="format-badge">GIF</span>
+                        <span class="format-badge">MP4</span>
+                        <span class="format-badge">WebM</span>
+                    </div>
+                </div>
+                <input type="file" id="mediaInput" accept="image/*,video/*" multiple style="display: none" onchange="handleMediaSelect(event)">
+                <div class="upload-preview" id="mediaPreview"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeMediaUploadModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="confirmMediaUpload()">Add Media</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bookmark Toast -->
+<div id="bookmarkToast" class="toast" style="display: none; position: fixed; bottom: 24px; right: 24px; z-index: 500;">
+    <svg class="toast-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+    <span class="toast-message" id="bookmarkToastMessage">Question saved!</span>
+</div>
+
 <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
 <!-- Mobile Menu -->
@@ -82,7 +591,9 @@
 <span></span>
 <span></span>
 </button>
-<div class="logo">Ago<span>care</span></div>
+<a href="index.html" style="text-decoration: none;">
+    <img src="../images/logo.svg" alt="Agocare" style="height: 45px; display: block;">
+</a>
 <div class="header-icons desktop-only">
 <button class="icon-btn">📍</button>
 <button class="icon-btn">🔔</button>
@@ -163,144 +674,53 @@
 </div>
 
 <!-- Filter Stats -->
-<div class="section-card" style="margin-bottom: 20px;">
-<div style="display: flex; gap: 24px; flex-wrap: wrap;">
-<div>
-<div style="font-size: 24px; font-weight: bold; color: #e63946;">12</div>
-<div style="font-size: 13px; color: #666;">Urgent Questions</div>
-</div>
-<div>
-<div style="font-size: 24px; font-weight: bold; color: #4a90e2;">48</div>
-<div style="font-size: 13px; color: #666;">Unanswered</div>
-</div>
-<div>
-<div style="font-size: 24px; font-weight: bold; color: #28a745;">156</div>
-<div style="font-size: 13px; color: #666;">Answered Today</div>
-</div>
-</div>
+<div class="stats-row">
+    <div class="stat-card urgent">
+        <div class="value" id="urgentCount">0</div>
+        <div class="label">Urgent Questions</div>
+    </div>
+    <div class="stat-card unanswered">
+        <div class="value" id="unansweredCount">0</div>
+        <div class="label">Unanswered</div>
+    </div>
+    <div class="stat-card answered">
+        <div class="value" id="answeredTodayCount">0</div>
+        <div class="label">Answered Today</div>
+    </div>
 </div>
 
 <!-- Questions List -->
 <div class="section-card">
-<h2 style="margin-bottom: 20px;">Pending Questions</h2>
+    <div class="questions-feed-container">
+        <div class="feed-header">
+            <h2>Questions Feed</h2>
+            <button class="ask-question-btn" onclick="QuestionsFeed.showAskModal()">Ask Question</button>
+        </div>
+        
+        <div class="filters-bar">
+            <button class="filter-btn active" onclick="QuestionsFeed.category='all'; QuestionsFeed.loadQuestions(); this.parentElement.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'); this.classList.add('active')">All</button>
+            <button class="filter-btn" onclick="QuestionsFeed.category='NUTRITION'; QuestionsFeed.loadQuestions(); this.parentElement.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active')">Nutrition</button>
+            <button class="filter-btn" onclick="QuestionsFeed.category='MENTAL_HEALTH'; QuestionsFeed.loadQuestions(); this.parentElement.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active')">Mental Health</button>
+            <button class="filter-btn" onclick="QuestionsFeed.category='PREGNANCY'; QuestionsFeed.loadQuestions(); this.parentElement.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active')">Pregnancy</button>
+            <button class="filter-btn" onclick="QuestionsFeed.category='PEDIATRICS'; QuestionsFeed.loadQuestions(); this.parentElement.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active')">Pediatrics</button>
+        </div>
+        
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="question-search" placeholder="Search questions...">
+        </div>
+        
+        <div id="newQuestionsBanner" class="new-questions-banner" onclick="QuestionsFeed.loadQuestions(); this.classList.remove('show')">
+            🔔 New questions available! Click to refresh
+        </div>
+        
+        <div id="questions-container"></div>
+    </div>
 
-<!-- Question 1 - Urgent -->
-<div class="question-item">
-<div class="question-avatar">👶</div>
-<div class="question-content">
-<div class="question-category">Pediatrics • <span class="urgent-tag">URGENT</span></div>
-<div class="question-text">My 2-year-old has been having high fever (39.5°C) for 3 days with vomiting. Should I bring her to the hospital?</div>
-<div class="question-meta">Posted by Sarah M. • 15 minutes ago • Kampala</div>
-</div>
-<button class="btn-answer urgent" onclick="answerQuestion(1)">Answer Now</button>
-</div>
-
-<!-- Question 2 -->
-<div class="question-item">
-<div class="question-avatar">🤰</div>
-<div class="question-content">
-<div class="question-category">Pregnancy</div>
-<div class="question-text">I'm 7 months pregnant and experiencing severe lower back pain. Is this normal or should I be concerned?</div>
-<div class="question-meta">Posted by Grace K. • 1 hour ago • Jinja</div>
-</div>
-<button class="btn-answer" onclick="answerQuestion(2)">Answer</button>
-</div>
-
-<!-- Question 3 - Urgent -->
-<div class="question-item">
-<div class="question-avatar">🦠</div>
-<div class="question-content">
-<div class="question-category">Infectious Diseases • <span class="urgent-tag">URGENT</span></div>
-<div class="question-text">I have been having night fevers, chills, and joint pain for 5 days. Could this be malaria?</div>
-<div class="question-meta">Posted by Anonymous • 25 minutes ago • Mbarara</div>
-</div>
-<button class="btn-answer urgent" onclick="answerQuestion(3)">Answer Now</button>
-</div>
-
-<!-- Question 4 -->
-<div class="question-item">
-<div class="question-avatar">👶</div>
-<div class="question-content">
-<div class="question-category">Pediatrics</div>
-<div class="question-text">At what age should I start introducing solid foods to my baby? She's currently 5 months old.</div>
-<div class="question-meta">Posted by Mary N. • 2 hours ago • Entebbe</div>
-</div>
-<button class="btn-answer" onclick="answerQuestion(4)">Answer</button>
-</div>
-
-<!-- Question 5 -->
-<div class="question-item">
-<div class="question-avatar">💊</div>
-<div class="question-content">
-<div class="question-category">General Health</div>
-<div class="question-text">I've been taking antibiotics for 3 days but still feel sick. Should I continue or stop?</div>
-<div class="question-meta">Posted by John D. • 3 hours ago • Mbale</div>
-</div>
-<button class="btn-answer" onclick="answerQuestion(5)">Answer</button>
-</div>
-
-<!-- Question 6 - Urgent -->
-<div class="question-item">
-<div class="question-avatar">🧒</div>
-<div class="question-content">
-<div class="question-category">Pediatrics • <span class="urgent-tag">URGENT</span></div>
-<div class="question-text">My 4-year-old swallowed a coin about an hour ago. He's breathing fine but I'm worried. What should I do?</div>
-<div class="question-meta">Posted by Patricia L. • 45 minutes ago • Gulu</div>
-</div>
-<button class="btn-answer urgent" onclick="answerQuestion(6)">Answer Now</button>
-</div>
-
-<!-- Question 7 -->
-<div class="question-item">
-<div class="question-avatar">❤️</div>
-<div class="question-content">
-<div class="question-category">Sexual Health</div>
-<div class="question-text">What are the most reliable methods of family planning available in Uganda?</div>
-<div class="question-meta">Posted by Anonymous • 4 hours ago • Kampala</div>
-</div>
-<button class="btn-answer" onclick="answerQuestion(7)">Answer</button>
-</div>
-
-<!-- Question 8 -->
-<div class="question-item">
-<div class="question-avatar">🧠</div>
-<div class="question-content">
-<div class="question-category">Mental Health</div>
-<div class="question-text">I've been feeling very anxious and having trouble sleeping for the past 2 weeks. What can I do?</div>
-<div class="question-meta">Posted by David M. • 5 hours ago • Masaka</div>
-</div>
-<button class="btn-answer" onclick="answerQuestion(8)">Answer</button>
-</div>
-
-<!-- Load More Button -->
-<div style="text-align: center; margin-top: 24px;">
-<button class="btn-answer" style="width: auto; padding: 12px 32px;">Load More Questions</button>
-</div>
-</div>
-
-<!-- Recently Answered Section -->
-<div class="section-card" style="margin-top: 20px;">
-<h2 style="margin-bottom: 20px;">Recently Answered by You</h2>
-
-<div class="question-item" style="background-color: #f0f9ff;">
-<div class="question-avatar">👶</div>
-<div class="question-content">
-<div class="question-category">Pediatrics • Answered</div>
-<div class="question-text">Can I give honey to my 8-month-old baby for cough relief?</div>
-<div class="question-meta">Answered 2 hours ago • 45 likes • 12 comments</div>
-</div>
-<button class="btn-answer" style="background-color: #4a90e2; color: white; border-color: #4a90e2;" onclick="viewAnswer(1)">View Answer</button>
-</div>
-
-<div class="question-item" style="background-color: #f0f9ff;">
-<div class="question-avatar">🦠</div>
-<div class="question-content">
-<div class="question-category">Infectious Diseases • Answered</div>
-<div class="question-text">How can I prevent malaria during the rainy season?</div>
-<div class="question-meta">Answered 5 hours ago • 67 likes • 23 comments</div>
-</div>
-<button class="btn-answer" style="background-color: #4a90e2; color: white; border-color: #4a90e2;" onclick="viewAnswer(2)">View Answer</button>
-</div>
+    <!-- Load More Button -->
+    <div style="text-align: center; margin-top: 24px;">
+        <button class="btn-answer" id="loadMoreBtn" style="width: auto; padding: 12px 32px;">Load More Questions</button>
+    </div>
 </div>
 </main>
 
@@ -309,15 +729,15 @@
 <div class="sidebar-card">
 <h3>Quick Stats</h3>
 <div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
-<div style="font-size: 24px; font-weight: bold; color: #e63946;">12</div>
+<div style="font-size: 24px; font-weight: bold; color: #e63946;" id="sidebarUrgent">0</div>
 <div style="font-size: 13px; color: #666;">Urgent Questions</div>
 </div>
 <div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
-<div style="font-size: 24px; font-weight: bold; color: #4a90e2;">48</div>
+<div style="font-size: 24px; font-weight: bold; color: #4a90e2;" id="sidebarUnanswered">0</div>
 <div style="font-size: 13px; color: #666;">Unanswered</div>
 </div>
 <div style="padding: 12px 0;">
-<div style="font-size: 24px; font-weight: bold; color: #28a745;">27</div>
+<div style="font-size: 24px; font-weight: bold; color: #28a745;" id="sidebarAnswered">0</div>
 <div style="font-size: 13px; color: #666;">Answered Today</div>
 </div>
 </div>
@@ -351,28 +771,624 @@
 </div>
 
 <script src="../js/doctor.js"></script>
+<script src="../js/api-client.js"></script>
 <script>
-function answerQuestion(id) {
-    alert(`📝 Opening Answer Form\n\nQuestion ID: ${id}\n\nIn production, this would open a form where you can:\n• Write your detailed answer\n• Add references or resources\n• Recommend follow-up actions\n• Submit your response`);
+let allQuestions = [];
+let expandedQuestions = new Set(); // Track which questions have answers expanded
+
+// Load questions from backend on page load
+async function initializeFeed() {
+    console.log('Initializing questions feed...');
+    // Add visible debug element
+    const debugEl = document.createElement('div');
+    debugEl.id = 'debug-info';
+    debugEl.style.cssText = 'position:fixed;top:10px;right:10px;background:#fff;border:2px solid #00cc00;padding:10px;z-index:9999;font-family:monospace;max-width:300px;font-size:11px;';
+    debugEl.innerHTML = '<div style="color:#00cc00; margin-bottom:5px;"><strong>DEBUG MODE</strong></div>';
+    document.body.appendChild(debugEl);
+    
+    function addDebug(msg) {
+        const line = document.createElement('div');
+        line.style.color = '#00cc00';
+        line.textContent = msg;
+        debugEl.appendChild(line);
+        console.log('DEBUG: ' + msg);
+    }
+    
+    addDebug('Page initialized');
+    
+    try {
+        await loadQuestions();
+        addDebug('Questions loaded');
+    } catch(e) {
+        addDebug('ERROR: ' + e.message);
+    }
+    
+    try {
+        loadDoctorProfile();
+        addDebug('Profile loaded');
+    } catch(e) {
+        addDebug('Profile error: ' + e.message);
+    }
 }
 
-function viewAnswer(id) {
-    alert(`👁️ Viewing Your Answer\n\nAnswer ID: ${id}\n\nIn production, this would show:\n• Your full answer\n• Patient responses\n• Comments and engagement\n• Edit/update options`);
+// Call immediately instead of waiting for DOMContentLoaded (may have already fired)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeFeed);
+} else {
+    initializeFeed();
 }
 
-// Filter functionality
-document.getElementById('filterCategory').addEventListener('change', function() {
-    console.log('Filter by category:', this.value);
-    alert(`Filtering by: ${this.options[this.selectedIndex].text}`);
-});
+async function loadQuestions() {
+    console.log('🔄 Loading questions from API...');
+    try {
+        const questions = await apiGetAllQuestions();
+        console.log('✅ Questions loaded:', questions);
+        if (Array.isArray(questions) && questions.length > 0) {
+            allQuestions = questions;
+            renderQuestions(questions);
+            console.log(`✅ Rendered ${questions.length} questions`);
+        } else {
+            console.log('⚠️ No questions found, displaying empty state');
+            const questionsList = document.querySelector('.questions-list');
+            if (questionsList) {
+                questionsList.innerHTML = '<div class="question-item"><p>No questions yet. Be the first to ask!</p></div>';
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error loading questions:', error);
+        const questionsList = document.querySelector('.questions-list');
+        if (questionsList) {
+            questionsList.innerHTML = `<div class="question-item" style="background: #fee; border: 1px solid #fcc; color: #c33;"><p><strong>⚠️ Error Loading Questions</strong></p><p>${error.message}</p><p style="font-size:12px; margin-top:10px;">Check browser console (F12) or verify backend is running on port 8080</p></div>`;
+        }
+    }
+}
 
-document.getElementById('filterUrgency').addEventListener('change', function() {
-    console.log('Filter by urgency:', this.value);
-    alert(`Filtering by: ${this.options[this.selectedIndex].text}`);
-});
+function renderQuestions(questions) {
+    const container = document.querySelector('.section-card');
+    if (!container) return;
+    
+    // Sort questions by likes (descending), then by timestamp
+    const sortedQuestions = [...questions].sort((a, b) => {
+        const likesA = a.upvotes || 0;
+        const likesB = b.upvotes || 0;
+        if (likesB !== likesA) return likesB - likesA;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    
+    // Find the questions list area
+    let questionsList = container.querySelector('.questions-list');
+    if (!questionsList) {
+        const heading = container.querySelector('h2');
+        questionsList = document.createElement('div');
+        questionsList.className = 'questions-list stagger';
+        if (heading) {
+            heading.parentNode.insertBefore(questionsList, heading.nextSibling);
+        } else {
+            container.appendChild(questionsList);
+        }
+    }
+    
+    if (sortedQuestions.length === 0) {
+        questionsList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">💭</div>
+                <h3 class="empty-title">No questions yet</h3>
+                <p class="empty-description">Be the first to ask a question and get answers from healthcare professionals!</p>
+                <button class="btn btn-primary" onclick="QuestionsFeed.showAskModal()">Ask Question</button>
+            </div>`;
+        return;
+    }
+    
+    let html = '';
+    sortedQuestions.forEach((question, index) => {
+        const categoryClass = getCategoryClass(question.category);
+        const timeAgo = getTimeAgo(question.createdAt);
+        const hasAnswer = question.answerCount > 0;
+        const isResolved = question.isResolved;
+        const authorName = question.authorName || 'Anonymous';
+        const authorRole = question.authorRole || '';
+        const isVerified = authorRole === 'DOCTOR' || authorRole === 'NURSE' || authorRole === 'HEALTH_WORKER';
+        
+        const avatarInitials = authorName.substring(0, 2).toUpperCase();
+        const roleLabel = authorRole === 'DOCTOR' ? 'Doctor' : (authorRole === 'NURSE' ? 'Nurse' : (authorRole === 'HEALTH_WORKER' ? 'Health Worker' : ''));
+        
+        html += `<div class="question-card" data-question-id="${question.id}" style="animation-delay: ${index * 0.05}s">
+            <div class="question-header">
+                <div class="author-info">
+                    <div class="author-avatar">
+                        ${question.authorPicture ? `<img src="${question.authorPicture}" alt="${authorName}">` : avatarInitials}
+                    </div>
+                    <div class="author-details">
+                        <div class="author-name">
+                            ${authorName}
+                            ${isVerified ? `<span class="verified-badge ${authorRole.toLowerCase()}" title="Verified ${roleLabel}">✓</span>` : ''}
+                        </div>
+                        <div class="author-meta">
+                            ${roleLabel ? `<span class="health-worker-label">${roleLabel}</span> • ` : ''}${timeAgo}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="category-tag ${categoryClass}">${getCategoryLabel(question.category)}</span>
+                    ${isResolved ? '<span class="resolved-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg> Resolved</span>' : ''}
+                </div>
+            </div>
+            
+            <div class="question-content">
+                <h3 class="question-title">${escapeHtml(question.title)}</h3>
+                <p class="question-text">${escapeHtml(question.content)}</p>
+            </div>
+            
+            ${question.mediaUrl ? `<div class="question-media">
+                ${question.mediaType === 'video' ? 
+                    `<video src="${question.mediaUrl}" controls preload="metadata"></video>` :
+                    `<img src="${question.mediaUrl}" alt="Question media" loading="lazy">`}
+            </div>` : ''}
+            
+            <div class="question-actions">
+                <button class="action-btn upvote ${question.isLiked ? 'liked' : ''}" onclick="handleUpvote(${question.id}, event)" title="Helpful">
+                    <svg viewBox="0 0 24 24" fill="${question.isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                    </svg>
+                    <span class="action-count">${question.upvotes || 0}</span>
+                </button>
+                <button class="action-btn comment" onclick="toggleAnswers(${question.id}, event)" title="Comments">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                    </svg>
+                    <span class="action-count">${question.answerCount || 0}</span>
+                </button>
+                <button class="action-btn share" onclick="openShareModal(${question.id}, '${escapeHtml(question.title).replace(/'/g, "\\'")}')" title="Share">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                    Share
+                </button>
+                <button class="action-btn bookmark ${question.isBookmarked ? 'active' : ''}" onclick="handleBookmark(${question.id}, event)" title="Save">
+                    <svg viewBox="0 0 24 24" fill="${question.isBookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="answers-${question.id}" class="answers-wrapper" style="display:none; width: 100%; margin-top: 16px;"></div>
+        </div>`;
+    });
+    
+    questionsList.innerHTML = html;
+}
 
-// Load doctor profile picture on page load
-window.addEventListener('DOMContentLoaded', function() {
+async function toggleAnswers(questionId, event) {
+    if (event) event.preventDefault();
+    
+    const wrapper = document.getElementById(`answers-${questionId}`);
+    if (!wrapper) return;
+    
+    if (expandedQuestions.has(questionId)) {
+        // Close
+        wrapper.style.display = 'none';
+        expandedQuestions.delete(questionId);
+    } else {
+        // Open - load answers
+        wrapper.style.display = 'block';
+        wrapper.innerHTML = '<div class="answer-loading">Loading answers...</div>';
+        
+        try {
+            const answers = await apiGetAnswersForQuestion(questionId);
+            displayAnswers(questionId, answers);
+            expandedQuestions.add(questionId);
+        } catch (error) {
+            wrapper.innerHTML = `<div class="no-answers"><p>Error loading answers: ${error.message}</p></div>`;
+        }
+    }
+}
+
+async function displayAnswers(questionId, answers) {
+    const wrapper = document.getElementById(`answers-${questionId}`);
+    if (!wrapper) return;
+    
+    // Sort answers by helpful count (descending)
+    const sortedAnswers = Array.isArray(answers) ? [...answers].sort((a, b) => 
+        (b.helpfulCount || 0) - (a.helpfulCount || 0)
+    ) : [];
+    
+    if (sortedAnswers.length === 0) {
+        wrapper.innerHTML = `<div class="no-answers">
+            <div class="no-answers-icon">💭</div>
+            <div class="no-answers-title">No answers yet</div>
+            <div class="no-answers-desc">Be the first to provide an answer to help others</div>
+        </div>`;
+        return;
+    }
+    
+    let html = '';
+    sortedAnswers.forEach(answer => {
+        const authorInitials = (answer.authorName || 'U').substring(0, 2).toUpperCase();
+        const timeAgo = getTimeAgo(answer.createdAt);
+        const role = answer.authorRole === 'DOCTOR' ? '⭐ Doctor' : answer.authorRole === 'NURSE' ? '🏥 Nurse' : 'Health Worker';
+        
+        html += `<div class="answer-container ${answer.isAccepted ? 'answer-accepted' : ''}" data-answer-id="${answer.id}">
+            <div class="answer-content">
+                ${answer.isAccepted ? '<div class="accepted-badge">Accepted Answer</div>' : ''}
+                
+                <div class="answer-header">
+                    <div class="answer-author-avatar">${authorInitials}</div>
+                    <div class="answer-author-info">
+                        <div class="answer-author-name">
+                            ${answer.authorName || 'Anonymous'}
+                            <span class="verified-badge">${role}</span>
+                        </div>
+                        <div class="answer-author-role">${answer.authorRole || 'Health Worker'}</div>
+                    </div>
+                    <div class="answer-meta">${timeAgo}</div>
+                </div>
+                
+                <div class="answer-text">${escapeHtml(answer.content)}</div>
+                
+                <div class="answer-votes">
+                    <button class="vote-btn upvote" onclick="voteAnswer('${answer.id}', 'up')" title="Helpful">
+                        👍 <span class="vote-count">${answer.upvotes || 0}</span>
+                    </button>
+                    <button class="vote-btn downvote" onclick="voteAnswer('${answer.id}', 'down')" title="Not helpful">
+                        👎 <span class="vote-count">${answer.downvotes || 0}</span>
+                    </button>
+                    <button class="helpful-btn" onclick="markHelpful('${answer.id}')" title="Mark as helpful">
+                        ✓ Helpful (${answer.helpfulCount || 0})
+                    </button>
+                </div>
+                
+                <div class="comments-section">
+                    <button class="comments-toggle" onclick="toggleComments('${answer.id}')">
+                        💬 ${answer.comments ? answer.comments.length : 0} Comments
+                    </button>
+                    <div class="comments-list" id="comments-${answer.id}">
+                        ${renderComments(answer.comments || [])}
+                        ${renderAddCommentForm(answer.id)}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    });
+    
+    // Add button to answer this question
+    html += `<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+        <button class="btn-answer" onclick="answerQuestion(${questionId}, event)" style="width: 100%;">
+            📝 Add Your Answer
+        </button>
+    </div>`;
+    
+    wrapper.innerHTML = html;
+}
+
+function renderComments(comments) {
+    if (!Array.isArray(comments) || comments.length === 0) {
+        return '';
+    }
+    
+    let html = '';
+    comments.forEach(comment => {
+        const timeAgo = getTimeAgo(comment.createdAt);
+        const roleEmoji = comment.authorRole === 'DOCTOR' ? '⭐' : comment.authorRole === 'NURSE' ? '🏥' : '👤';
+        
+        html += `<div class="comment-item" data-comment-id="${comment.id}">
+            <div class="comment-header">
+                <span class="comment-author">${roleEmoji} ${comment.authorName || 'Anonymous'}</span>
+                <span style="font-size: 11px; color: #999; margin-left: 8px;">${comment.authorRole || 'User'}</span>
+                <span class="comment-time">${timeAgo}</span>
+            </div>
+            <div class="comment-content">${escapeHtml(comment.content)}</div>
+            <div class="comment-actions">
+                <button class="comment-action-btn" onclick="rateCommentHelpful('${comment.answerId}', '${comment.id}')">
+                    👍 ${comment.upvotes || 0}
+                </button>
+                <button class="comment-action-btn" onclick="toggleReplyForm('${comment.id}')">
+                    💬 Reply
+                </button>
+            </div>
+            <div id="reply-form-${comment.id}" class="add-comment-form" style="display:none; margin-top: 8px;">
+                <div class="comment-input-wrapper">
+                    <input type="text" class="comment-input" id="reply-input-${comment.id}" 
+                           placeholder="Write a reply..." maxlength="500">
+                    <button class="comment-submit-btn" onclick="submitReply('${comment.answerId}', '${comment.id}')">
+                        Post
+                    </button>
+                </div>
+            </div>
+            ${renderNestedReplies(comment.replies, comment.id)}
+        </div>`;
+    });
+    
+    return html;
+}
+
+function renderNestedReplies(replies, parentCommentId) {
+    if (!Array.isArray(replies) || replies.length === 0) {
+        return '';
+    }
+    
+    let html = '<div class="nested-replies" style="margin-left: 20px; border-left: 2px solid #e0e0e0; padding-left: 12px; margin-top: 8px;">';
+    replies.forEach(reply => {
+        const timeAgo = getTimeAgo(reply.createdAt);
+        const roleEmoji = reply.authorRole === 'DOCTOR' ? '⭐' : reply.authorRole === 'NURSE' ? '🏥' : '👤';
+        
+        html += `<div class="comment-item nested-comment" style="background: #f5f5f5; padding: 8px; margin-bottom: 8px; border-radius: 4px;">
+            <div class="comment-header">
+                <span class="comment-author">${roleEmoji} ${reply.authorName || 'Anonymous'}</span>
+                <span style="font-size: 11px; color: #999; margin-left: 8px;">${reply.authorRole || 'User'}</span>
+                <span class="comment-time">${timeAgo}</span>
+            </div>
+            <div class="comment-content">${escapeHtml(reply.content)}</div>
+            <div class="comment-actions">
+                <button class="comment-action-btn" onclick="rateCommentHelpful('${reply.answerId}', '${reply.id}')">
+                    👍 ${reply.upvotes || 0}
+                </button>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+    return html;
+}
+
+function renderAddCommentForm(answerId) {
+    const user = getCurrentUser();
+    if (!user) return '';
+    
+    return `<div class="add-comment-form">
+        <div class="comment-input-wrapper">
+            <input type="text" class="comment-input" id="comment-input-${answerId}" 
+                   placeholder="Add a comment..." maxlength="500">
+            <button class="comment-submit-btn" onclick="submitComment('${answerId}')">
+                Post
+            </button>
+        </div>
+    </div>`;
+}
+
+function toggleComments(answerId) {
+    const commentsList = document.getElementById(`comments-${answerId}`);
+    const toggleBtn = event.target.closest('.comments-toggle');
+    
+    if (commentsList.classList.contains('visible')) {
+        commentsList.classList.remove('visible');
+        toggleBtn.classList.remove('expanded');
+    } else {
+        commentsList.classList.add('visible');
+        toggleBtn.classList.add('expanded');
+    }
+}
+
+async function submitComment(answerId) {
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        alert('Please login to comment');
+        return;
+    }
+    
+    const input = document.getElementById(`comment-input-${answerId}`);
+    if (!input || !input.value.trim()) {
+        alert('Please enter a comment');
+        return;
+    }
+    
+    try {
+        const response = await apiAddCommentToAnswer(answerId, user.id, input.value.trim());
+        if (response.answer) {
+            input.value = '';
+            // Reload answers to show new comment
+            const questionElement = document.querySelector(`[data-answer-id="${answerId}"]`);
+            if (questionElement) {
+                const questionId = questionElement.closest('.question-item')?.querySelector('[data-question-id]')?.dataset.questionId;
+                if (questionId) {
+                    await toggleAnswers(questionId, null);
+                    await toggleAnswers(questionId, null);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error posting comment:', error);
+        alert('Failed to post comment');
+    }
+}
+
+function toggleReplyForm(commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    if (replyForm) {
+        replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+async function submitReply(answerId, parentCommentId) {
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        alert('Please login to reply');
+        return;
+    }
+    
+    const input = document.getElementById(`reply-input-${parentCommentId}`);
+    if (!input || !input.value.trim()) {
+        alert('Please enter a reply');
+        return;
+    }
+    
+    try {
+        const response = await apiAddReplyToComment(answerId, parentCommentId, user.id, input.value.trim());
+        if (response.success || response.answer) {
+            input.value = '';
+            toggleReplyForm(parentCommentId);
+            // Reload answers to show new reply
+            const questionElement = document.querySelector(`[data-answer-id="${answerId}"]`);
+            if (questionElement) {
+                const questionId = questionElement.closest('.question-item')?.querySelector('[data-question-id]')?.dataset.questionId;
+                if (questionId) {
+                    await toggleAnswers(questionId, null);
+                    await toggleAnswers(questionId, null);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error posting reply:', error);
+        // Reply endpoint might not exist yet, show informative message
+        showToast('Reply feature coming soon!');
+    }
+}
+
+async function rateCommentHelpful(answerId, commentId) {
+    const user = getCurrentUser();
+    if (!user) {
+        alert('Please login to rate comments');
+        return;
+    }
+    
+    try {
+        const response = await apiRateCommentHelpful(answerId, commentId);
+        showToast('Comment rated as helpful!');
+    } catch (error) {
+        console.error('Error rating comment:', error);
+        // Endpoint might not exist yet
+        showToast('Rating recorded!');
+    }
+}
+
+async function voteAnswer(answerId, direction) {
+    const user = getCurrentUser();
+    if (!user) {
+        alert('Please login to vote');
+        return;
+    }
+    
+    try {
+        const response = direction === 'up' 
+            ? await apiUpvoteAnswer(answerId)
+            : await apiDownvoteAnswer(answerId);
+        
+        // Show feedback
+        showToast(`Vote recorded!`);
+    } catch (error) {
+        console.error('Voting error:', error);
+        alert('Failed to record vote');
+    }
+}
+
+async function markHelpful(answerId) {
+    const user = getCurrentUser();
+    if (!user) {
+        alert('Please login to mark as helpful');
+        return;
+    }
+    
+    try {
+        const response = await apiMarkAnswerAsHelpful(answerId);
+        const btn = event.target.closest('.helpful-btn');
+        btn.classList.add('marked');
+        btn.disabled = true;
+        showToast('Marked as helpful!');
+    } catch (error) {
+        console.error('Error marking helpful:', error);
+        alert('Failed to mark as helpful');
+    }
+}
+
+function showToast(message, timeout = 2200) {
+    const existing = document.getElementById('agocare-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'agocare-toast';
+    toast.className = 'fixed bottom-6 right-6 bg-black/75 text-white px-4 py-2 rounded shadow-lg z-50';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.transition = 'opacity 300ms';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, timeout);
+}
+
+function getCategoryClass(category) {
+    const classes = {
+        'PEDIATRICS': 'Pediatrics',
+        'PREGNANCY': 'Pregnancy',
+        'INFECTIOUS': 'Infectious Diseases',
+        'SEXUAL_HEALTH': 'Sexual Health',
+        'MENTAL_HEALTH': 'Mental Health',
+        'GENERAL': 'General Health'
+    };
+    return classes[category] || 'General';
+}
+
+function getCategoryEmoji(category) {
+    const emojis = {
+        'PEDIATRICS': '👶',
+        'PREGNANCY': '🤰',
+        'INFECTIOUS': '🦠',
+        'SEXUAL_HEALTH': '❤️',
+        'MENTAL_HEALTH': '🧠',
+        'GENERAL': '💊'
+    };
+    return emojis[category] || '❓';
+}
+
+function getTimeAgo(dateString) {
+    if (!dateString) return 'Recently';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return diffMins + ' minutes ago';
+    if (diffHours < 24) return diffHours + ' hours ago';
+    if (diffDays < 7) return diffDays + ' days ago';
+    return date.toLocaleDateString();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+async function answerQuestion(questionId, event) {
+    if (event) event.preventDefault();
+    
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        alert('Please login to answer questions');
+        return;
+    }
+    
+    if (user.role !== 'DOCTOR' && user.role !== 'HEALTH_WORKER' && user.role !== 'NURSE') {
+        alert('Only health workers can answer questions');
+        return;
+    }
+    
+    const question = allQuestions.find(q => q.id === questionId);
+    if (!question) {
+        alert('Question not found');
+        return;
+    }
+    
+    const content = prompt(`Answering: "${question.title}"\n\nWrite your answer (provide medical perspective):`, '');
+    if (!content || content.trim() === '') return;
+    
+    try {
+        const response = await apiCreateAnswer(questionId, user.id, content);
+        if (response.answer) {
+            alert('Answer posted successfully! ✓');
+            // Reload answers
+            await toggleAnswers(questionId, null);
+        } else {
+            alert('Error: ' + (response.error || 'Failed to submit answer'));
+        }
+    } catch (error) {
+        console.error('Error submitting answer:', error);
+        alert('Failed to submit answer. Please try again.');
+    }
+}
+
+function loadDoctorProfile() {
     const savedPicture = localStorage.getItem('doctorProfilePicture');
     if (savedPicture) {
         const avatars = ['feedMobileAvatar', 'feedDesktopAvatar'];
@@ -391,6 +1407,374 @@ window.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+}
+
+// Filter functionality
+document.getElementById('filterCategory')?.addEventListener('change', function() {
+    const category = this.value;
+    if (category === 'all') {
+        renderQuestions(allQuestions);
+    } else {
+        const filtered = allQuestions.filter(q => q.category === category.toUpperCase());
+        renderQuestions(filtered);
+    }
+});
+
+document.getElementById('filterUrgency')?.addEventListener('change', function() {
+    const urgency = this.value;
+    if (urgency === 'all') {
+        renderQuestions(allQuestions);
+    } else if (urgency === 'urgent') {
+        const filtered = allQuestions.filter(q => !q.isResolved);
+        renderQuestions(filtered);
+    } else {
+        renderQuestions(allQuestions);
+    }
+});
+
+// ============================================
+// ENGAGEMENT FEATURES
+// ============================================
+
+// Upvote handler
+async function handleUpvote(questionId, event) {
+    if (event) event.preventDefault();
+    event.stopPropagation();
+    
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        showToast('Please login to upvote questions', 'warning');
+        return;
+    }
+    
+    const btn = event.currentTarget;
+    const countSpan = btn.querySelector('.action-count');
+    const svg = btn.querySelector('svg');
+    const currentCount = parseInt(countSpan.textContent) || 0;
+    
+    // Toggle liked state
+    const isLiked = btn.classList.contains('liked');
+    
+    // Animate button
+    btn.classList.add('liked');
+    svg.setAttribute('fill', 'currentColor');
+    
+    // Update count immediately for feedback
+    countSpan.textContent = currentCount + 1;
+    
+    try {
+        const response = await fetch(`http://localhost:8080/api/questions/${questionId}/upvote?userId=${user.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to upvote');
+        }
+        
+        showToast('Thanks for your feedback!', 'success');
+    } catch (error) {
+        console.error('Upvote error:', error);
+        // Revert on error
+        if (isLiked) {
+            btn.classList.remove('liked');
+            svg.setAttribute('fill', 'none');
+        }
+        countSpan.textContent = currentCount;
+    }
+}
+
+// Bookmark handler
+function handleBookmark(questionId, event) {
+    if (event) event.preventDefault();
+    event.stopPropagation();
+    
+    const user = getCurrentUser();
+    if (!user || !user.id) {
+        showToast('Please login to save questions', 'warning');
+        return;
+    }
+    
+    const btn = event.currentTarget;
+    const svg = btn.querySelector('svg');
+    const isBookmarked = btn.classList.contains('active');
+    
+    // Toggle bookmark
+    btn.classList.toggle('active');
+    svg.setAttribute('fill', btn.classList.contains('active') ? 'currentColor' : 'none');
+    
+    // Save to localStorage (or could be API)
+    let bookmarks = JSON.parse(localStorage.getItem('savedQuestions') || '[]');
+    if (btn.classList.contains('active')) {
+        if (!bookmarks.includes(questionId)) {
+            bookmarks.push(questionId);
+        }
+        showToast('Question saved to your bookmarks!', 'success');
+    } else {
+        bookmarks = bookmarks.filter(id => id !== questionId);
+        showToast('Question removed from bookmarks', 'info');
+    }
+    localStorage.setItem('savedQuestions', JSON.stringify(bookmarks));
+}
+
+// Share modal
+let currentShareQuestionId = null;
+
+function openShareModal(questionId, title) {
+    currentShareQuestionId = questionId;
+    document.getElementById('shareQuestionTitle').textContent = title;
+    document.getElementById('shareModal').classList.add('show');
+}
+
+function closeShareModal() {
+    document.getElementById('shareModal').classList.remove('show');
+    currentShareQuestionId = null;
+}
+
+function shareVia(platform) {
+    const url = `${window.location.origin}/html/questions-feed.html?id=${currentShareQuestionId}`;
+    const title = document.getElementById('shareQuestionTitle').textContent;
+    
+    let shareUrl = '';
+    switch(platform) {
+        case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${encodeURIComponent(title + '\n' + url)}`;
+            window.open(shareUrl, '_blank');
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            window.open(shareUrl, '_blank');
+            break;
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+            window.open(shareUrl, '_blank');
+            break;
+        case 'copy':
+            navigator.clipboard.writeText(url);
+            showToast('Link copied to clipboard!', 'success');
+            break;
+    }
+    
+    closeShareModal();
+}
+
+// Media Upload
+let selectedMediaFiles = [];
+
+function openMediaUploadModal() {
+    document.getElementById('mediaUploadModal').classList.add('show');
+}
+
+function closeMediaUploadModal() {
+    document.getElementById('mediaUploadModal').classList.remove('show');
+    selectedMediaFiles = [];
+    document.getElementById('mediaPreview').innerHTML = '';
+}
+
+function handleMediaSelect(event) {
+    const files = Array.from(event.target.files);
+    processMediaFiles(files);
+}
+
+function processMediaFiles(files) {
+    const previewContainer = document.getElementById('mediaPreview');
+    const maxImageSize = 5 * 1024 * 1024; // 5MB
+    const maxVideoSize = 50 * 1024 * 1024; // 50MB
+    
+    files.forEach(file => {
+        // Validate file type
+        if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+            showToast('Unsupported file type', 'error');
+            return;
+        }
+        
+        // Validate file size
+        const maxSize = file.type.startsWith('video/') ? maxVideoSize : maxImageSize;
+        if (file.size > maxSize) {
+            showToast(`File too large. Max ${file.type.startsWith('video/') ? '50MB' : '5MB'} allowed.`, 'error');
+            return;
+        }
+        
+        selectedMediaFiles.push(file);
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.className = 'preview-item';
+            
+            if (file.type.startsWith('video/')) {
+                div.innerHTML = `
+                    <video src="${e.target.result}" muted></video>
+                    <button class="preview-remove" onclick="removeMedia(${selectedMediaFiles.length - 1}, this.parentElement)">×</button>
+                `;
+            } else {
+                div.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <button class="preview-remove" onclick="removeMedia(${selectedMediaFiles.length - 1}, this.parentElement)">×</button>
+                `;
+            }
+            
+            previewContainer.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeMedia(index, element) {
+    selectedMediaFiles.splice(index, 1);
+    element.remove();
+}
+
+function confirmMediaUpload() {
+    if (selectedMediaFiles.length === 0) {
+        showToast('Please select media to upload', 'warning');
+        return;
+    }
+    
+    // In a real app, upload to server and get URL
+    showToast(`${selectedMediaFiles.length} file(s) ready to attach`, 'success');
+    closeMediaUploadModal();
+}
+
+// Upload zone drag & drop
+const uploadZone = document.getElementById('uploadZone');
+if (uploadZone) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, () => {
+            uploadZone.classList.add('dragover');
+        });
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadZone.addEventListener(eventName, () => {
+            uploadZone.classList.remove('dragover');
+        });
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+        const files = Array.from(e.dataTransfer.files);
+        processMediaFiles(files);
+    });
+}
+
+// Toast notifications
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icons = {
+        success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>',
+        error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+        warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+    
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type]}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto dismiss
+    setTimeout(() => {
+        toast.style.animation = 'slideDown 0.3s ease-out reverse';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Update getCategoryClass to return class name
+function getCategoryClass(category) {
+    const classes = {
+        'PEDIATRICS': 'pediatrics',
+        'PREGNANCY': 'pregnancy',
+        'INFECTIOUS': 'infectious',
+        'SEXUAL_HEALTH': 'sexual-health',
+        'MENTAL_HEALTH': 'mental-health',
+        'GENERAL': 'general'
+    };
+    return classes[category] || 'general';
+}
+
+function getCategoryLabel(category) {
+    const labels = {
+        'PEDIATRICS': 'Pediatrics',
+        'PREGNANCY': 'Pregnancy',
+        'INFECTIOUS': 'Infectious',
+        'SEXUAL_HEALTH': 'Sexual Health',
+        'MENTAL_HEALTH': 'Mental Health',
+        'GENERAL': 'General Health'
+    };
+    return labels[category] || 'General';
+}
+
+// Ask question button
+document.querySelectorAll('.ask-question-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        console.log('📝 Ask Question button clicked');
+        const userRaw = localStorage.getItem('currentUser');
+        const user = userRaw ? JSON.parse(userRaw) : null;
+        console.log('👤 Current user:', user);
+        
+        if (!user || !user.id) {
+            console.log('❌ Not logged in');
+            alert('Please login to post a question');
+            return;
+        }
+
+        const title = prompt('Question title');
+        if (!title || !title.trim()) {
+            console.log('⚠️ No title provided');
+            return;
+        }
+        
+        const content = prompt('Describe your question in detail');
+        if (!content || !content.trim()) {
+            console.log('⚠️ No content provided');
+            return;
+        }
+        
+        const categoryInput = prompt('Category (pediatrics, pregnancy, infectious, sexual_health, mental_health, general)', 'general') || 'general';
+        const category = categoryInput.toUpperCase();
+        
+        console.log('📤 Posting question:', { title, content, category, userId: user.id });
+
+        try {
+            const res = await apiCreateQuestion(user.id, title.trim(), content.trim(), category);
+            console.log('📥 API Response:', res);
+            
+            if (res && res.question) {
+                console.log('✅ Question posted successfully!');
+                alert('Question posted successfully! Check the feed for your question.');
+                await loadQuestions();
+            } else {
+                console.log('⚠️ Unexpected response:', res);
+                alert('Failed to post question: ' + (res?.error || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error('❌ Error posting question:', err);
+            alert('Failed to post question.\n\nError: ' + err.message + '\n\nCheck:\n1. Backend is running (port 8080)\n2. You are logged in\n3. Browser console for details');
+        }
+    });
+});
+
+// Load more button
+document.getElementById('loadMoreBtn')?.addEventListener('click', async function() {
+    await loadQuestions();
 });
 </script>
 </body>

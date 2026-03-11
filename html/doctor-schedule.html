@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule - Agocare Doctor</title>
+    <link rel="stylesheet" href="../css/patientDashboard.css">
+    <link rel="stylesheet" href="../css/modern.css">
+    <script src="../js/navigation.js"></script>
+    <script src="../js/api-client.js"></script>
+    <style>
+        body { 
+            background: #f8fafc; 
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .scroll-section::-webkit-scrollbar { display: none; }
+        .scroll-section { scrollbar-width: none; -ms-overflow-style: none; }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .btn-primary {
+            background: #0d9488;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #0f766e;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .calendar-nav-btn {
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .calendar-nav-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .calendar-month {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            padding: 8px;
+        }
+
+        .calendar-day {
+            min-height: 100px;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-day:hover {
+            border-color: #0d9488;
+            background: #f0fdfa;
+        }
+
+        .calendar-day.other-month {
+            background: #f9fafb;
+            opacity: 0.5;
+        }
+
+        .calendar-day.today {
+            border-color: #0d9488;
+            background: #f0fdfa;
+        }
+
+        .calendar-day-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .calendar-day.today .calendar-day-number {
+            color: #0d9488;
+        }
+
+        .appointment-dot {
+            width: 100%;
+            padding: 4px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        .appointment-dot.morning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .appointment-dot.afternoon {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .appointment-dot.evening {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .time-slots {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .time-slot-card {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 16px;
+            border-left: 4px solid #0d9488;
+        }
+
+        .time-slot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .time-slot-period {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .time-slot-count {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .availability-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #e5e7eb;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: #0d9488;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        .toggle-label {
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .schedule-time {
+            min-width: 80px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .schedule-info {
+            flex: 1;
+        }
+
+        .schedule-patient {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .schedule-type {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .schedule-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .modal-close {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            min-width: 200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2500;
+            display: none;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        .user-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .user-menu-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .user-menu-email {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #4b5563;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .user-menu-item:hover {
+            background: #f3f4f6;
+        }
+
+        .logout-item {
+            border-top: 1px solid #e5e7eb;
+            color: #ef4444;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 3000;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .week-view {
+            display: none;
+        }
+
+        .week-view.active {
+            display: block;
+        }
+
+        .day-view {
+            display: none;
+        }
+
+        .day-view.active {
+            display: block;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+        }
+
+        .view-btn.active {
+            background: #0d9488;
+            color: white;
+            border-color: #0d9488;
+        }
+
+        .availability-settings {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .availability-settings {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .day-availability {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .day-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .time-range {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .time-range input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="doctor-dashboard.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                <img src="../images/logo.svg" alt="Agocare" style="height: 40px; cursor: pointer;">
+            </a>
+        </div>
+        
+        <div class="header-right">
+            <div class="avatar" id="doctorAvatar" onclick="toggleUserMenu()">D</div>
+        </div>
+        
+        <div id="user-menu" class="user-menu">
+            <div class="user-menu-header">
+                <div class="user-menu-name" id="user-name">Dr. Doctor</div>
+                <div class="user-menu-email" id="user-email">doctor@agocare.com</div>
+            </div>
+            <a href="doctor-profile(1).html" class="user-menu-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+                Profile
+            </a>
+            <a href="settings(1).html" class="user-menu-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                </svg>
+                Settings
+            </a>
+            <div class="user-menu-item logout-item" onclick="logout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+                Logout
+            </div>
+        </div>
+    </header>
+
+    <div style="max-width: 1600px; margin: 0 auto; padding: 80px 24px 20px 24px; height: 100vh; box-sizing: border-box; overflow: hidden;">
+        <div style="display: grid; grid-template-columns: 260px 1fr 320px; gap: 24px; height: 100%;">
+            <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <div style="background: white; border-radius: 12px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Main</div>
+                        <a href="doctor-dashboard.html" class="nav-item" data-route="dashboard">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            Dashboard
+                        </a>
+                        <a href="doctor-appointments.html" class="nav-item" data-route="appointments">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            Appointments
+                        </a>
+                        <a href="doctor-patients.html" class="nav-item" data-route="patients">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                            My Patients
+                        </a>
+                        <a href="doctor-consultations.html" class="nav-item" data-route="consultations">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            Consultations
+                        </a>
+                        <a href="doctor-prescriptions.html" class="nav-item" data-route="prescriptions">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                            Prescriptions
+                        </a>
+                        <a href="doctor-lab-results.html" class="nav-item" data-route="lab-results">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                            Lab Results
+                        </a>
+                    </div>
+
+                    <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Communication</div>
+                        <a href="doctor-messages.html" class="nav-item" data-route="messages">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                            Messages
+                        </a>
+                        <a href="doctor-schedule.html" class="nav-item active" data-route="schedule">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Schedule
+                        </a>
+                    </div>
+
+                    <div style="padding: 8px 12px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Account</div>
+                        <a href="doctor-profile(1).html" class="nav-item" data-route="profile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            Profile
+                        </a>
+                        <a href="settings(1).html" class="nav-item" data-route="settings">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                            Settings
+                        </a>
+                        <a href="#" onclick="logout(); return false;" class="nav-item" style="color: #ef4444;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <div style="margin-bottom: 24px;">
+                    <h1 style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">Schedule</h1>
+                    <p style="color: #6b7280; font-size: 14px;" id="current-date"></p>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">Calendar</h2>
+                        <div class="view-toggle">
+                            <button class="view-btn active" onclick="switchView('month')">Month</button>
+                            <button class="view-btn" onclick="switchView('week')">Week</button>
+                        </div>
+                    </div>
+
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="calendar-nav-btn" onclick="previousMonth()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                            </button>
+                            <span class="calendar-month" id="calendar-month">December 2024</span>
+                            <button class="calendar-nav-btn" onclick="nextMonth()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <button class="btn-secondary" onclick="goToToday()">Today</button>
+                    </div>
+
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">Today's Schedule</h2>
+                        <button class="btn-primary" onclick="openTimeSlotModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Block Time
+                        </button>
+                    </div>
+                    <div id="today-schedule">
+                        <div style="text-align: center; padding: 40px; color: #6b7280;">No appointments scheduled for today</div>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">Weekly Overview</h3>
+                    <div id="week-overview" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 13px;">Loading...</div>
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">Availability Settings</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                            <span style="font-size: 14px; color: #4b5563;">Accept Appointments</span>
+                            <div class="toggle-switch active" onclick="toggleAvailability(this)"></div>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                            <span style="font-size: 14px; color: #4b5563;">Show on Calendar</span>
+                            <div class="toggle-switch active" onclick="toggleAvailability(this)"></div>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" style="width: 100%; margin-top: 16px;" onclick="openAvailabilityModal()">
+                        Set Weekly Hours
+                    </button>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="timeSlotModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Block Time</h3>
+                <div class="modal-close" onclick="closeTimeSlotModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </div>
+            </div>
+            <form id="blockTimeForm" onsubmit="blockTime(event)">
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input" id="blockDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Start Time</label>
+                    <input type="time" class="form-input" id="blockStartTime" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">End Time</label>
+                    <input type="time" class="form-input" id="blockEndTime" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Reason</label>
+                    <select class="form-select" id="blockReason">
+                        <option value="lunch">Lunch Break</option>
+                        <option value="meeting">Meeting</option>
+                        <option value="personal">Personal</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeTimeSlotModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Block Time</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="availabilityModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Set Weekly Hours</h3>
+                <div class="modal-close" onclick="closeAvailabilityModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="availability-settings">
+                <div class="day-availability">
+                    <div class="day-name">Monday</div>
+                    <div class="time-range">
+                        <input type="time" id="mon-start" value="09:00">
+                        <input type="time" id="mon-end" value="17:00">
+                    </div>
+                    <div class="availability-toggle">
+                        <div class="toggle-switch active" onclick="toggleDayAvailability(this)"></div>
+                        <span class="toggle-label">Available</span>
+                    </div>
+                </div>
+                <div class="day-availability">
+                    <div class="day-name">Tuesday</div>
+                    <div class="time-range">
+                        <input type="time" id="tue-start" value="09:00">
+                        <input type="time" id="tue-end" value="17:00">
+                    </div>
+                    <div class="availability-toggle">
+                        <div class="toggle-switch active" onclick="toggleDayAvailability(this)"></div>
+                        <span class="toggle-label">Available</span>
+                    </div>
+                </div>
+                <div class="day-availability">
+                    <div class="day-name">Wednesday</div>
+                    <div class="time-range">
+                        <input type="time" id="wed-start" value="09:00">
+                        <input type="time" id="wed-end" value="17:00">
+                    </div>
+                    <div class="availability-toggle">
+                        <div class="toggle-switch active" onclick="toggleDayAvailability(this)"></div>
+                        <span class="toggle-label">Available</span>
+                    </div>
+                </div>
+                <div class="day-availability">
+                    <div class="day-name">Thursday</div>
+                    <div class="time-range">
+                        <input type="time" id="thu-start" value="09:00">
+                        <input type="time" id="thu-end" value="17:00">
+                    </div>
+                    <div class="availability-toggle">
+                        <div class="toggle-switch active" onclick="toggleDayAvailability(this)"></div>
+                        <span class="toggle-label">Available</span>
+                    </div>
+                </div>
+                <div class="day-availability">
+                    <div class="day-name">Friday</div>
+                    <div class="time-range">
+                        <input type="time" id="fri-start" value="09:00">
+                        <input type="time" id="fri-end" value="17:00">
+                    </div>
+                    <div class="availability-toggle">
+                        <div class="toggle-switch active" onclick="toggleDayAvailability(this)"></div>
+                        <span class="toggle-label">Available</span>
+                    </div>
+                </div>
+                <div class="day-availability">
+                    <div class="day-name">Saturday</div>
+                    <div class="time-range">
+                        <input type="time" id="sat-start" value="09:00">
+                        <input type="time" id="sat-end" value="13:00">
+                    </div>
+                    <div class="availability-toggle">
+                        <div class="toggle-switch" onclick="toggleDayAvailability(this)"></div>
+                        <span class="toggle-label">Available</span>
+                    </div>
+                </div>
+                <div class="day-availability">
+                    <div class="day-name">Sunday</div>
+                    <div class="time-range">
+                        <input type="time" id="sun-start" value="09:00">
+                        <input type="time" id="sun-end" value="12:00">
+                    </div>
+                    <div class="availability-toggle">
+                        <div class="toggle-switch" onclick="toggleDayAvailability(this)"></div>
+                        <span class="toggle-label">Available</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeAvailabilityModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="saveAvailability()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentDoctor = null;
+        let currentMonth = new Date();
+        let allAppointments = [];
+
+        async function init() {
+            if (!isAuthenticated()) {
+                window.location.href = 'Login.html';
+                return;
+            }
+
+            currentDoctor = getCurrentUser();
+            if (!currentDoctor) {
+                console.error('No current user found');
+                return;
+            }
+
+            updateUserInfo();
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('blockDate').min = today;
+
+            await loadAppointments();
+            renderCalendar();
+            renderTodaySchedule();
+            renderWeekOverview();
+            routeHighlighting();
+        }
+
+        function updateUserInfo() {
+            const name = currentDoctor.name || currentDoctor.username || 'Doctor';
+            document.getElementById('user-name').textContent = 'Dr. ' + name;
+            document.getElementById('user-email').textContent = currentDoctor.email || '';
+            document.getElementById('doctorAvatar').textContent = getInitials(name);
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        async function loadAppointments() {
+            try {
+                const response = await API.appointments.getByDoctor(currentDoctor.id);
+                allAppointments = response.data || response || [];
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+            }
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const monthLabel = document.getElementById('calendar-month');
+            
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            
+            monthLabel.textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let html = '';
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                html += `<div class="calendar-day-header">${day}</div>`;
+            });
+            
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const isOtherMonth = date.getMonth() !== month;
+                const isToday = date.getTime() === today.getTime();
+                const dateStr = date.toISOString().split('T')[0];
+                
+                const dayAppointments = allAppointments.filter(apt => {
+                    const aptDate = new Date(apt.appointmentDate).toISOString().split('T')[0];
+                    return aptDate === dateStr;
+                }).slice(0, 3);
+                
+                let classes = 'calendar-day';
+                if (isOtherMonth) classes += ' other-month';
+                if (isToday) classes += ' today';
+                
+                html += `
+                    <div class="${classes}" onclick="selectDate('${dateStr}')">
+                        <div class="calendar-day-number">${date.getDate()}</div>
+                        ${dayAppointments.map(apt => {
+                            const time = new Date(apt.appointmentDate).toLocaleTimeString('en-US', { hour: 'numeric' });
+                            const period = new Date(apt.appointmentDate).getHours() < 12 ? 'morning' : 
+                                         new Date(apt.appointmentDate).getHours() < 17 ? 'afternoon' : 'evening';
+                            return `<div class="appointment-dot ${period}" title="${apt.patientName} - ${time}">${time}</div>`;
+                        }).join('')}
+                    </div>
+                `;
+            }
+            
+            grid.innerHTML = html;
+        }
+
+        function previousMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            currentMonth = new Date();
+            renderCalendar();
+        }
+
+        function switchView(view) {
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            showToast(`Switched to ${view} view`, 'info');
+        }
+
+        function selectDate(dateStr) {
+            showToast(`Selected: ${new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`, 'info');
+        }
+
+        function renderTodaySchedule() {
+            const container = document.getElementById('today-schedule');
+            const today = new Date().toISOString().split('T')[0];
+            
+            const todayAppointments = allAppointments.filter(apt => {
+                const aptDate = new Date(apt.appointmentDate).toISOString().split('T')[0];
+                return aptDate === today;
+            }).sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
+
+            // Also load blocked times for today
+            const blockedTimes = JSON.parse(localStorage.getItem('doctorBlockedTimes') || '[]')
+                .filter(bt => bt.date === today && bt.doctorId === currentDoctor.id);
+
+            if (todayAppointments.length === 0 && blockedTimes.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">No appointments or blocked times for today</div>';
+                return;
+            }
+
+            let html = '';
+
+            // Render blocked times
+            blockedTimes.forEach(bt => {
+                html += `
+                    <div class="schedule-item" style="border-left: 3px solid #ef4444;">
+                        <div class="schedule-time">${bt.startTime} - ${bt.endTime}</div>
+                        <div class="schedule-info">
+                            <div class="schedule-patient" style="color:#ef4444;">Blocked</div>
+                            <div class="schedule-type">${bt.reason}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Render appointments
+            todayAppointments.forEach(apt => {
+                const time = new Date(apt.appointmentDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                html += `
+                    <div class="schedule-item">
+                        <div class="schedule-time">${time}</div>
+                        <div class="schedule-info">
+                            <div class="schedule-patient">${apt.patientName || 'Patient'}</div>
+                            <div class="schedule-type">${apt.reason || 'General Consultation'}</div>
+                        </div>
+                        <div class="schedule-actions">
+                            <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="viewAppointmentDetails(${apt.id})">View</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderWeekOverview() {
+            const container = document.getElementById('week-overview');
+            const today = new Date();
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(weekStart.getDate() + i);
+                days.push(date);
+            }
+
+            container.innerHTML = days.map(day => {
+                const dateStr = day.toISOString().split('T')[0];
+                const count = allAppointments.filter(apt => {
+                    const aptDate = new Date(apt.appointmentDate).toISOString().split('T')[0];
+                    return aptDate === dateStr;
+                }).length;
+                
+                const isToday = day.toDateString() === today.toDateString();
+                
+                return `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: ${isToday ? '#f0fdfa' : '#f9fafb'}; border-radius: 8px; border-left: 3px solid ${isToday ? '#0d9488' : '#e5e7eb'};">
+                        <div>
+                            <div style="font-weight: 600; color: #1f2937; font-size: 13px;">${day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                            <div style="font-size: 12px; color: #6b7280;">${day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: #0d9488; font-size: 16px;">${count}</div>
+                            <div style="font-size: 11px; color: #6b7280;">appointments</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewAppointmentDetails(id) {
+            window.location.href = `doctor-appointments.html?appointment=${id}`;
+        }
+
+        function openTimeSlotModal() {
+            document.getElementById('timeSlotModal').classList.add('active');
+        }
+
+        function closeTimeSlotModal() {
+            document.getElementById('timeSlotModal').classList.remove('active');
+        }
+
+        async function blockTime(e) {
+            e.preventDefault();
+            const date = document.getElementById('blockDate').value;
+            const startTime = document.getElementById('blockStartTime').value;
+            const endTime = document.getElementById('blockEndTime').value;
+            const reason = document.getElementById('blockReason').value;
+
+            try {
+                // Store blocked times locally (no dedicated backend endpoint for time blocks yet)
+                const blockedTimes = JSON.parse(localStorage.getItem('doctorBlockedTimes') || '[]');
+                blockedTimes.push({ date, startTime, endTime, reason, doctorId: currentDoctor.id, createdAt: new Date().toISOString() });
+                localStorage.setItem('doctorBlockedTimes', JSON.stringify(blockedTimes));
+
+                showToast('Time block created successfully!', 'success');
+                closeTimeSlotModal();
+                renderTodaySchedule(); // Refresh to show blocked times
+            } catch (error) {
+                console.error('Error blocking time:', error);
+                showToast('Failed to create time block', 'error');
+            }
+        }
+
+        function openAvailabilityModal() {
+            document.getElementById('availabilityModal').classList.add('active');
+            // Load saved weekly hours
+            const saved = JSON.parse(localStorage.getItem(`doctorWeeklyHours_${currentDoctor.id}`) || '{}');
+            const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            days.forEach(day => {
+                if (saved[day]) {
+                    const startEl = document.getElementById(`${day}-start`);
+                    const endEl = document.getElementById(`${day}-end`);
+                    if (startEl) startEl.value = saved[day].start || startEl.value;
+                    if (endEl) endEl.value = saved[day].end || endEl.value;
+                    const toggleEl = startEl.closest('.day-availability').querySelector('.toggle-switch');
+                    if (toggleEl) {
+                        toggleEl.classList.toggle('active', saved[day].available);
+                    }
+                }
+            });
+        }
+
+        function closeAvailabilityModal() {
+            document.getElementById('availabilityModal').classList.remove('active');
+        }
+
+        async function saveAvailability() {
+            // Collect availability data from the form
+            const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            const availability = {};
+            days.forEach(day => {
+                const startEl = document.getElementById(`${day}-start`);
+                const endEl = document.getElementById(`${day}-end`);
+                const toggleEl = startEl.closest('.day-availability').querySelector('.toggle-switch');
+                availability[day] = {
+                    start: startEl.value,
+                    end: endEl.value,
+                    available: toggleEl.classList.contains('active')
+                };
+            });
+
+            try {
+                // Save weekly hours to localStorage (extends the doctor's availability concept)
+                localStorage.setItem(`doctorWeeklyHours_${currentDoctor.id}`, JSON.stringify(availability));
+
+                // Also update the general availability flag via API
+                const hasAnyAvailableDay = Object.values(availability).some(d => d.available);
+                await API.doctors.updateAvailability(currentDoctor.id, hasAnyAvailableDay);
+
+                showToast('Availability settings saved!', 'success');
+                closeAvailabilityModal();
+            } catch (error) {
+                console.error('Error saving availability:', error);
+                showToast('Failed to save availability settings', 'error');
+            }
+        }
+
+        async function toggleAvailability(element) {
+            element.classList.toggle('active');
+            const isAvailable = element.classList.contains('active');
+            const label = element.closest('div[style]').querySelector('span');
+            
+            // Determine which toggle was clicked
+            if (label && label.textContent.includes('Accept Appointments')) {
+                try {
+                    await API.doctors.updateAvailability(currentDoctor.id, isAvailable);
+                    showToast(isAvailable ? 'Now accepting appointments' : 'No longer accepting appointments', 'success');
+                } catch (error) {
+                    console.error('Error updating availability:', error);
+                    element.classList.toggle('active'); // Revert
+                    showToast('Failed to update availability', 'error');
+                }
+            }
+        }
+
+        function toggleDayAvailability(element) {
+            element.classList.toggle('active');
+        }
+
+        function routeHighlighting() {
+            const currentRoute = window.location.pathname.split('/').pop().replace('.html', '');
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const route = item.getAttribute('data-route');
+                if (route === 'schedule' && currentRoute.includes('schedule')) {
+                    item.classList.add('active');
+                } else if (route && currentRoute.includes(route)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('user-menu').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('authToken');
+            window.location.href = 'index.html';
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.avatar') && !e.target.closest('#user-menu')) {
+                document.getElementById('user-menu').classList.remove('active');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

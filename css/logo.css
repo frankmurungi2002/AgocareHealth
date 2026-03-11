@@ -1,0 +1,111 @@
+/* Agocare Professional Logo Styles */
+/* Ago = Blue (#2563eb), care = Red (#dc2626) */
+
+.agocare-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.agocare-logo:hover {
+    transform: scale(1.03);
+}
+
+.agocare-logo img {
+    height: 50px;
+    width: auto;
+}
+
+.agocare-logo svg {
+    height: 50px;
+    width: auto;
+}
+
+/* Text-based logo (fallback) */
+.agocare-logo-text {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.agocare-logo-text .ago {
+    color: #2563eb;
+    color: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.agocare-logo-text .care {
+    color: #dc2626;
+    color: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+/* Legacy support */
+.logo {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.logo .text-blue,
+.logo-ago,
+.logo span:first-child {
+    color: #2563eb !important;
+}
+
+.logo .text-red,
+.logo-care,
+.logo span:last-child {
+    color: #dc2626 !important;
+}
+
+/* For pages with different span structures */
+.logo > span:first-child {
+    color: #2563eb;
+}
+
+.logo > span:last-child {
+    color: #dc2626;
+}
+
+/* Navbar logo */
+.navbar .logo,
+.nav-header .logo,
+.header .logo {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* Sidebar logo */
+.sidebar .logo {
+    font-size: 20px;
+    padding: 10px;
+}
+
+/* Logo section for admin pages */
+.logo-section .logo {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.logo-section .logo-ago {
+    color: #2563eb;
+}
+
+.logo-section .logo-care {
+    color: #dc2626;
+}
+
+/* Header logo */
+.header .logo {
+    font-size: 26px;
+    font-weight: 700;
+}

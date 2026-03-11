@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="240" height="80">
+  <defs>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dc2626"/>
+      <stop offset="100%" style="stop-color:#b91c1c"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- Medical Cross Symbol -->
+  <g transform="translate(8, 15)" filter="url(#shadow)">
+    <rect x="0" y="10" width="8" height="30" rx="3" fill="url(#blueGrad)"/>
+    <rect x="10" y="0" width="8" height="30" rx="3" fill="url(#blueGrad)"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="55" y="52" font-family="'Segoe UI', Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="-1">
+    <tspan fill="url(#blueGrad)">Ago</tspan><tspan fill="url(#redGrad)">care</tspan>
+  </text>
+  
+  <!-- Healthcare Line -->
+  <rect x="55" y="62" width="140" height="3" rx="1.5" fill="url(#redGrad)" opacity="0.7"/>
+</svg>

@@ -4,341 +4,714 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - Agocare</title>
-    <link rel="stylesheet" href="../css/doctor.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="../js/navigation.js"></script>
+    <script src="../js/api-client.js"></script>
+    <link rel="stylesheet" href="../css/patientDashboard.css">
+    <link rel="stylesheet" href="../css/modern.css">
+    <style>
+        body { 
+            background: #f8fafc; 
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .scroll-section::-webkit-scrollbar { display: none; }
+        .scroll-section { scrollbar-width: none; -ms-overflow-style: none; }
+
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .settings-section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            min-width: 200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2500;
+            display: none;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        .user-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .user-menu-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .user-menu-email {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #4b5563;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .user-menu-item:hover {
+            background: #f3f4f6;
+        }
+
+        .logout-item {
+            border-top: 1px solid #e5e7eb;
+            color: #ef4444;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-info h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 4px 0;
+        }
+
+        .settings-info p {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e5e7eb;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #0d9488;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .settings-input {
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 200px;
+            color: #1f2937;
+        }
+
+        .settings-input:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+
+        .btn-save {
+            padding: 12px 32px;
+            background: #0d9488;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-save:hover {
+            background: #0f766e;
+        }
+
+        .btn-danger {
+            padding: 12px 32px;
+            background: white;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: #fef2f2;
+        }
+
+        .profile-preview {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .profile-details h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 4px 0;
+        }
+
+        .profile-details p {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .change-photo-btn {
+            margin-top: 8px;
+            padding: 6px 14px;
+            background: white;
+            color: #0d9488;
+            border: 1px solid #0d9488;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .danger-zone {
+            border: 1px solid #fee2e2;
+            background: #fefafafa;
+        }
+
+        .danger-zone h2 {
+            color: #dc2626;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-box-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0d9488;
+        }
+
+        .stat-box-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .settings-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .settings-input {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
-<body class="no-sidebar">
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
-    
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-header">
-            <h2>Menu</h2>
-            <button class="mobile-menu-close" id="mobileMenuClose">×</button>
-        </div>
-        
-        <div class="mobile-menu-content">
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-label">MAIN</div>
-                <a href="doctor-dashboard.html" class="mobile-menu-item">
-                    <span class="nav-icon">🏠</span>
-                    <span>Dashboard</span>
-                </a>
-                <a href="questions-feed.html" class="mobile-menu-item">
-                    <span class="nav-icon">❓</span>
-                    <span>Questions Feed</span>
-                </a>
-                <a href="my-patients.html" class="mobile-menu-item">
-                    <span class="nav-icon">👥</span>
-                    <span>My Patients</span>
-                </a>
-                <a href="appointments.html" class="mobile-menu-item">
-                    <span class="nav-icon">📅</span>
-                    <span>Appointments</span>
-                </a>
-            </div>
-            
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-label">RESOURCES</div>
-                <a href="medical-library(1).html" class="mobile-menu-item">
-                    <span class="nav-icon">📚</span>
-                    <span>Medical Library</span>
-                </a>
-                <a href="analytics.html" class="mobile-menu-item">
-                    <span class="nav-icon">📊</span>
-                    <span>Analytics</span>
-                </a>
-                <a href="settings(1).html" class="mobile-menu-item active">
-                    <span class="nav-icon">⚙️</span>
-                    <span>Settings</span>
-                </a>
-            </div>
-            
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-label">ACCOUNT</div>
-                <div class="mobile-menu-profile">
-                    <div class="user-avatar" id="settingsMobileAvatar">DN</div>
-                    <div>
-                        <div class="mobile-profile-name">Dr. Nabirye</div>
-                        <div class="mobile-profile-specialty">Pediatrician</div>
-                    </div>
-                </div>
-                <a href="doctor-profile(1).html" class="mobile-menu-item">
-                    <span class="nav-icon">👤</span>
-                    <span>My Profile</span>
-                </a>
-                <a href="#" class="mobile-menu-item" data-page="logout">
-                    <span class="nav-icon">🚪</span>
-                    <span>Logout</span>
-                </a>
-            </div>
-        </div>
-    </div>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
     <!-- Header -->
-    <header>
-        <div class="header-left">
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <div class="logo">Ago<span>care</span></div>
-            <div class="header-icons desktop-only">
-                <button class="icon-btn">📍</button>
-                <button class="icon-btn">🔔</button>
-                <button class="icon-btn">👤</button>
-            </div>
-            <div class="search-bar desktop-only">
-                <span>🔍</span>
-                <input type="text" placeholder="Search Agocare...">
-            </div>
+    <header style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: white; border-bottom: 1px solid #e5e7eb; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; height: 60px; box-sizing: border-box;">
+        <div style="display: flex; align-items: center;">
+            <a href="doctor-dashboard.html" onclick="window.location.href='doctor-dashboard.html'" style="text-decoration: none; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <img src="../images/logo.svg" alt="Agocare" style="height: 40px; cursor: pointer;">
+            </a>
         </div>
-        <div class="header-right">
-            <div class="user-info desktop-only">
-                <div class="user-avatar" id="settingsDesktopAvatar">DN</div>
-                <span>Dr. Nabirye</span>
+
+        <div style="flex: 1; max-width: 400px; position: relative; margin: 0 24px;">
+            <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="Search settings..." style="width: 100%; padding: 8px 12px 8px 40px; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 14px;">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+            <button style="padding: 8px; background: none; border: none; cursor: pointer; position: relative;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" width="20" height="20">
+                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                </svg>
+            </button>
+            <div id="userAvatar" onclick="toggleUserMenu()" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0d9488, #14b8a6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; cursor: pointer;">
+                US
             </div>
-            <button class="ask-question-btn">Ask Question</button>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Left Sidebar -->
-        <aside class="left-sidebar desktop-only">
-            <nav class="nav-section">
-                <div class="category-header">MAIN</div>
-                <a href="doctor-dashboard.html" class="nav-item">
-                    <span class="nav-icon">🏠</span>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="nav-icon">❓</span>
-                    <span>Questions Feed</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="nav-icon">👥</span>
-                    <span>My Patients</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="nav-icon">📅</span>
-                    <span>Appointments</span>
-                </a>
-            </nav>
-
-            <div class="nav-section">
-                <div class="category-header">RESOURCES</div>
-                <a href="medical-library(1).html" class="nav-item">
-                    <span class="nav-icon">📚</span>
-                    <span>Medical Library</span>
-                </a>
-                <a href="analytics.html" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    <span>Analytics</span>
-                </a>
-                <a href="settings(1).html" class="nav-item active">
-                    <span class="nav-icon">⚙️</span>
-                    <span>Settings</span>
-                </a>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <h1 style="margin-bottom: 24px;">⚙️ Settings</h1>
-
-            <!-- Notification Settings -->
-            <div class="section-card">
-                <h2>🔔 Notification Settings</h2>
-                
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Email Notifications</strong>
-                        <p>Receive email updates for new questions and appointments</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="emailNotif" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Push Notifications</strong>
-                        <p>Get instant push notifications on your device</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="pushNotif" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>SMS Alerts</strong>
-                        <p>Receive SMS for urgent patient questions</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="smsNotif">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Privacy Settings -->
-            <div class="section-card">
-                <h2>🔒 Privacy Settings</h2>
-                
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Profile Visibility</strong>
-                        <p>Make your profile visible to patients searching for doctors</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="profileVisible" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Show Online Status</strong>
-                        <p>Let patients know when you're available</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="onlineStatus" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Accept New Patients</strong>
-                        <p>Allow new patients to book appointments with you</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="acceptPatients" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Availability Settings -->
-            <div class="section-card">
-                <h2>📅 Availability Settings</h2>
-                
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Consultation Fee</strong>
-                        <p>Set your consultation fee per session</p>
-                    </div>
-                    <input type="number" class="setting-input" value="50000" placeholder="Amount in UGX">
-                </div>
-
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Session Duration</strong>
-                        <p>Default duration for each consultation</p>
-                    </div>
-                    <select class="setting-input">
-                        <option value="15">15 minutes</option>
-                        <option value="30" selected>30 minutes</option>
-                        <option value="45">45 minutes</option>
-                        <option value="60">60 minutes</option>
-                    </select>
-                </div>
-
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Automatic Replies</strong>
-                        <p>Send automatic acknowledgment when patients ask questions</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="autoReply" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Security Settings -->
-            <div class="section-card">
-                <h2>🔐 Security Settings</h2>
-                
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Two-Factor Authentication</strong>
-                        <p>Add an extra layer of security to your account</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="twoFactor">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Change Password</strong>
-                        <p>Update your account password</p>
-                    </div>
-                    <button class="setting-btn">Change Password</button>
-                </div>
-
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <strong>Login Sessions</strong>
-                        <p>View and manage active login sessions</p>
-                    </div>
-                    <button class="setting-btn">Manage Sessions</button>
-                </div>
-            </div>
-
-            <!-- Save Button -->
-            <div class="section-card" style="text-align: center;">
-                <button class="btn-save-settings" onclick="saveSettings()">💾 Save Settings</button>
-                <button class="btn-cancel-settings" onclick="window.history.back()">Cancel</button>
-            </div>
-        </main>
+    <div id="user-menu" class="user-menu">
+        <div class="user-menu-header">
+            <div class="user-menu-name" id="user-name">Dr. User</div>
+            <div class="user-menu-email" id="user-email">user@agocare.com</div>
+        </div>
+        <a href="doctor-profile(1).html" class="user-menu-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            Profile
+        </a>
+        <a href="settings(1).html" class="user-menu-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+            Settings
+        </a>
+        <div class="user-menu-item logout-item" onclick="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
+            Logout
+        </div>
     </div>
 
-    <script src="../js/doctor.js"></script>
+    <!-- Main Container -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 80px 24px 20px 24px; height: 100vh; box-sizing: border-box; overflow: hidden;">
+        <div style="display: grid; grid-template-columns: 260px 1fr; gap: 24px; height: 100%;">
+            <!-- Left Sidebar -->
+            <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <div style="background: white; border-radius: 12px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Main</div>
+                        <a href="doctor-dashboard.html" onclick="window.location.href='doctor-dashboard.html'" class="nav-item" data-route="dashboard">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            Dashboard
+                        </a>
+                        <a href="questions.html" class="nav-item" data-route="questions">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            Questions
+                        </a>
+                        <a href="appointments.html" class="nav-item" data-route="appointments">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            Appointments
+                        </a>
+                    </div>
+
+                    <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Health Topics</div>
+                        <a href="questions.html?topic=pediatrics" class="nav-item" data-route="pediatrics">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 12h6M12 9v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Pediatrics
+                        </a>
+                        <a href="questions.html?topic=pregnancy" class="nav-item" data-route="pregnancy">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 8v8M8 12h8"/></svg>
+                            Pregnancy
+                        </a>
+                        <a href="questions.html?topic=infectious" class="nav-item" data-route="infectious">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                            Infectious
+                        </a>
+                        <a href="questions.html?topic=diabetes" class="nav-item" data-route="diabetes">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            Diabetes
+                        </a>
+                        <a href="questions.html?topic=hypertension" class="nav-item" data-route="hypertension">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                            Hypertension
+                        </a>
+                        <a href="questions.html?topic=mental_health" class="nav-item" data-route="mental_health">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a10 10 0 1010 10H12V2z"/><path d="M12 2a10 10 0 00-10 10"/></svg>
+                            Mental Health
+                        </a>
+                        <a href="questions.html?topic=sexual" class="nav-item" data-route="sexual">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            Sexual Health
+                        </a>
+                    </div>
+
+                    <div style="padding: 8px 12px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Resources</div>
+                        <a href="medical_centers.html" class="nav-item" data-route="medical_centers">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            Find Medical Centers
+                        </a>
+                        <a href="medical-library(1).html" class="nav-item" data-route="medical_library">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                            Medical Library
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <div style="margin-bottom: 24px;">
+                    <h1 style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">Settings</h1>
+                    <p style="color: #6b7280; font-size: 14px;">Manage your account settings and preferences</p>
+                </div>
+
+                <!-- Profile Preview -->
+                <div class="profile-preview">
+                    <div class="profile-avatar-large" id="avatarLarge">US</div>
+                    <div class="profile-details">
+                        <h3 id="userName">User Name</h3>
+                        <p id="userEmail">user@email.com</p>
+                        <button class="change-photo-btn" onclick="changePhoto()">Change Photo</button>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <h2>🔔 Notifications</h2>
+                    
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Email Notifications</h3>
+                            <p>Receive updates about appointments, messages, and health tips</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emailNotif" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Push Notifications</h3>
+                            <p>Get instant notifications on your device</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pushNotif" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>SMS Alerts</h3>
+                            <p>Receive important alerts via SMS</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="smsNotif">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Question Replies</h3>
+                            <p>Get notified when doctors answer your questions</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="replyNotif" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="settings-section">
+                    <h2>🔒 Privacy</h2>
+                    
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Profile Visibility</h3>
+                            <p>Allow others to see your profile information</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="profileVisible" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Show Activity Status</h3>
+                            <p>Let others see when you're online</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="activityStatus" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Allow Search</h3>
+                            <p>Allow search engines to index your profile</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="allowSearch" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="settings-section">
+                    <h2>👤 Account</h2>
+                    
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Email Address</h3>
+                            <p>your.email@example.com</p>
+                        </div>
+                        <button class="change-photo-btn" onclick="showToast('Email change functionality coming soon', 'info')">Change</button>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Phone Number</h3>
+                            <p>+256 700 000000</p>
+                        </div>
+                        <button class="change-photo-btn" onclick="showToast('Phone change functionality coming soon', 'info')">Change</button>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Change Password</h3>
+                            <p>Update your account password</p>
+                        </div>
+                        <button class="change-photo-btn" onclick="showToast('Password change functionality coming soon', 'info')">Change</button>
+                    </div>
+                </div>
+
+                <!-- Health Preferences -->
+                <div class="settings-section">
+                    <h2>🏥 Health Preferences</h2>
+                    
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Medical Conditions</h3>
+                            <p>Diabetes, Hypertension</p>
+                        </div>
+                        <button class="change-photo-btn" onclick="showToast('Edit health info coming soon', 'info')">Edit</button>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Allergies</h3>
+                            <p>Penicillin</p>
+                        </div>
+                        <button class="change-photo-btn" onclick="showToast('Edit allergies coming soon', 'info')">Edit</button>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Emergency Contact</h3>
+                            <p>Jane Doe - +256 700 000001</p>
+                        </div>
+                        <button class="change-photo-btn" onclick="showToast('Edit emergency contact coming soon', 'info')">Edit</button>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="settings-section">
+                    <h2>🔐 Security</h2>
+                    
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Two-Factor Authentication</h3>
+                            <p>Add an extra layer of security to your account</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="twoFactor">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Login Sessions</h3>
+                            <p>Manage devices logged into your account</p>
+                        </div>
+                        <button class="change-photo-btn" onclick="showToast('Session management coming soon', 'info')">View</button>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="settings-section danger-zone">
+                    <h2>⚠️ Danger Zone</h2>
+                    
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <h3>Delete Account</h3>
+                            <p>Permanently delete your account and all data</p>
+                        </div>
+                        <button class="btn-danger" onclick="confirmDeleteAccount()">Delete Account</button>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-bottom: 40px;">
+                    <button class="btn-save" onclick="saveSettings()">Save Changes</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
     <script>
-        function saveSettings() {
-            // In production: API call to save settings
-            alert('✅ Settings Saved Successfully!\n\nYour preferences have been updated.');
-            console.log('Settings saved:', {
-                emailNotif: document.getElementById('emailNotif').checked,
-                pushNotif: document.getElementById('pushNotif').checked,
-                smsNotif: document.getElementById('smsNotif').checked,
-                profileVisible: document.getElementById('profileVisible').checked,
-                onlineStatus: document.getElementById('onlineStatus').checked,
-                acceptPatients: document.getElementById('acceptPatients').checked,
-                autoReply: document.getElementById('autoReply').checked,
-                twoFactor: document.getElementById('twoFactor').checked
-            });
+        // Toast notifications
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.innerHTML = '<span class="toast-message">' + message + '</span>';
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        // Load doctor profile picture on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            const savedPicture = localStorage.getItem('doctorProfilePicture');
-            if (savedPicture) {
-                const avatars = ['settingsMobileAvatar', 'settingsDesktopAvatar'];
-                avatars.forEach(avatarId => {
-                    const avatar = document.getElementById(avatarId);
-                    if (avatar) {
-                        avatar.textContent = '';
-                        avatar.style.background = 'none';
-                        const img = document.createElement('img');
-                        img.src = savedPicture;
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.borderRadius = '50%';
-                        img.style.objectFit = 'cover';
-                        avatar.appendChild(img);
-                    }
-                });
+        function saveSettings() {
+            showToast('Settings saved successfully!', 'success');
+        }
+
+        function changePhoto() {
+            showToast('Photo upload functionality coming soon', 'info');
+        }
+
+        function confirmDeleteAccount() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                showToast('Account deletion requires confirmation email', 'error');
             }
+        }
+
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-menu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('authToken');
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('click', function(e) {
+            const userAvatar = document.getElementById('userAvatar');
+            const userMenu = document.getElementById('user-menu');
+            if (userAvatar && userMenu && !userAvatar.contains(e.target) && !userMenu.contains(e.target)) {
+                userMenu.style.display = 'none';
+            }
+        });
+
+        // Load user data
+        window.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+            
+            if (user && user.id) {
+                document.getElementById('userName').textContent = user.name || 'User';
+                document.getElementById('userEmail').textContent = user.email || 'user@email.com';
+                
+                const initials = (user.name || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+                document.getElementById('avatarLarge').textContent = initials;
+                
+                // Update user menu header
+                document.getElementById('user-name').textContent = 'Dr. ' + (user.name || 'User');
+                document.getElementById('user-email').textContent = user.email || 'user@agocare.com';
+            }
+
+            // Route highlighting
+            const currentRoute = window.location.pathname.split('/').pop().replace('.html', '').replace(/\(1\)/, '');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const route = item.getAttribute('data-route');
+                if (route === 'settings') {
+                    item.classList.add('active');
+                }
+            });
         });
     </script>
 </body>

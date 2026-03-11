@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions - Agocare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background: #f8fafc; 
+            min-height: 100vh;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 900px;
+            margin: 80px auto 40px;
+            padding: 20px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+        .page-subtitle {
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+        .filter-btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #4b5563;
+        }
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .filter-btn.active {
+            background: #0d9488;
+            color: white;
+            border-color: #0d9488;
+        }
+        .questions-count {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .question-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .topic-tag {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        .time-ago {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .question-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+        .question-content {
+            color: #4b5563;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .question-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .author-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .author-name {
+            font-size: 14px;
+            color: #4b5563;
+        }
+        .answers-count {
+            color: #16a34a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .empty-state {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (matching patient dashboard) -->
+    <header class="header">
+        <a href="index.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+            <img src="../images/logo.svg" alt="Agocare" style="height: 40px;">
+        </a>
+        <a href="index.html" style="padding: 8px 16px; background: #0d9488; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">← Back to Dashboard</a>
+    </header>
+
+    <div class="container">
+        <h1 id="pageTitle" class="page-title">All Questions</h1>
+        <p id="pageSubtitle" class="page-subtitle">Browse all health questions from the community</p>
+
+        <!-- Filter Buttons -->
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
+            <button onclick="filterByTopic('all')" class="filter-btn active" data-topic="all">All Topics</button>
+            <button onclick="filterByTopic('diabetes')" class="filter-btn" data-topic="diabetes">🩺 Diabetes</button>
+            <button onclick="filterByTopic('hypertension')" class="filter-btn" data-topic="hypertension">❤️ Hypertension</button>
+            <button onclick="filterByTopic('mental_health')" class="filter-btn" data-topic="mental_health">🧠 Mental Health</button>
+            <button onclick="filterByTopic('pregnancy')" class="filter-btn" data-topic="pregnancy">🤰 Pregnancy</button>
+            <button onclick="filterByTopic('pediatrics')" class="filter-btn" data-topic="pediatrics">👶 Pediatrics</button>
+            <button onclick="filterByTopic('infectious')" class="filter-btn" data-topic="infectious">🦠 Infectious Diseases</button>
+        </div>
+
+        <p id="questionsCount" class="questions-count"></p>
+
+        <div id="questionsContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
+
+        <div id="emptyState" class="empty-state">
+            <div style="font-size: 64px; margin-bottom: 20px;">💭</div>
+            <h3 style="font-size: 20px; color: #1f2937; margin-bottom: 10px;">No questions found</h3>
+            <p style="color: #6b7280;">There are no questions for this topic yet.</p>
+            <a href="index.html" style="display: inline-block; margin-top: 20px; padding: 10px 24px; background: #0d9488; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Ask a Question</a>
+        </div>
+    </div>
+
+    <script>
+        // Sample Questions Data
+        const allQuestions = [
+            { id: 1, title: "What are the early warning signs of diabetes?", content: "I've been feeling very thirsty lately and urinating more often. Should I be concerned about diabetes?", author: "John Mukisa", topic: "diabetes", answers: 3, timeAgo: "2 hours ago" },
+            { id: 2, title: "Best diet for managing type 2 diabetes", content: "What foods should I include or avoid to help manage my blood sugar levels?", author: "Sarah Nakato", topic: "diabetes", answers: 5, timeAgo: "1 day ago" },
+            { id: 3, title: "How to check blood pressure at home?", content: "I want to monitor my blood pressure at home. What equipment do I need?", author: "James Ochieng", topic: "hypertension", answers: 4, timeAgo: "3 hours ago" },
+            { id: 4, title: "Symptoms of high blood pressure", content: "Can high blood pressure cause headaches or dizziness?", author: "Mary Achieng", topic: "hypertension", answers: 2, timeAgo: "5 hours ago" },
+            { id: 5, title: "Dealing with anxiety and stress", content: "What are some natural ways to manage stress and anxiety?", author: "Peter Mugisha", topic: "mental_health", answers: 6, timeAgo: "1 day ago" },
+            { id: 6, title: "How to help someone with depression?", content: "My friend is showing signs of depression. How can I support them?", author: "Grace Atieno", topic: "mental_health", answers: 4, timeAgo: "2 days ago" },
+            { id: 7, title: "Safe exercises during pregnancy", content: "I'm 5 months pregnant. What exercises are safe for me?", author: "Anna Nakirunda", topic: "pregnancy", answers: 3, timeAgo: "6 hours ago" },
+            { id: 8, title: "Prenatal vitamins - which ones to take?", content: "What vitamins and supplements should I take during pregnancy?", author: "Betty Akello", topic: "pregnancy", answers: 5, timeAgo: "1 day ago" },
+            { id: 9, title: "When to take child to doctor for fever?", content: "My 2-year-old has fever. What temperature warrants medical attention?", author: "Robert Ssali", topic: "pediatrics", answers: 7, timeAgo: "4 hours ago" },
+            { id: 10, title: "Vaccination schedule for children", content: "What vaccines does my baby need and at what ages?", author: "Janet Nambozo", topic: "pediatrics", answers: 4, timeAgo: "3 days ago" },
+            { id: 11, title: "Malaria prevention tips", content: "What are the best ways to prevent malaria in a tropical climate?", author: "David Okello", topic: "infectious", answers: 8, timeAgo: "12 hours ago" },
+            { id: 12, title: "Flu vs Common Cold", content: "How can I tell if I have a cold or the flu?", author: "Faith Akter", topic: "infectious", answers: 3, timeAgo: "1 day ago" }
+        ];
+
+        // Topic Configuration
+        const topicConfig = {
+            all: { title: "All Questions", subtitle: "Browse all health questions from the community" },
+            diabetes: { title: "Diabetes Questions", subtitle: "Questions about diabetes management, symptoms, and treatment" },
+            hypertension: { title: "Hypertension Questions", subtitle: "Questions about blood pressure and heart health" },
+            mental_health: { title: "Mental Health Questions", subtitle: "Questions about mental wellness, anxiety, and depression" },
+            pregnancy: { title: "Pregnancy Questions", subtitle: "Questions about pregnancy care and prenatal health" },
+            pediatrics: { title: "Pediatrics Questions", subtitle: "Questions about child health and development" },
+            infectious: { title: "Infectious Diseases Questions", subtitle: "Questions about infections and disease prevention" }
+        };
+
+        // Topic Colors (matching patient dashboard theme)
+        const topicColors = {
+            diabetes: '#7c3aed',
+            hypertension: '#dc2626', 
+            mental_health: '#3b82f6',
+            pregnancy: '#db2777',
+            pediatrics: '#10b981',
+            infectious: '#f59e0b'
+        };
+
+        const topicEmojis = {
+            diabetes: '🩺',
+            hypertension: '❤️',
+            mental_health: '🧠',
+            pregnancy: '🤰',
+            pediatrics: '👶',
+            infectious: '🦠'
+        };
+
+        const topicLabels = {
+            diabetes: 'Diabetes',
+            hypertension: 'Hypertension',
+            mental_health: 'Mental Health',
+            pregnancy: 'Pregnancy',
+            pediatrics: 'Pediatrics',
+            infectious: 'Infectious'
+        };
+
+        function getTopicFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('topic') || 'all';
+        }
+
+        function filterByTopic(topic) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.topic === topic) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update page title
+            const config = topicConfig[topic] || topicConfig.all;
+            document.getElementById('pageTitle').textContent = config.title;
+            document.getElementById('pageSubtitle').textContent = config.subtitle;
+
+            // Filter questions
+            const filteredQuestions = topic === 'all' 
+                ? allQuestions 
+                : allQuestions.filter(q => q.topic === topic);
+
+            renderQuestions(filteredQuestions);
+        }
+
+        function renderQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            const emptyState = document.getElementById('emptyState');
+            const countEl = document.getElementById('questionsCount');
+
+            if (questions.length === 0) {
+                container.innerHTML = '';
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                countEl.textContent = '0 questions found';
+                return;
+            }
+
+            container.style.display = 'flex';
+            emptyState.style.display = 'none';
+            countEl.textContent = questions.length + ' question' + (questions.length !== 1 ? 's' : '') + ' found';
+
+            container.innerHTML = questions.map(q => {
+                const initials = q.author.split(' ').map(n => n[0]).join('');
+                return '<article class="question-card">' +
+                    '<div class="question-header">' +
+                        '<span class="topic-tag" style="background:' + topicColors[q.topic] + ';">' +
+                        topicEmojis[q.topic] + ' ' + topicLabels[q.topic] + '</span>' +
+                        '<span class="time-ago">' + q.timeAgo + '</span>' +
+                    '</div>' +
+                    '<h3 class="question-title">' + q.title + '</h3>' +
+                    '<p class="question-content">' + q.content + '</p>' +
+                    '<div class="question-footer">' +
+                        '<div style="display: flex; align-items: center; gap: 8px;">' +
+                            '<div class="author-avatar">' + initials + '</div>' +
+                            '<span class="author-name">' + q.author + '</span>' +
+                        '</div>' +
+                        '<span class="answers-count">✅ ' + q.answers + ' answer' + (q.answers !== 1 ? 's' : '') + '</span>' +
+                    '</div>' +
+                '</article>';
+            }).join('');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentTopic = getTopicFromURL();
+            filterByTopic(currentTopic);
+        });
+    </script>
+</body>
+</html>

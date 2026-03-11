@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultations - Agocare Doctor</title>
+    <link rel="stylesheet" href="../css/patientDashboard.css">
+    <link rel="stylesheet" href="../css/modern.css">
+    <script src="../js/navigation.js"></script>
+    <script src="../js/api-client.js"></script>
+    <style>
+        body { 
+            background: #f8fafc; 
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .scroll-section::-webkit-scrollbar { display: none; }
+        .scroll-section { scrollbar-width: none; -ms-overflow-style: none; }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 8px 12px 8px 40px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 14px;
+            width: 280px;
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .btn-primary {
+            background: #0d9488;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #0f766e;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .consultation-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .consultation-card:hover {
+            background: #f3f4f6;
+            transform: translateX(4px);
+        }
+
+        .consultation-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .consultation-info {
+            flex: 1;
+        }
+
+        .consultation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .consultation-patient {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 16px;
+        }
+
+        .consultation-date {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .consultation-reason {
+            font-size: 14px;
+            color: #4b5563;
+            margin-bottom: 8px;
+        }
+
+        .consultation-symptoms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .symptom-tag {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .consultation-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-in-progress {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .status-pending {
+            background: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .modal-close {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .diagnosis-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .diagnosis-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .prescription-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .prescription-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #d1fae5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #10b981;
+        }
+
+        .prescription-info {
+            flex: 1;
+        }
+
+        .prescription-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .prescription-dosage {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state svg {
+            margin-bottom: 16px;
+            color: #d1d5db;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            min-width: 200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2500;
+            display: none;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        .user-menu-header {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .user-menu-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .user-menu-email {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #4b5563;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .user-menu-item:hover {
+            background: #f3f4f6;
+        }
+
+        .logout-item {
+            border-top: 1px solid #e5e7eb;
+            color: #ef4444;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 3000;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+        }
+
+        .filter-tab.active {
+            background: #0d9488;
+            color: white;
+            border-color: #0d9488;
+        }
+
+        .patient-select-container {
+            position: relative;
+        }
+
+        .patient-list-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .patient-list-dropdown.active {
+            display: block;
+        }
+
+        .patient-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .patient-option:hover {
+            background: #f3f4f6;
+        }
+
+        .patient-option-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .patient-option-info {
+            flex: 1;
+        }
+
+        .patient-option-name {
+            font-weight: 500;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .patient-option-email {
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="doctor-dashboard.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                <img src="../images/logo.svg" alt="Agocare" style="height: 40px; cursor: pointer;">
+            </a>
+        </div>
+        
+        <div class="header-right">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" placeholder="Search consultations..." id="searchInput">
+            </div>
+            
+            <div class="avatar" id="doctorAvatar" onclick="toggleUserMenu()">D</div>
+        </div>
+        
+        <div id="user-menu" class="user-menu">
+            <div class="user-menu-header">
+                <div class="user-menu-name" id="user-name">Dr. Doctor</div>
+                <div class="user-menu-email" id="user-email">doctor@agocare.com</div>
+            </div>
+            <a href="doctor-profile(1).html" class="user-menu-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+                Profile
+            </a>
+            <a href="settings(1).html" class="user-menu-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                </svg>
+                Settings
+            </a>
+            <div class="user-menu-item logout-item" onclick="logout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+                Logout
+            </div>
+        </div>
+    </header>
+
+    <div style="max-width: 1600px; margin: 0 auto; padding: 80px 24px 20px 24px; height: 100vh; box-sizing: border-box; overflow: hidden;">
+        <div style="display: grid; grid-template-columns: 260px 1fr 320px; gap: 24px; height: 100%;">
+            <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <div style="background: white; border-radius: 12px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Main</div>
+                        <a href="doctor-dashboard.html" class="nav-item" data-route="dashboard">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            Dashboard
+                        </a>
+                        <a href="doctor-appointments.html" class="nav-item" data-route="appointments">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            Appointments
+                        </a>
+                        <a href="doctor-patients.html" class="nav-item" data-route="patients">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                            My Patients
+                        </a>
+                        <a href="doctor-consultations.html" class="nav-item active" data-route="consultations">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            Consultations
+                        </a>
+                        <a href="doctor-prescriptions.html" class="nav-item" data-route="prescriptions">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                            Prescriptions
+                        </a>
+                        <a href="doctor-lab-results.html" class="nav-item" data-route="lab-results">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                            Lab Results
+                        </a>
+                    </div>
+
+                    <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Communication</div>
+                        <a href="doctor-messages.html" class="nav-item" data-route="messages">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                            Messages
+                        </a>
+                        <a href="doctor-schedule.html" class="nav-item" data-route="schedule">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Schedule
+                        </a>
+                    </div>
+
+                    <div style="padding: 8px 12px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Account</div>
+                        <a href="doctor-profile(1).html" class="nav-item" data-route="profile">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            Profile
+                        </a>
+                        <a href="settings(1).html" class="nav-item" data-route="settings">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                            Settings
+                        </a>
+                        <a href="#" onclick="logout(); return false;" class="nav-item" style="color: #ef4444;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <div style="margin-bottom: 24px;">
+                    <h1 style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">Consultations</h1>
+                    <p style="color: #6b7280; font-size: 14px;" id="current-date"></p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Consultations</div>
+                        <div class="stat-value" style="color: #0d9488;" id="total-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">In Progress</div>
+                        <div class="stat-value" style="color: #f59e0b;" id="in-progress-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Completed</div>
+                        <div class="stat-value" style="color: #10b981;" id="completed-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">This Week</div>
+                        <div class="stat-value" style="color: #6366f1;" id="week-count">0</div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">All Consultations</h2>
+                        <button class="btn-primary" onclick="openCreateModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            New Consultation
+                        </button>
+                    </div>
+
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterConsultations('all')">All</button>
+                        <button class="filter-tab" onclick="filterConsultations('IN_PROGRESS')">In Progress</button>
+                        <button class="filter-tab" onclick="filterConsultations('COMPLETED')">Completed</button>
+                        <button class="filter-tab" onclick="filterConsultations('PENDING')">Pending</button>
+                    </div>
+
+                    <div id="consultations-list">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="64" height="64">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <h3>No consultations found</h3>
+                            <p>Start a new consultation to get started</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">Quick Actions</h3>
+                    <button onclick="openCreateModal()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; cursor: pointer; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        New Consultation
+                    </button>
+                    <button onclick="window.location.href='doctor-patients.html'" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        View Patients
+                    </button>
+                </div>
+
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">Recent Consultations</h3>
+                    <div id="recent-consultations-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 13px;">No recent consultations</div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="createModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">New Consultation</h3>
+                <div class="modal-close" onclick="closeCreateModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </div>
+            </div>
+            <form id="consultationForm" onsubmit="createConsultation(event)">
+                <div class="form-group patient-select-container">
+                    <label class="form-label">Select Patient</label>
+                    <input type="text" class="form-input" id="patientSearch" placeholder="Search patient..." autocomplete="off" oninput="searchPatients(this.value)" onfocus="searchPatients('')">
+                    <input type="hidden" id="selectedPatientId">
+                    <div class="patient-list-dropdown" id="patientDropdown"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Symptoms</label>
+                    <textarea class="form-textarea" id="symptoms" placeholder="Describe patient's symptoms..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Initial Notes</label>
+                    <textarea class="form-textarea" id="initialNotes" placeholder="Initial observations and notes..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeCreateModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Start Consultation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Consultation Details</h3>
+                <div class="modal-close" onclick="closeViewModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </div>
+            </div>
+            <div id="consultationDetails"></div>
+            <div class="modal-actions" id="consultationActions"></div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentDoctor = null;
+        let allConsultations = [];
+        let filteredConsultations = [];
+        let allPatients = [];
+        let currentFilter = 'all';
+        let selectedConsultation = null;
+
+        async function init() {
+            if (!isAuthenticated()) {
+                window.location.href = 'Login.html';
+                return;
+            }
+
+            currentDoctor = getCurrentUser();
+            if (!currentDoctor) {
+                console.error('No current user found');
+                return;
+            }
+
+            updateUserInfo();
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const consultationId = urlParams.get('id');
+            if (consultationId) {
+                await loadConsultationById(consultationId);
+            }
+
+            await loadConsultations();
+            routeHighlighting();
+        }
+
+        function updateUserInfo() {
+            const name = currentDoctor.name || currentDoctor.username || 'Doctor';
+            document.getElementById('user-name').textContent = 'Dr. ' + name;
+            document.getElementById('user-email').textContent = currentDoctor.email || '';
+            document.getElementById('doctorAvatar').textContent = getInitials(name);
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        async function loadConsultations() {
+            try {
+                const response = await API.consultations.getByDoctor(currentDoctor.id);
+                allConsultations = response.data || response || [];
+                filteredConsultations = [...allConsultations];
+                updateStats();
+                renderConsultations();
+                renderRecentConsultations();
+            } catch (error) {
+                console.error('Error loading consultations:', error);
+                showToast('Failed to load consultations', 'error');
+            }
+        }
+
+        async function loadConsultationById(id) {
+            try {
+                const response = await API.consultations.getById(id);
+                if (response.data) {
+                    viewConsultation(response.data);
+                }
+            } catch (error) {
+                console.error('Error loading consultation:', error);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('total-count').textContent = allConsultations.length;
+            document.getElementById('in-progress-count').textContent = allConsultations.filter(c => c.status === 'IN_PROGRESS').length;
+            document.getElementById('completed-count').textContent = allConsultations.filter(c => c.status === 'COMPLETED').length;
+
+            const now = new Date();
+            const weekStart = new Date(now);
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 7);
+
+            const weekCount = allConsultations.filter(c => {
+                const consultDate = new Date(c.createdAt);
+                return consultDate >= weekStart && consultDate < weekEnd;
+            }).length;
+            document.getElementById('week-count').textContent = weekCount;
+        }
+
+        function renderConsultations() {
+            const container = document.getElementById('consultations-list');
+            
+            if (filteredConsultations.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="64" height="64">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <h3>No consultations found</h3>
+                        <p>Start a new consultation to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sorted = [...filteredConsultations].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            container.innerHTML = sorted.map(consult => {
+                const createdAt = new Date(consult.createdAt);
+                const dateStr = createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                const statusClass = consult.status === 'IN_PROGRESS' ? 'in-progress' : 
+                                  consult.status === 'COMPLETED' ? 'completed' : 'pending';
+                const statusLabel = consult.status === 'IN_PROGRESS' ? 'In Progress' : 
+                                  consult.status === 'COMPLETED' ? 'Completed' : 'Pending';
+
+                const symptoms = consult.symptoms ? consult.symptoms.split(',').slice(0, 3) : [];
+
+                return `
+                    <div class="consultation-card" onclick="viewConsultation(${consult.id})">
+                        <div class="consultation-avatar">${getInitials(consult.patientName || 'P')}</div>
+                        <div class="consultation-info">
+                            <div class="consultation-header">
+                                <div>
+                                    <div class="consultation-patient">${consult.patientName || 'Patient'}</div>
+                                    <div class="consultation-date">${dateStr} at ${timeStr}</div>
+                                </div>
+                                <span class="consultation-status status-${statusClass}">${statusLabel}</span>
+                            </div>
+                            <div class="consultation-reason">${consult.reason || 'General Consultation'}</div>
+                            ${symptoms.length > 0 ? `
+                                <div class="consultation-symptoms">
+                                    ${symptoms.map(s => `<span class="symptom-tag">${s.trim()}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderRecentConsultations() {
+            const container = document.getElementById('recent-consultations-list');
+            const sorted = [...allConsultations].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 13px;">No recent consultations</div>';
+                return;
+            }
+
+            container.innerHTML = sorted.map(consult => {
+                const createdAt = new Date(consult.createdAt);
+                const timeAgo = getTimeAgo(createdAt);
+                
+                return `
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'" onclick="viewConsultation(${consult.id})">
+                        <div class="consultation-avatar" style="width: 36px; height: 36px; font-size: 12px;">${getInitials(consult.patientName || 'P')}</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; color: #1f2937; font-size: 13px;">${consult.patientName || 'Patient'}</div>
+                            <div style="font-size: 11px; color: #6b7280;">${timeAgo}</div>
+                        </div>
+                        <span class="consultation-status status-${consult.status === 'IN_PROGRESS' ? 'in-progress' : consult.status === 'COMPLETED' ? 'completed' : 'pending'}" style="font-size: 10px; padding: 2px 8px;">${consult.status === 'IN_PROGRESS' ? 'In Progress' : consult.status === 'COMPLETED' ? 'Completed' : 'Pending'}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            if (days < 30) return `${Math.floor(days / 7)} week(s) ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function filterConsultations(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (status === 'all') {
+                filteredConsultations = [...allConsultations];
+            } else {
+                filteredConsultations = allConsultations.filter(c => c.status === status);
+            }
+            renderConsultations();
+        }
+
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+            document.getElementById('consultationForm').reset();
+            document.getElementById('selectedPatientId').value = '';
+            document.getElementById('patientSearch').value = '';
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+        }
+
+        async function searchPatients(query) {
+            const dropdown = document.getElementById('patientDropdown');
+            
+            if (allPatients.length === 0) {
+                try {
+                    const response = await API.auth.getUsersByRole('patient');
+                    allPatients = response.data || response || [];
+                } catch (error) {
+                    console.error('Error loading patients:', error);
+                }
+            }
+
+            const filtered = allPatients.filter(p => 
+                p.name?.toLowerCase().includes(query.toLowerCase()) ||
+                p.username?.toLowerCase().includes(query.toLowerCase()) ||
+                p.email?.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filtered.length === 0 || query === '') {
+                dropdown.classList.remove('active');
+                return;
+            }
+
+            dropdown.innerHTML = filtered.slice(0, 10).map(p => `
+                <div class="patient-option" onclick="selectPatient(${p.id}, '${p.name || p.username}')">
+                    <div class="patient-option-avatar">${getInitials(p.name || p.username)}</div>
+                    <div class="patient-option-info">
+                        <div class="patient-option-name">${p.name || p.username}</div>
+                        <div class="patient-option-email">${p.email || ''}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            dropdown.classList.add('active');
+        }
+
+        function selectPatient(id, name) {
+            document.getElementById('selectedPatientId').value = id;
+            document.getElementById('patientSearch').value = name;
+            document.getElementById('patientDropdown').classList.remove('active');
+        }
+
+        async function createConsultation(e) {
+            e.preventDefault();
+            
+            const patientId = document.getElementById('selectedPatientId').value;
+            const symptoms = document.getElementById('symptoms').value;
+            const notes = document.getElementById('initialNotes').value;
+
+            if (!patientId) {
+                showToast('Please select a patient', 'error');
+                return;
+            }
+
+            try {
+                const response = await API.consultations.create({
+                    patientId: parseInt(patientId),
+                    doctorId: currentDoctor.id,
+                    symptoms: symptoms,
+                    notes: notes
+                });
+
+                if (response.success || response.data) {
+                    showToast('Consultation started successfully!', 'success');
+                    closeCreateModal();
+                    await loadConsultations();
+                    
+                    const newConsultation = response.data?.consultation || response.data;
+                    if (newConsultation) {
+                        viewConsultation(newConsultation.id);
+                    }
+                } else {
+                    showToast(response.message || 'Failed to create consultation', 'error');
+                }
+            } catch (error) {
+                console.error('Error creating consultation:', error);
+                showToast('Failed to create consultation', 'error');
+            }
+        }
+
+        async function viewConsultation(consultationId) {
+            try {
+                const response = await API.consultations.getById(consultationId);
+                const consult = response.data || response;
+                
+                if (!consult) {
+                    showToast('Consultation not found', 'error');
+                    return;
+                }
+
+                selectedConsultation = consult;
+                
+                const createdAt = new Date(consult.createdAt);
+                const details = document.getElementById('consultationDetails');
+                
+                const symptoms = consult.symptoms ? consult.symptoms.split(',') : [];
+                
+                details.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <div class="consultation-avatar" style="width: 56px; height: 56px; font-size: 20px;">${getInitials(consult.patientName || 'P')}</div>
+                            <div>
+                                <div style="font-size: 20px; font-weight: 700; color: #1f2937;">${consult.patientName || 'Patient'}</div>
+                                <span class="consultation-status status-${consult.status === 'IN_PROGRESS' ? 'in-progress' : consult.status === 'COMPLETED' ? 'completed' : 'pending'}">${consult.status === 'IN_PROGRESS' ? 'In Progress' : consult.status === 'COMPLETED' ? 'Completed' : 'Pending'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Date</div>
+                            <div class="info-value">${createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Time</div>
+                            <div class="info-value">${createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                    </div>
+
+                    ${symptoms.length > 0 ? `
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 8px;">Symptoms</div>
+                            <div class="consultation-symptoms">
+                                ${symptoms.map(s => `<span class="symptom-tag">${s.trim()}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${consult.notes ? `
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 8px;">Notes</div>
+                            <div style="background: #f9fafb; padding: 12px; border-radius: 8px; font-size: 14px; color: #4b5563;">${consult.notes}</div>
+                        </div>
+                    ` : ''}
+
+                    ${consult.diagnosis ? `
+                        <div class="diagnosis-section">
+                            <div class="diagnosis-title">Diagnosis</div>
+                            <div style="background: #fef3c7; padding: 12px; border-radius: 8px; font-size: 14px; color: #92400e;">${consult.diagnosis}</div>
+                        </div>
+                    ` : ''}
+                `;
+
+                let actions = '';
+                if (consult.status === 'IN_PROGRESS') {
+                    actions = `
+                        <button class="btn-primary" onclick="completeConsultation(${consult.id})">Complete Consultation</button>
+                        <button class="btn-secondary" onclick="addPrescription(${consult.id})">Add Prescription</button>
+                    `;
+                }
+                actions += `<button class="btn-secondary" onclick="closeViewModal()">Close</button>`;
+
+                document.getElementById('consultationActions').innerHTML = actions;
+                document.getElementById('viewModal').classList.add('active');
+            } catch (error) {
+                console.error('Error loading consultation:', error);
+                showToast('Failed to load consultation details', 'error');
+            }
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewModal').classList.remove('active');
+            selectedConsultation = null;
+        }
+
+        async function completeConsultation(id) {
+            try {
+                const response = await API.consultations.updateStatus(id, 'COMPLETED');
+                if (response.success) {
+                    showToast('Consultation completed!', 'success');
+                    closeViewModal();
+                    await loadConsultations();
+                } else {
+                    showToast(response.message || 'Failed to complete', 'error');
+                }
+            } catch (error) {
+                console.error('Error completing consultation:', error);
+                showToast('Failed to complete consultation', 'error');
+            }
+        }
+
+        function addPrescription(consultationId) {
+            window.location.href = `doctor-prescriptions.html?consultation=${consultationId}`;
+        }
+
+        function routeHighlighting() {
+            const currentRoute = window.location.pathname.split('/').pop().replace('.html', '');
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const route = item.getAttribute('data-route');
+                if (route === 'consultations' && currentRoute.includes('consultations')) {
+                    item.classList.add('active');
+                } else if (route && currentRoute.includes(route)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('user-menu').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('authToken');
+            window.location.href = 'index.html';
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.patient-select-container')) {
+                document.getElementById('patientDropdown').classList.remove('active');
+            }
+            if (!e.target.closest('.avatar') && !e.target.closest('#user-menu')) {
+                document.getElementById('user-menu').classList.remove('active');
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            filteredConsultations = allConsultations.filter(c => 
+                c.patientName?.toLowerCase().includes(query) ||
+                c.symptoms?.toLowerCase().includes(query) ||
+                c.diagnosis?.toLowerCase().includes(query)
+            );
+            renderConsultations();
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = e.target.value.toLowerCase().trim();
+                if (query) {
+                    navigateToSearchResults(query);
+                }
+            }
+        });
+
+        function navigateToSearchResults(query) {
+            window.location.href = 'doctor-consultations.html?search=' + encodeURIComponent(query);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

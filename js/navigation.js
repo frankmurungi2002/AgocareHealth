@@ -1,9 +1,28 @@
 // Navigation utilities for Agocare application
 
+// Helper function to normalize role names from backend to frontend format
+function normalizeRole(role) {
+    if (!role) return 'patient';
+    const r = role.toUpperCase();
+    // All medical professional roles route to the doctor dashboard
+    if (r === 'DOCTOR' || r === 'NURSE' || r === 'PROFESSOR' || r === 'HEALTH_WORKER') {
+        return 'doctor';
+    }
+    if (r === 'PATIENT') {
+        return 'patient';
+    }
+    if (r === 'ADMIN') {
+        return 'admin';
+    }
+    return 'patient';
+}
+
 // User roles
 const USER_ROLES = {
     PATIENT: 'patient',
     DOCTOR: 'doctor',
+    NURSE: 'doctor',
+    PROFESSOR: 'doctor',
     ADMIN: 'admin'
 };
 
@@ -39,8 +58,13 @@ const ROUTES = {
     },
     doctor: {
         dashboard: 'doctor-dashboard.html',
-        appointments: 'appointments.html',
-        myPatients: 'my-patients.html',
+        appointments: 'doctor-appointments.html',
+        myPatients: 'doctor-patients.html',
+        consultations: 'doctor-consultations.html',
+        prescriptions: 'doctor-prescriptions.html',
+        labResults: 'doctor-lab-results.html',
+        messages: 'doctor-messages.html',
+        schedule: 'doctor-schedule.html',
         profile: 'doctor-profile(1).html',
         settings: 'settings(1).html'
     },
@@ -57,17 +81,32 @@ function navigateTo(path) {
     window.location.href = path;
 }
 
-function navigateToDashboard() {
-    const role = getUserRole();
-    switch(role) {
+function navigateToDashboard(role) {
+    // const role = getUserRole();
+    const userRole = role || getUserRole();
+    
+    if (!userRole) {
+        console.warn('No user role found, redirecting to login');
+        navigateTo(ROUTES.auth.login);
+        return;
+    }
+    
+    switch(userRole) {
         case USER_ROLES.DOCTOR:
+        case 'doctor':
+        case 'health_worker':
             navigateTo(ROUTES.doctor.dashboard);
             break;
         case USER_ROLES.ADMIN:
+        case 'admin':
             navigateTo(ROUTES.admin.dashboard);
             break;
         case USER_ROLES.PATIENT:
+        case 'patient':
+            navigateTo(ROUTES.patient.dashboard);
+            break;
         default:
+            console.warn('Unknown role:', userRole, 'defaulting to patient dashboard');
             navigateTo(ROUTES.patient.dashboard);
     }
 }
@@ -90,15 +129,24 @@ function requireAuth() {
     }
 }
 
-// Check if user has required role
-function requireRole(role) {
+function requireRole(requiredRole) {
     if (!isAuthenticated()) {
         navigateTo(ROUTES.auth.login);
         return false;
     }
-    if (getUserRole() !== role) {
+    
+    const userRole = getUserRole();
+    
+    // Normalize comparison for doctor/health_worker role
+    if (requiredRole === 'doctor' || requiredRole === USER_ROLES.DOCTOR || requiredRole === 'health_worker') {
+        if (!(userRole === USER_ROLES.DOCTOR || userRole === 'health_worker')) {
+            navigateToDashboard();
+            return false;
+        }
+    } else if (userRole !== requiredRole && userRole !== normalizeRole(requiredRole)) {
         navigateToDashboard();
         return false;
     }
+    
     return true;
 }

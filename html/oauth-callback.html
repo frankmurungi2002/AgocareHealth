@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agocare - Signing In...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .callback-container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 90%;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h2 {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+        p {
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+        .error-message {
+            display: none;
+            color: #ffcccc;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        .close-btn {
+            display: none;
+            margin-top: 15px;
+            padding: 10px 25px;
+            border: 2px solid #fff;
+            background: transparent;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <div class="spinner" id="spinner"></div>
+        <h2 id="status-title">Completing sign-in...</h2>
+        <p id="status-message">Please wait while we verify your account.</p>
+        <div class="error-message" id="error-message"></div>
+        <button class="close-btn" id="close-btn" onclick="window.close()">Close Window</button>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const statusTitle = document.getElementById('status-title');
+            const statusMessage = document.getElementById('status-message');
+            const errorMessage = document.getElementById('error-message');
+            const closeBtn = document.getElementById('close-btn');
+            const spinner = document.getElementById('spinner');
+
+            function showError(message) {
+                spinner.style.display = 'none';
+                statusTitle.textContent = 'Sign-in Issue';
+                statusMessage.textContent = '';
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = message;
+                closeBtn.style.display = 'inline-block';
+            }
+
+            function showSuccess() {
+                spinner.style.display = 'none';
+                statusTitle.textContent = 'Sign-in Successful!';
+                statusMessage.textContent = 'This window will close automatically...';
+            }
+
+            // Parse URL hash fragment (implicit grant flow returns #access_token=...)
+            function parseHashParams() {
+                const hash = window.location.hash.substring(1);
+                const params = new URLSearchParams(hash);
+                return {
+                    accessToken: params.get('access_token'),
+                    idToken: params.get('id_token'),
+                    tokenType: params.get('token_type'),
+                    state: params.get('state'),
+                    error: params.get('error'),
+                    errorDescription: params.get('error_description')
+                };
+            }
+
+            // Parse URL query params (authorization code flow returns ?code=...)
+            function parseQueryParams() {
+                const params = new URLSearchParams(window.location.search);
+                return {
+                    code: params.get('code'),
+                    state: params.get('state'),
+                    token: params.get('token'),
+                    user: params.get('user'),
+                    error: params.get('error'),
+                    errorDescription: params.get('error_description') || params.get('error_description')
+                };
+            }
+
+            // Detect the provider from the state param or URL
+            function detectProvider(state) {
+                if (state) {
+                    if (state.includes('google')) return 'google';
+                    if (state.includes('facebook')) return 'facebook';
+                    if (state.includes('apple')) return 'apple';
+                }
+                // Try to detect from referrer
+                const referrer = document.referrer || '';
+                if (referrer.includes('google')) return 'google';
+                if (referrer.includes('facebook')) return 'facebook';
+                if (referrer.includes('apple')) return 'apple';
+                return 'unknown';
+            }
+
+            function processCallback() {
+                const hashParams = parseHashParams();
+                const queryParams = parseQueryParams();
+
+                // Check for errors
+                if (hashParams.error || queryParams.error) {
+                    const errorDesc = hashParams.errorDescription || queryParams.errorDescription || 'Authentication was cancelled or failed.';
+                    showError(errorDesc);
+                    return;
+                }
+
+                // Case 1: Backend already processed the callback and returned token + user in query params
+                // (This happens when backend handles code exchange and redirects here with token)
+                if (queryParams.token && queryParams.user) {
+                    try {
+                        const user = JSON.parse(decodeURIComponent(queryParams.user));
+                        
+                        // Store in localStorage
+                        localStorage.setItem('authToken', queryParams.token);
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        
+                        const role = (user.role || 'patient').toLowerCase().replace('role_', '');
+                        localStorage.setItem('userRole', role);
+                        
+                        showSuccess();
+
+                        // If we're in a popup, notify the opener
+                        if (window.opener) {
+                            window.opener.postMessage({
+                                type: 'oauth_callback',
+                                success: true,
+                                token: queryParams.token,
+                                user: user
+                            }, window.location.origin);
+                            setTimeout(() => window.close(), 1500);
+                        } else {
+                            // Not in popup - redirect to dashboard
+                            setTimeout(() => {
+                                if (role === 'doctor' || role === 'medical_professional') {
+                                    window.location.href = '/html/doctor-dashboard.html';
+                                } else if (role === 'admin') {
+                                    window.location.href = '/html/agocare_admin_exact (1).html';
+                                } else {
+                                    window.location.href = '/html/patientDashboard.html';
+                                }
+                            }, 1500);
+                        }
+                        return;
+                    } catch (e) {
+                        console.error('Error parsing user data:', e);
+                        showError('Failed to process sign-in data. Please try again.');
+                        return;
+                    }
+                }
+
+                // Case 2: We received an access token or id_token from implicit grant
+                if (hashParams.accessToken || hashParams.idToken) {
+                    const provider = detectProvider(hashParams.state);
+                    
+                    // Send the token to the parent window via postMessage
+                    if (window.opener) {
+                        window.opener.postMessage({
+                            type: 'oauth_callback',
+                            provider: provider,
+                            accessToken: hashParams.accessToken,
+                            idToken: hashParams.idToken
+                        }, window.location.origin);
+                        
+                        showSuccess();
+                        setTimeout(() => window.close(), 1500);
+                    } else {
+                        showError('This page should be opened in a popup window. Please try signing in again.');
+                    }
+                    return;
+                }
+
+                // Case 3: We received an authorization code (needs to be exchanged by backend)
+                if (queryParams.code) {
+                    const provider = detectProvider(queryParams.state);
+                    statusMessage.textContent = 'Exchanging authorization code...';
+                    
+                    // Send code to backend for exchange
+                    const API_BASE_URL = 'http://localhost:8080/api';
+                    fetch(`${API_BASE_URL}/auth/oauth/${provider}/callback?code=${encodeURIComponent(queryParams.code)}&state=${encodeURIComponent(queryParams.state || '')}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.token && data.user) {
+                                localStorage.setItem('authToken', data.token);
+                                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                                
+                                const role = (data.user.role || 'patient').toLowerCase().replace('role_', '');
+                                localStorage.setItem('userRole', role);
+                                
+                                if (window.opener) {
+                                    window.opener.postMessage({
+                                        type: 'oauth_callback',
+                                        success: true,
+                                        token: data.token,
+                                        user: data.user
+                                    }, window.location.origin);
+                                    showSuccess();
+                                    setTimeout(() => window.close(), 1500);
+                                } else {
+                                    showSuccess();
+                                    setTimeout(() => {
+                                        if (role === 'doctor' || role === 'medical_professional') {
+                                            window.location.href = '/html/doctor-dashboard.html';
+                                        } else if (role === 'admin') {
+                                            window.location.href = '/html/agocare_admin_exact (1).html';
+                                        } else {
+                                            window.location.href = '/html/patientDashboard.html';
+                                        }
+                                    }, 1500);
+                                }
+                            } else {
+                                showError(data.error || 'Failed to complete sign-in. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Callback exchange error:', error);
+                            showError('Network error. Please try again.');
+                        });
+                    return;
+                }
+
+                // No valid parameters found
+                showError('No authentication data received. Please try signing in again.');
+                closeBtn.style.display = 'inline-block';
+            }
+
+            // Start processing
+            processCallback();
+        })();
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿/* SHARED STYLES FOR BOTH PAGES */
+/* SHARED STYLES FOR BOTH PAGES */
 
 /* Reset and Base Styles */
 * {
@@ -172,7 +172,7 @@ body {
 /* Header Styles */
 header {
     background-color: white;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e5e7eb;
     padding: 12px 40px;
     display: flex;
     align-items: center;
@@ -190,7 +190,7 @@ header {
 }
 
 .logo span {
-    color: #4a90e2;
+    color: #0d9488;
 }
 
 .header-left {
@@ -222,7 +222,8 @@ header {
 .search-bar {
     display: flex;
     align-items: center;
-    background-color: #f5f5f5;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
     border-radius: 20px;
     padding: 8px 16px;
     width: 320px;
@@ -259,7 +260,7 @@ header {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #4a90e2;
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -320,12 +321,13 @@ header {
 }
 
 .nav-item:hover {
-    background-color: #f5f5f5;
+    background-color: #f0fdfa;
+    color: #0d9488;
 }
 
 .nav-item.active {
-    background-color: #fee;
-    color: #e63946;
+    background-color: #f0fdfa;
+    color: #0d9488;
     font-weight: 600;
 }
 
@@ -348,7 +350,7 @@ header {
 
 .see-all {
     padding: 8px 20px;
-    color: #4a90e2;
+    color: #0d9488;
     font-size: 13px;
     cursor: pointer;
     font-weight: 500;
@@ -470,7 +472,7 @@ header {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #4a90e2;
+    background-color: #0d9488;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -490,8 +492,8 @@ header {
 .follow-btn {
     width: 100%;
     background: none;
-    border: 1px solid #4a90e2;
-    color: #4a90e2;
+    border: 1px solid #0d9488;
+    color: #0d9488;
     padding: 8px;
     border-radius: 20px;
     cursor: pointer;
@@ -501,14 +503,14 @@ header {
 }
 
 .follow-btn:hover {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
 }
 
 .view-all-link {
     display: inline-block;
     margin-top: 16px;
-    color: #4a90e2;
+    color: #0d9488;
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
@@ -538,7 +540,7 @@ header {
 /* DOCTOR DASHBOARD STYLES */
 /* Welcome Banner */
 .welcome-banner {
-    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     border-radius: 8px;
     padding: 32px;
     color: white;
@@ -565,44 +567,47 @@ header {
 
 .stat-card {
     background-color: white;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 20px;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stat-label {
     font-size: 13px;
-    color: #999;
+    color: #6b7280;
     margin-bottom: 8px;
+    font-weight: 500;
 }
 
 .stat-value {
     font-size: 32px;
     font-weight: bold;
-    color: #333;
+    color: #0d9488;
     margin-bottom: 4px;
 }
 
 .stat-change {
     font-size: 12px;
+    color: #6b7280;
 }
 
 .stat-change.positive {
-    color: #28a745;
+    color: #16a34a;
 }
 
 .stat-change.info {
-    color: #4a90e2;
+    color: #0d9488;
 }
 
 .stat-change.rating {
-    color: #ffc107;
+    color: #d97706;
 }
 
 /* Question Item */
@@ -635,7 +640,7 @@ header {
 
 .question-category {
     font-size: 14px;
-    color: #4a90e2;
+    color: #0d9488;
     font-weight: 600;
     margin-bottom: 4px;
 }
@@ -708,7 +713,7 @@ header {
 }
 
 .appointment-indicator.blue {
-    background-color: #4a90e2;
+    background-color: #0d9488;
 }
 
 .appointment-indicator.green {
@@ -749,12 +754,12 @@ header {
 
 .btn-appointment.primary {
     background: white;
-    border: 1px solid #4a90e2;
-    color: #4a90e2;
+    border: 1px solid #0d9488;
+    color: #0d9488;
 }
 
 .btn-appointment.primary:hover {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
 }
 
@@ -805,12 +810,12 @@ header {
 
 .quick-action-btn.secondary {
     background: white;
-    border: 1px solid #4a90e2;
-    color: #4a90e2;
+    border: 1px solid #0d9488;
+    color: #0d9488;
 }
 
 .quick-action-btn.secondary:hover {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
 }
 
@@ -885,7 +890,7 @@ header {
 .back-link {
     display: inline-flex;
     align-items: center;
-    color: #4a90e2;
+    color: #0d9488;
     text-decoration: none;
     font-size: 14px;
     margin-bottom: 16px;
@@ -906,7 +911,7 @@ header {
 
 .profile-cover {
     height: 200px;
-    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
 }
 
 .profile-info {
@@ -940,7 +945,7 @@ header {
 }
 
 .verified-badge {
-    color: #4a90e2;
+    color: #0d9488;
     font-size: 24px;
     margin-left: 8px;
 }
@@ -975,8 +980,8 @@ header {
 
 .btn-follow {
     background: white;
-    border: 1px solid #4a90e2;
-    color: #4a90e2;
+    border: 1px solid #0d9488;
+    color: #0d9488;
     padding: 10px 24px;
     border-radius: 20px;
     cursor: pointer;
@@ -986,12 +991,12 @@ header {
 }
 
 .btn-follow:hover {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
 }
 
 .btn-edit-profile {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
     border: none;
     padding: 10px 24px;
@@ -1003,13 +1008,13 @@ header {
 }
 
 .btn-edit-profile:hover {
-    background-color: #357abd;
+    background-color: #0f766e;
 }
 
 .btn-view-public {
     background: white;
-    border: 1px solid #4a90e2;
-    color: #4a90e2;
+    border: 1px solid #0d9488;
+    color: #0d9488;
     padding: 10px 24px;
     border-radius: 20px;
     cursor: pointer;
@@ -1019,12 +1024,12 @@ header {
 }
 
 .btn-view-public:hover {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
 }
 
 .btn-ask-question {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
     border: none;
     padding: 10px 24px;
@@ -1036,7 +1041,7 @@ header {
 }
 
 .btn-ask-question:hover {
-    background-color: #357abd;
+    background-color: #0f766e;
 }
 
 /* Tabs */
@@ -1060,7 +1065,7 @@ header {
 }
 
 .tab-btn.active {
-    color: #4a90e2;
+    color: #0d9488;
 }
 
 .tab-btn.active::after {
@@ -1070,11 +1075,11 @@ header {
     left: 0;
     right: 0;
     height: 2px;
-    background-color: #4a90e2;
+    background-color: #0d9488;
 }
 
 .tab-btn:hover {
-    color: #4a90e2;
+    color: #0d9488;
 }
 
 .tab-content {
@@ -1114,12 +1119,12 @@ header {
     content: '•';
     position: absolute;
     left: 0;
-    color: #4a90e2;
+    color: #0d9488;
     font-weight: bold;
 }
 
 .btn-book-appointment {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
     border: none;
     padding: 12px 32px;
@@ -1131,7 +1136,7 @@ header {
 }
 
 .btn-book-appointment:hover {
-    background-color: #357abd;
+    background-color: #0f766e;
 }
 
 /* Availability */
@@ -1168,7 +1173,7 @@ header {
 }
 
 .answer-item h4:hover {
-    color: #4a90e2;
+    color: #0d9488;
 }
 
 .answer-item p {
@@ -1191,7 +1196,7 @@ header {
 }
 
 .answer-meta span:hover {
-    color: #4a90e2;
+    color: #0d9488;
 }
 
 /* MEDICAL LIBRARY STYLES */
@@ -1213,14 +1218,14 @@ header {
 }
 
 .category-pill:hover {
-    border-color: #4a90e2;
-    color: #4a90e2;
+    border-color: #0d9488;
+    color: #0d9488;
 }
 
 .category-pill.active {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
-    border-color: #4a90e2;
+    border-color: #0d9488;
 }
 
 .library-resource {
@@ -1268,7 +1273,7 @@ header {
 
 .chart-bar {
     flex: 1;
-    background: linear-gradient(to top, #4a90e2, #357abd);
+    background: linear-gradient(to top, #0d9488, #0f766e);
     border-radius: 4px 4px 0 0;
     transition: height 0.3s;
 }
@@ -1316,7 +1321,7 @@ header {
 }
 
 .progress-fill.primary {
-    background-color: #4a90e2;
+    background-color: #0d9488;
 }
 
 .progress-fill.secondary {
@@ -1383,7 +1388,7 @@ header {
 .rank-number {
     font-size: 24px;
     font-weight: bold;
-    color: #4a90e2;
+    color: #0d9488;
     margin-bottom: 4px;
 }
 
@@ -1523,7 +1528,7 @@ header {
 }
 
 .toggle-switch input:checked + .toggle-slider {
-    background-color: #4a90e2;
+    background-color: #0d9488;
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -1541,14 +1546,14 @@ header {
 }
 
 .setting-input:focus {
-    border-color: #4a90e2;
+    border-color: #0d9488;
 }
 
 .setting-btn {
     padding: 8px 20px;
     background: white;
-    border: 1px solid #4a90e2;
-    color: #4a90e2;
+    border: 1px solid #0d9488;
+    color: #0d9488;
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
@@ -1557,7 +1562,7 @@ header {
 }
 
 .setting-btn:hover {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
 }
 

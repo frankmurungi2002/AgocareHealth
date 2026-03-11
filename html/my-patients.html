@@ -13,11 +13,12 @@
     align-items: center;
     gap: 16px;
     padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    background-color: white;
+    border-radius: 12px;
     margin-bottom: 16px;
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .patient-card:hover {
@@ -29,7 +30,7 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background-color: #4a90e2;
+    background: linear-gradient(135deg, #0d9488, #14b8a6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -45,13 +46,13 @@
 .patient-name {
     font-size: 16px;
     font-weight: 600;
-    color: #333;
+    color: #1f2937;
     margin-bottom: 4px;
 }
 
 .patient-info {
     font-size: 13px;
-    color: #666;
+    color: #6b7280;
     margin-bottom: 8px;
 }
 
@@ -70,18 +71,18 @@
 }
 
 .status-badge.active {
-    background-color: #d4edda;
-    color: #28a745;
+    background-color: #f0fdf4;
+    color: #16a34a;
 }
 
 .status-badge.followup {
-    background-color: #fff3cd;
-    color: #ffc107;
+    background-color: #fef3c7;
+    color: #d97706;
 }
 
 .status-badge.completed {
-    background-color: #e7e7e7;
-    color: #666;
+    background-color: #f3f4f6;
+    color: #6b7280;
 }
 
 .patient-actions {
@@ -92,7 +93,7 @@
 
 .btn-patient-action {
     padding: 8px 16px;
-    border-radius: 20px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
     font-size: 12px;
@@ -102,22 +103,22 @@
 
 .btn-view {
     background: white;
-    border: 1px solid #4a90e2;
-    color: #4a90e2;
+    border: 1px solid #0d9488;
+    color: #0d9488;
 }
 
 .btn-view:hover {
-    background-color: #4a90e2;
+    background-color: #0d9488;
     color: white;
 }
 
 .btn-contact {
-    background-color: #28a745;
+    background-color: #0d9488;
     color: white;
 }
 
 .btn-contact:hover {
-    background-color: #218838;
+    background-color: #0f766e;
 }
 
 .search-filter-bar {
@@ -131,14 +132,14 @@
     flex: 1;
     min-width: 200px;
     padding: 10px 16px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #e5e7eb;
     border-radius: 20px;
     font-size: 14px;
     outline: none;
 }
 
 .search-input:focus {
-    border-color: #4a90e2;
+    border-color: #0d9488;
 }
 
 @media (max-width: 768px) {
@@ -205,13 +206,6 @@
 </div>
 <div class="mobile-menu-section">
 <div class="mobile-menu-label">ACCOUNT</div>
-<div class="mobile-menu-profile">
-<div class="user-avatar" id="patientsMobileAvatar">DN</div>
-<div>
-<div class="mobile-profile-name">Dr. Nabirye</div>
-<div class="mobile-profile-specialty">Pediatrician</div>
-</div>
-</div>
 <a href="doctor-profile(1).html" class="mobile-menu-item">
 <span class="nav-icon">👤</span>
 <span>My Profile</span>
@@ -232,7 +226,9 @@
 <span></span>
 <span></span>
 </button>
-<div class="logo">Ago<span>care</span></div>
+<a href="index.html" style="text-decoration: none;">
+    <img src="../images/logo.svg" alt="Agocare" style="height: 45px; display: block;">
+</a>
 <div class="header-icons desktop-only">
 <button class="icon-btn">📍</button>
 <button class="icon-btn">🔔</button>
@@ -244,11 +240,7 @@
 </div>
 </div>
 <div class="header-right">
-<div class="user-info desktop-only">
-<div class="user-avatar" id="patientsDesktopAvatar">DN</div>
-<span>Dr. Nabirye</span>
-</div>
-<button class="ask-question-btn">Ask Question</button>
+<button class="ask-question-btn" style="background: #0d9488; color: white; border: none;">Ask Question</button>
 </div>
 </header>
 
@@ -296,29 +288,29 @@
 <main class="main-content">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
 <h1>👥 My Patients</h1>
-<button class="ask-question-btn" onclick="addNewPatient()">+ Add Patient</button>
+<button class="ask-question-btn" onclick="addNewPatient()" style="background: #0d9488; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">+ Add Patient</button>
 </div>
 
 <!-- Patient Stats -->
 <div class="stats-grid" style="margin-bottom: 24px;">
-<div class="stat-card">
+<div class="stat-card" style="border-left: 4px solid #0d9488;">
 <div class="stat-label">Total Patients</div>
-<div class="stat-value">287</div>
+<div class="stat-value" style="color: #0d9488;">287</div>
 <div class="stat-change positive">↑ 12 this month</div>
 </div>
-<div class="stat-card">
+<div class="stat-card" style="border-left: 4px solid #16a34a;">
 <div class="stat-label">Active Cases</div>
-<div class="stat-value">45</div>
+<div class="stat-value" style="color: #16a34a;">45</div>
 <div class="stat-change info">Ongoing treatment</div>
 </div>
-<div class="stat-card">
+<div class="stat-card" style="border-left: 4px solid #d97706;">
 <div class="stat-label">Follow-ups Due</div>
-<div class="stat-value">18</div>
-<div class="stat-change" style="color: #ffc107;">⚠ Needs attention</div>
+<div class="stat-value" style="color: #d97706;">18</div>
+<div class="stat-change" style="color: #d97706;">⚠ Needs attention</div>
 </div>
-<div class="stat-card">
+<div class="stat-card" style="border-left: 4px solid #3b82f6;">
 <div class="stat-label">This Week</div>
-<div class="stat-value">34</div>
+<div class="stat-value" style="color: #3b82f6;">34</div>
 <div class="stat-change positive">New consultations</div>
 </div>
 </div>
@@ -353,7 +345,7 @@
 <div class="patient-info">2 years old • Female • Patient ID: PT-2847</div>
 <div class="patient-status">
 <span class="status-badge active">Active</span>
-<span style="color: #666;">Last visit: 2 days ago • Recurring fever</span>
+<span style="color: #6b7280;">Last visit: 2 days ago • Recurring fever</span>
 </div>
 </div>
 <div class="patient-actions">
@@ -364,13 +356,13 @@
 
 <!-- Patient 2 - Follow-up -->
 <div class="patient-card" onclick="viewPatientDetails(2)">
-<div class="patient-avatar-large" style="background-color: #ffc107;">🤰</div>
+<div class="patient-avatar-large" style="background: linear-gradient(135deg, #db2777, #ec4899);">🤰</div>
 <div class="patient-details">
 <div class="patient-name">Grace Akinyi</div>
 <div class="patient-info">28 years old • Female • Patient ID: PT-2756</div>
 <div class="patient-status">
 <span class="status-badge followup">Follow-up Due</span>
-<span style="color: #666;">Last visit: 2 weeks ago • Antenatal checkup</span>
+<span style="color: #6b7280;">Last visit: 2 weeks ago • Antenatal checkup</span>
 </div>
 </div>
 <div class="patient-actions">
@@ -381,13 +373,13 @@
 
 <!-- Patient 3 - Active -->
 <div class="patient-card" onclick="viewPatientDetails(3)">
-<div class="patient-avatar-large" style="background-color: #28a745;">👦</div>
+<div class="patient-avatar-large" style="background: linear-gradient(135deg, #16a34a, #22c55e);">👦</div>
 <div class="patient-details">
 <div class="patient-name">Joshua Okello</div>
 <div class="patient-info">7 years old • Male • Patient ID: PT-2823</div>
 <div class="patient-status">
 <span class="status-badge active">Active</span>
-<span style="color: #666;">Last visit: 4 days ago • Malaria treatment</span>
+<span style="color: #6b7280;">Last visit: 4 days ago • Malaria treatment</span>
 </div>
 </div>
 <div class="patient-actions">
@@ -398,13 +390,13 @@
 
 <!-- Patient 4 - Completed -->
 <div class="patient-card" onclick="viewPatientDetails(4)">
-<div class="patient-avatar-large" style="background-color: #999;">👧</div>
+<div class="patient-avatar-large" style="background: linear-gradient(135deg, #6b7280, #9ca3af);">👧</div>
 <div class="patient-details">
 <div class="patient-name">Sarah Namugga</div>
 <div class="patient-info">5 years old • Female • Patient ID: PT-2801</div>
 <div class="patient-status">
 <span class="status-badge completed">Completed</span>
-<span style="color: #666;">Last visit: 1 month ago • Vaccination complete</span>
+<span style="color: #6b7280;">Last visit: 1 month ago • Vaccination complete</span>
 </div>
 </div>
 <div class="patient-actions">
@@ -415,13 +407,13 @@
 
 <!-- Patient 5 - Follow-up -->
 <div class="patient-card" onclick="viewPatientDetails(5)">
-<div class="patient-avatar-large" style="background-color: #ffc107;">🧒</div>
+<div class="patient-avatar-large" style="background: linear-gradient(135deg, #d97706, #f59e0b);">🧒</div>
 <div class="patient-details">
 <div class="patient-name">Moses Mugisha</div>
 <div class="patient-info">4 years old • Male • Patient ID: PT-2789</div>
 <div class="patient-status">
 <span class="status-badge followup">Follow-up Due</span>
-<span style="color: #666;">Last visit: 10 days ago • Respiratory infection</span>
+<span style="color: #6b7280;">Last visit: 10 days ago • Respiratory infection</span>
 </div>
 </div>
 <div class="patient-actions">
@@ -432,13 +424,13 @@
 
 <!-- Patient 6 - Active -->
 <div class="patient-card" onclick="viewPatientDetails(6)">
-<div class="patient-avatar-large" style="background-color: #4a90e2;">👶</div>
+<div class="patient-avatar-large">👶</div>
 <div class="patient-details">
 <div class="patient-name">Baby Brian Ssemakula</div>
 <div class="patient-info">8 months old • Male • Patient ID: PT-2845</div>
 <div class="patient-status">
 <span class="status-badge active">Active</span>
-<span style="color: #666;">Last visit: 1 day ago • Routine checkup</span>
+<span style="color: #6b7280;">Last visit: 1 day ago • Routine checkup</span>
 </div>
 </div>
 <div class="patient-actions">
@@ -449,13 +441,13 @@
 
 <!-- Patient 7 - Active -->
 <div class="patient-card" onclick="viewPatientDetails(7)">
-<div class="patient-avatar-large" style="background-color: #e63946;">👧</div>
+<div class="patient-avatar-large" style="background: linear-gradient(135deg, #dc2626, #ef4444);">👧</div>
 <div class="patient-details">
 <div class="patient-name">Patricia Nabwire</div>
 <div class="patient-info">6 years old • Female • Patient ID: PT-2812</div>
 <div class="patient-status">
 <span class="status-badge active">Active</span>
-<span style="color: #666;">Last visit: 3 days ago • Skin condition</span>
+<span style="color: #6b7280;">Last visit: 3 days ago • Skin condition</span>
 </div>
 </div>
 <div class="patient-actions">
@@ -466,13 +458,13 @@
 
 <!-- Patient 8 - Completed -->
 <div class="patient-card" onclick="viewPatientDetails(8)">
-<div class="patient-avatar-large" style="background-color: #999;">🧒</div>
+<div class="patient-avatar-large" style="background: linear-gradient(135deg, #6b7280, #9ca3af);">🧒</div>
 <div class="patient-details">
 <div class="patient-name">James Kato</div>
 <div class="patient-info">9 years old • Male • Patient ID: PT-2765</div>
 <div class="patient-status">
 <span class="status-badge completed">Completed</span>
-<span style="color: #666;">Last visit: 3 weeks ago • Dental checkup</span>
+<span style="color: #6b7280;">Last visit: 3 weeks ago • Dental checkup</span>
 </div>
 </div>
 <div class="patient-actions">
@@ -483,7 +475,7 @@
 
 <!-- Load More -->
 <div style="text-align: center; margin-top: 24px;">
-<button class="btn-answer" style="width: auto; padding: 12px 32px;">Load More Patients</button>
+<button class="btn-answer" style="width: auto; padding: 12px 32px; background: #0d9488; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Load More Patients</button>
 </div>
 </div>
 </main>
@@ -492,9 +484,9 @@
 <aside class="right-sidebar desktop-only">
 <div class="sidebar-card">
 <h3>Quick Actions</h3>
-<button class="quick-action-btn primary" onclick="addNewPatient()">+ Add New Patient</button>
-<button class="quick-action-btn secondary" onclick="scheduleFollowup()">📅 Schedule Follow-up</button>
-<button class="quick-action-btn tertiary" onclick="exportRecords()">📄 Export Records</button>
+<button class="quick-action-btn primary" onclick="addNewPatient()" style="background: #0d9488; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 8px;">+ Add New Patient</button>
+<button class="quick-action-btn secondary" onclick="scheduleFollowup()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; cursor: pointer; margin-bottom: 8px;">📅 Schedule Follow-up</button>
+<button class="quick-action-btn tertiary" onclick="exportRecords()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; cursor: pointer;">📄 Export Records</button>
 </div>
 
 <div class="sidebar-card">

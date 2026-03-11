@@ -1,0 +1,28 @@
+rm /etc/apt/sources.list.d/mongodb-org-7.0.list[Unit]
+Description=Agocare Health Backend (Spring Boot)
+After=syslog.target network.target postgresql.service mongod.service
+
+[Service]
+User=www-data
+Group=www-data
+Type=simple
+
+# Environment variables - UPDATE THESE
+Environment="SPRING_PROFILES_ACTIVE=prod"
+Environment="DB_PASSWORD=YOUR_DB_PASSWORD_HERE"
+Environment="JWT_SECRET=YOUR_STRONG_JWT_SECRET_HERE_MINIMUM_32_CHARACTERS"
+
+# Java application
+ExecStart=/usr/bin/java -Xms256m -Xmx512m -jar /var/www/agocare/backend/agrocare-backend.jar
+ExecStop=/bin/kill -SIGTERM $MAINPID
+
+# Restart on failure
+Restart=on-failure
+RestartSec=10
+
+# Logging
+StandardOutput=append:/var/log/agocare/application.log
+StandardError=append:/var/log/agocare/error.log
+
+[Install]
+WantedBy=multi-user.target
