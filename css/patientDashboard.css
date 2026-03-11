@@ -379,6 +379,57 @@ a[onclick*="logout"] {
 
 
 header {
-    position:fixed;
-    height: 500px;
+    position: fixed;
+    height: 60px;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 768px) {
+    #user-menu {
+        right: 10px;
+        left: 10px;
+        min-width: unset;
+        width: auto;
+    }
+
+    #notifications-menu {
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+
+    .modal-content {
+        width: 95% !important;
+        max-width: 100% !important;
+        padding: 14px;
+    }
+
+    .form-buttons {
+        flex-direction: column;
+    }
+
+    .form-buttons button {
+        min-height: 44px;
+    }
+}
+
+/* Responsive - Small Mobile */
+@media (max-width: 480px) {
+    .modal-content {
+        width: 100% !important;
+        border-radius: 12px 12px 0 0;
+        max-height: 95vh;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px;
+        padding: 12px;
+        min-height: 44px;
+    }
+
+    .modal-header h2 {
+        font-size: 16px;
+    }
 }

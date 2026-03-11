@@ -629,6 +629,107 @@
     .stat-label {
         font-size: 11px;
     }
+
+    .toast {
+        min-width: unset;
+        max-width: calc(100vw - 20px);
+        margin: 0 auto;
+    }
+
+    .toast-container {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+    }
+
+    .action-btn {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+
+    .appointment-actions {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .appointment-actions button {
+        flex: 1;
+        min-width: 80px;
+        padding: 8px 10px;
+    }
+
+    .modal-content {
+        width: 95% !important;
+        max-width: 100% !important;
+        margin: 0 auto;
+    }
+
+    .modal-header {
+        padding: 16px;
+    }
+
+    .form-group {
+        padding: 0 16px;
+    }
+
+    .data-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+
+    .tab {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .progress-steps {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .progress-step {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-card {
+        flex-direction: row;
+        text-align: left;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+
+    .action-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .btn-primary, .btn-secondary {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
 }
 
 /* Scrollbar */
