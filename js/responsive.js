@@ -40,51 +40,76 @@
         mobileSidebar.className = 'mobile-sidebar';
         mobileSidebar.id = 'mobile-sidebar';
 
+        // Top row: search input + close button side by side
+        const topRow = document.createElement('div');
+        topRow.className = 'mobile-sidebar-top';
+
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Search...';
+        searchInput.className = 'mobile-sidebar-search';
+        topRow.appendChild(searchInput);
+
         // Close button
         const closeBtn = document.createElement('button');
         closeBtn.className = 'mobile-sidebar-close';
         closeBtn.setAttribute('aria-label', 'Close menu');
         closeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M18 6L6 18M6 6l12 12"/></svg>';
-        mobileSidebar.appendChild(closeBtn);
+        topRow.appendChild(closeBtn);
+
+        mobileSidebar.appendChild(topRow);
 
         // Clone sidebar navigation items from desktop sidebar
-        const desktopSidebar = document.querySelector('.desktop-sidebar') || 
+        const desktopSidebar = document.querySelector('.feed-sidebar-left') ||
+                               document.querySelector('.desktop-sidebar') || 
                                document.querySelector('.main-layout > aside:first-child') ||
                                document.querySelector('aside.scroll-section');
         
         if (desktopSidebar) {
-            // Clone all nav sections
-            const sections = desktopSidebar.querySelectorAll('div[style*="padding: 8px 12px"]');
-            sections.forEach(function(section) {
-                // Get section title
-                const titleEl = section.querySelector('div[style*="text-transform: uppercase"]');
-                if (titleEl) {
-                    const sectionTitle = document.createElement('div');
-                    sectionTitle.className = 'nav-section-title';
-                    sectionTitle.textContent = titleEl.textContent;
-                    mobileSidebar.appendChild(sectionTitle);
-                }
-
-                // Clone nav items
-                const navItems = section.querySelectorAll('a.nav-item');
-                navItems.forEach(function(item) {
-                    const clone = item.cloneNode(true);
-                    clone.className = 'nav-item' + (item.classList.contains('active') ? ' active' : '');
-                    mobileSidebar.appendChild(clone);
+            // Try new feed-layout nav sections first
+            const feedSections = desktopSidebar.querySelectorAll('.feed-nav-section');
+            if (feedSections.length > 0) {
+                feedSections.forEach(function(section) {
+                    var labelEl = section.querySelector('.feed-nav-label');
+                    if (labelEl) {
+                        var sectionTitle = document.createElement('div');
+                        sectionTitle.className = 'nav-section-title';
+                        sectionTitle.textContent = labelEl.textContent;
+                        mobileSidebar.appendChild(sectionTitle);
+                    }
+                    var navItems = section.querySelectorAll('.feed-nav-item');
+                    navItems.forEach(function(item) {
+                        var clone = item.cloneNode(true);
+                        clone.className = 'nav-item' + (item.classList.contains('active') ? ' active' : '');
+                        mobileSidebar.appendChild(clone);
+                    });
+                    var divider = document.createElement('div');
+                    divider.className = 'nav-divider';
+                    mobileSidebar.appendChild(divider);
                 });
-
-                // Add divider between sections
-                const divider = document.createElement('div');
-                divider.className = 'nav-divider';
-                mobileSidebar.appendChild(divider);
-            });
+            } else {
+                // Fallback: old layout with inline-styled sections
+                const sections = desktopSidebar.querySelectorAll('div[style*="padding: 8px 12px"]');
+                sections.forEach(function(section) {
+                    var titleEl = section.querySelector('div[style*="text-transform: uppercase"]');
+                    if (titleEl) {
+                        var sectionTitle = document.createElement('div');
+                        sectionTitle.className = 'nav-section-title';
+                        sectionTitle.textContent = titleEl.textContent;
+                        mobileSidebar.appendChild(sectionTitle);
+                    }
+                    var navItems = section.querySelectorAll('a.nav-item');
+                    navItems.forEach(function(item) {
+                        var clone = item.cloneNode(true);
+                        clone.className = 'nav-item' + (item.classList.contains('active') ? ' active' : '');
+                        mobileSidebar.appendChild(clone);
+                    });
+                    var divider = document.createElement('div');
+                    divider.className = 'nav-divider';
+                    mobileSidebar.appendChild(divider);
+                });
+            }
         }
-
-        // Add mobile search to sidebar
-        const searchContainer = document.createElement('div');
-        searchContainer.style.cssText = 'padding: 12px 16px;';
-        searchContainer.innerHTML = '<input type="text" placeholder="Search..." style="width: 100%; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 20px; font-size: 14px; outline: none;">';
-        mobileSidebar.insertBefore(searchContainer, mobileSidebar.children[1]);
 
         document.body.appendChild(mobileSidebar);
 

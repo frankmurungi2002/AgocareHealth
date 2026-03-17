@@ -53,101 +53,102 @@ function renderQuestionCard(q) {
     const initials = author.initials || '?';
     const authorName = q.isAnonymous ? 'Anonymous' : (author.name || author.username || 'Anonymous');
     const verifiedBadge = author.verificationBadge
-        ? '<span style="color:#0d9488; margin-left:4px;" title="Verified">✓</span>' : '';
+        ? '<span class="q-verified" title="Verified">✓</span>' : '';
 
     const medicalBanner = stats.medicalAnswers > 0
-        ? `<div style="background:#f0fdf4;padding:12px;border-radius:8px;margin-bottom:16px;">
-             <div style="color:#16a34a;font-weight:600;font-size:14px;">✅ ${stats.medicalAnswers} answer${stats.medicalAnswers > 1 ? 's' : ''} from medical professionals</div>
+        ? `<div class="q-medical-banner">
+             <span>✅</span> ${stats.medicalAnswers} answer${stats.medicalAnswers > 1 ? 's' : ''} from medical professionals
            </div>` : '';
 
     return `
-    <article style="background:white;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.1);" data-question-id="${q.id}" data-category="${category.slug || ''}">
-        <!-- Author header -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #e5e7eb;">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:48px;height:48px;border-radius:50%;background:${getAvatarGradient(authorName)};display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:16px;">
+    <article class="q-card" data-question-id="${q.id}" data-category="${category.slug || ''}">
+        <div class="q-card-body">
+            <!-- Author Row (Twitter-style: avatar + name left, timestamp right) -->
+            <div class="q-author-row">
+                <div class="q-avatar" style="background:${getAvatarGradient(authorName)};">
                     ${initials}
                 </div>
-                <div>
-                    <div style="font-weight:600;color:#1f2937;">${authorName}${verifiedBadge}</div>
-                    <div style="font-size:13px;color:#6b7280;">${q.timeAgo || ''}</div>
+                <div class="q-author-info">
+                    <div class="q-author-name">${escapeHtml(authorName)}${verifiedBadge}</div>
+                    <div class="q-author-meta">
+                        <span>${category.name || 'General'}</span>
+                        <span class="dot"></span>
+                        <span>${stats.views || 0} views</span>
+                    </div>
                 </div>
+                <span class="q-timestamp">${q.timeAgo || ''}</span>
             </div>
-            <button onclick="handleFollowQuestion(${q.id}, this)" style="padding:6px 16px;background:white;border:1px solid #0d9488;color:#0d9488;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;">Follow</button>
-        </div>
 
-        <!-- Category badge -->
-        <div style="margin-bottom:12px;">
-            <span style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:${catStyle.bg};color:${catStyle.color};">
+            <!-- Topic Tag (hashtag pill) -->
+            <span class="q-topic-tag" style="background:${catStyle.bg};color:${catStyle.color};">
                 ${catStyle.icon} ${category.name || 'General'}
             </span>
+
+            <!-- Title & Content -->
+            <div class="q-title" onclick="viewQuestion(${q.id})">${escapeHtml(q.title)}</div>
+            <div class="q-content">${truncate(escapeHtml(q.content), 220)}</div>
+
+            ${medicalBanner}
         </div>
 
-        <!-- Title & Content -->
-        <h3 style="font-size:18px;font-weight:700;margin-bottom:12px;color:#1f2937;cursor:pointer;" onclick="viewQuestion(${q.id})">${escapeHtml(q.title)}</h3>
-        <p style="color:#4b5563;margin-bottom:16px;line-height:1.6;">${truncate(escapeHtml(q.content), 200)}</p>
-
-        ${medicalBanner}
-
-        <!-- Stats row -->
-        <div style="display:flex;gap:16px;font-size:13px;color:#6b7280;margin-bottom:12px;">
-            <span>${stats.views || 0} views</span>
-            <span>${stats.answers || 0} answers</span>
-            <span>${stats.comments || 0} comments</span>
-        </div>
-
-        <!-- Action Buttons -->
-        <div style="display:flex;gap:8px;padding-top:16px;border-top:1px solid #e5e7eb;">
-            <button onclick="handleDynamicVote(${q.id}, 'QUESTION', 'UPVOTE', this)" style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;font-size:14px;color:#4b5563;">
-                <span>👍</span> <span class="vote-count">${stats.upvotes || 0}</span> Upvote
+        <!-- Engagement Bar (Twitter-style) -->
+        <div class="q-actions">
+            <button onclick="handleDynamicVote(${q.id}, 'QUESTION', 'UPVOTE', this)" class="q-action-btn upvote-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                <span class="vote-count">${stats.upvotes || 0}</span>
             </button>
-            <button onclick="handleDynamicVote(${q.id}, 'QUESTION', 'DOWNVOTE', this)" style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;font-size:14px;color:#4b5563;">
-                <span>👎</span> <span class="vote-count">${stats.downvotes || 0}</span>
+            <button onclick="handleDynamicVote(${q.id}, 'QUESTION', 'DOWNVOTE', this)" class="q-action-btn downvote-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
             </button>
-            <button onclick="toggleDynamicComments(${q.id}, this)" style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;font-size:14px;color:#4b5563;">
-                <span>💬</span> Comment <span class="comment-count">(${stats.comments || 0})</span>
+            <button onclick="toggleDynamicComments(${q.id}, this)" class="q-action-btn comment-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <span class="q-action-label">${stats.comments || 0}</span>
             </button>
-            <button onclick="shareQuestion(${q.id})" style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;font-size:14px;color:#4b5563;">
-                <span>🔗</span> Share
+            <button onclick="shareQuestion(${q.id})" class="q-action-btn share-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                <span class="q-action-label">Share</span>
+            </button>
+            <button onclick="handleFollowQuestion(${q.id}, this)" class="q-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                <span class="q-action-label">Follow</span>
             </button>
         </div>
 
-        <!-- Dynamic Comment Section (initially hidden) -->
-        <div class="comment-section" id="comments-${q.id}" style="display:none;margin-top:16px;padding:16px;background:#f9fafb;border-radius:8px;">
-            <div style="margin-bottom:12px;">
-                <input type="text" id="comment-input-${q.id}" placeholder="Write a comment..." style="width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box;">
+        <!-- Comment Section -->
+        <div class="q-comment-section" id="comments-${q.id}">
+            <div class="q-comment-input-row">
+                <input type="text" id="comment-input-${q.id}" class="q-comment-input" placeholder="Write a comment...">
+                <button onclick="postDynamicComment(${q.id})" class="q-comment-submit">Post</button>
             </div>
-            <button onclick="postDynamicComment(${q.id})" style="padding:8px 20px;background:#0d9488;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Post Comment</button>
-            <div id="comments-list-${q.id}" style="margin-top:16px;"></div>
+            <div id="comments-list-${q.id}"></div>
         </div>
     </article>`;
 }
 
 function renderLoadingState() {
     return `
-    <div style="text-align:center;padding:40px;color:#6b7280;">
-        <div style="width:40px;height:40px;border:3px solid #e5e7eb;border-top-color:#0d9488;border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite;"></div>
+    <div class="q-loading">
+        <div class="q-spinner"></div>
         <p>Loading questions...</p>
-        <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
     </div>`;
 }
 
 function renderEmptyState() {
     return `
-    <div style="text-align:center;padding:60px 20px;color:#6b7280;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" width="48" height="48" style="margin:0 auto 16px;">
+    <div class="q-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="margin:0 auto;">
             <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
-        <h3 style="font-size:18px;font-weight:600;color:#374151;margin-bottom:8px;">No questions yet</h3>
-        <p style="margin-bottom:20px;">Be the first to ask a healthcare question!</p>
+        <h3>No questions yet</h3>
+        <p>Be the first to ask a healthcare question!</p>
     </div>`;
 }
 
 function renderLoadMoreButton() {
     if (!hasMore) return '';
     return `
-    <div style="text-align:center;margin:20px 0;">
-        <button onclick="loadMoreQuestions()" id="load-more-btn" style="padding:10px 32px;background:#0d9488;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;">Load More</button>
+    <div class="q-load-more">
+        <button onclick="loadMoreQuestions()" id="load-more-btn">Load More</button>
     </div>`;
 }
 
@@ -199,8 +200,8 @@ async function loadQuestions(reset = false) {
         if (loadMoreContainer) loadMoreContainer.remove();
         if (hasMore) {
             container.insertAdjacentHTML('afterend',
-                `<div id="load-more-container" style="text-align:center;margin:20px 0;">
-                    <button onclick="loadMoreQuestions()" style="padding:10px 32px;background:#0d9488;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;">Load More</button>
+                `<div id="load-more-container" class="q-load-more">
+                    <button onclick="loadMoreQuestions()">Load More</button>
                 </div>`);
         }
 
@@ -208,10 +209,10 @@ async function loadQuestions(reset = false) {
         console.error('Failed to load questions:', error);
         if (reset) {
             container.innerHTML = `
-            <div style="text-align:center;padding:40px;color:#ef4444;">
-                <p style="font-weight:600;">Failed to load questions</p>
-                <p style="font-size:14px;color:#6b7280;margin-top:8px;">${error.message || 'Please check if the backend is running.'}</p>
-                <button onclick="loadQuestions(true)" style="margin-top:16px;padding:8px 24px;background:#0d9488;color:white;border:none;border-radius:8px;cursor:pointer;">Retry</button>
+            <div class="q-empty">
+                <p style="font-weight:600;color:#ef4444;">Failed to load questions</p>
+                <p style="font-size:13px;margin-top:6px;">${error.message || 'Please check if the backend is running.'}</p>
+                <button onclick="loadQuestions(true)" class="q-comment-submit" style="margin-top:12px;">Retry</button>
             </div>`;
         }
     } finally {
