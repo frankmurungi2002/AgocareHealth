@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%; overflow: hidden; margin: 0; padding-bottom: 20px;">
+<html lang="en" style="margin: 0;">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,6 +13,7 @@
         <link rel="stylesheet" href="../css/logo.css">
         <link rel="stylesheet" href="../css/doctor.css">
         <link rel="stylesheet" href="../css/modern.css">
+        <link rel="stylesheet" href="../css/quora-feed.css">
         <link rel="stylesheet" href="../css/responsive.css">
         <script src="../js/responsive.js" defer></script>
         <style>
@@ -29,9 +30,166 @@
             /* Hide scrollbars but keep functionality */
             .scroll-section::-webkit-scrollbar { display: none; }
             .scroll-section { scrollbar-width: none; -ms-overflow-style: none; }
+
+            /* ══════════════════════════════════════
+               TWITTER / X  POST CARD OVERRIDES
+               ══════════════════════════════════════ */
+            .q-card {
+                background: #ffffff !important;
+                border: 1px solid #e8e8e8 !important;
+                border-radius: 12px !important;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+                margin: 0 0 8px 0 !important;
+                padding: 0 !important;
+                cursor: pointer;
+                transition: background 0.15s, box-shadow 0.15s;
+                overflow: visible !important;
+            }
+            .q-card:hover { background: #fafafa !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; }
+            .tw-post-inner { display: flex; gap: 12px; padding: 16px; }
+            .tw-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 15px; flex-shrink: 0; cursor: pointer; transition: opacity 0.15s; }
+            .tw-avatar:hover { opacity: 0.85; }
+            .tw-post-right { flex: 1; min-width: 0; }
+            .tw-post-header { display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; line-height: 1.3; margin-bottom: 2px; }
+            .tw-name { font-weight: 800; font-size: 15px; color: #0f1419; cursor: pointer; white-space: nowrap; }
+            .tw-name:hover { text-decoration: underline; }
+            .tw-verified { color: #0d9488; font-size: 14px; margin-left: 2px; }
+            .tw-handle { font-size: 13px; color: #8899a6; white-space: nowrap; }
+            .tw-dot { color: #8899a6; font-size: 13px; }
+            .tw-time { font-size: 13px; color: #8899a6; white-space: nowrap; }
+            .tw-context { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #536471; background: #eff3f4; border-radius: 20px; padding: 2px 12px; margin-bottom: 4px; cursor: pointer; transition: background 0.15s; }
+            .tw-context:hover { background: #e2e8ea; }
+            .tw-post-title { font-size: 15px; font-weight: 600; color: #141414; line-height: 1.35; margin-bottom: 2px; }
+            .tw-post-text { font-size: 15px; color: #141414; line-height: 1.45; margin-bottom: 4px; word-wrap: break-word; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+            .tw-medical { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: #f0fdf4; border-radius: 8px; margin-bottom: 4px; font-size: 13px; color: #16a34a; font-weight: 600; }
+            .tw-actions { display: flex; align-items: center; justify-content: space-between; max-width: 425px; padding: 8px 0 4px 0; margin: 0; }
+            .tw-action-btn { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border: none; background: none; cursor: pointer; font-size: 13px; color: #536471; border-radius: 8px; transition: color 0.15s, background 0.15s; white-space: nowrap; line-height: 1; }
+            .tw-action-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+            .tw-action-btn:hover { color: #0d9488; background: rgba(13,148,136,0.1); }
+            .tw-action-btn:hover svg { stroke: #0d9488; }
+            .tw-action-btn.upvote-btn:hover { color: #0d9488; background: rgba(13,148,136,0.1); }
+            .tw-action-btn.downvote-btn:hover { color: #f91880; background: rgba(249,24,128,0.1); }
+            .tw-action-btn.downvote-btn:hover svg { stroke: #f91880; }
+            .tw-action-btn.upvote-btn.voted { color: #0d9488; }
+            .tw-action-btn.upvote-btn.voted svg { stroke: #0d9488; fill: #0d9488; }
+            .tw-action-btn.downvote-btn.voted { color: #f91880; }
+            .tw-action-btn.downvote-btn.voted svg { stroke: #f91880; fill: #f91880; }
+            .tw-action-btn.bookmark-btn.saved { color: #0d9488; }
+            .tw-action-btn.bookmark-btn.saved svg { stroke: #0d9488; fill: #0d9488; }
+            .tw-reply-section { display: none; padding: 8px 0 12px 0; border-top: 1px solid #eff3f4; margin-top: 4px; }
+            .tw-reply-section.open { display: block; }
+            .tw-reply-input-row { display: flex; gap: 8px; align-items: center; }
+            .tw-reply-input { flex: 1; padding: 10px 14px; border: 1px solid #cfd9de; border-radius: 9999px; font-size: 14px; outline: none; background: white; }
+            .tw-reply-input:focus { border-color: #0d9488; }
+            .tw-reply-submit { padding: 8px 18px; background: #0d9488; color: white; border: none; border-radius: 9999px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+            .tw-reply-submit:hover { background: #0b7e73; }
+            .tw-reply-list { margin-top: 8px; }
+            .tw-reply-item { padding: 8px 0; border-bottom: 1px solid #eff3f4; }
+            .tw-reply-item:last-child { border-bottom: none; }
+            .tw-reply-author { font-weight: 700; font-size: 13px; color: #0f1419; margin-right: 4px; }
+            .tw-reply-time { font-size: 12px; color: #536471; }
+            .tw-reply-content { font-size: 14px; color: #0f1419; line-height: 1.4; margin-top: 2px; }
+            .tw-answers-section { display: none; padding: 0 0 12px 0; border-top: 1px solid #eff3f4; margin-top: 4px; }
+            .tw-answers-section.open { display: block; }
+            @media (max-width: 768px) {
+                .tw-post-inner { padding: 12px; gap: 10px; }
+                .tw-avatar { width: 36px; height: 36px; font-size: 13px; }
+                .tw-actions { max-width: 100%; }
+            }
+
+            /* ── Mobile menu overrides (match index.html) ── */
+            .mobile-sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: -80% !important;
+                width: 78% !important;
+                height: 100vh !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                z-index: 9999 !important;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.15) !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                -webkit-overflow-scrolling: touch;
+                transition: left 0.3s ease !important;
+            }
+            .mobile-sidebar.active {
+                left: 0 !important;
+            }
+
+            /* Top row: search bar + X, flush at top with no gap */
+            .mobile-sidebar .mobile-sidebar-close {
+                position: absolute !important;
+                top: 12px !important;
+                right: 8px !important;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 8px;
+                border-radius: 50%;
+                transition: background 0.2s;
+                z-index: 10;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .mobile-sidebar .mobile-sidebar-close:hover {
+                background: #f3f4f6;
+            }
+            .mobile-sidebar .mobile-sidebar-close svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            /* Search container: flush at very top, room for X on right */
+            .mobile-sidebar .mobile-sidebar-top {
+                padding: 10px 52px 10px 12px !important;
+                margin: 0 !important;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            /* Remove any top spacing from first/second child */
+            .mobile-sidebar > *:first-child {
+                margin-top: 0 !important;
+            }
+            .mobile-sidebar > .mobile-sidebar-close + * {
+                margin-top: 0 !important;
+            }
+
+            /* Nav items: normal flow, comfortable tap targets */
+            .mobile-sidebar .nav-item {
+                display: flex !important;
+                align-items: center;
+                min-height: 46px;
+            }
+            .mobile-sidebar .nav-item svg {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+            }
+            .mobile-sidebar .nav-section-title {
+                padding: 16px 20px 6px 20px !important;
+            }
+            .mobile-sidebar .nav-divider {
+                margin: 4px 16px !important;
+            }
+
+            /* Overlay */
+            .mobile-sidebar-overlay {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0, 0, 0, 0.5) !important;
+                z-index: 9998 !important;
+            }
         </style>
     </head>
-    <body style="min-height: 100vh; background: #f8fafc; color: #1f2937; margin: 0; padding: 0; overflow: hidden;">
+    <body style="min-height: 100vh; background: #f8fafc; color: #1f2937; margin: 0; padding: 0;">
         <!-- Toast Container -->
         <div class="toast-container" id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
@@ -62,10 +220,6 @@
 
                 <!-- User Section -->
                 <div id="user-section" style="display: none; align-items: center; gap: 12px;">
-                    <button style="display: flex; align-items: center; gap: 8px; padding: 8px 20px; background: #0d9488; color: white; border: none; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer;" onclick="document.getElementById('askQuestionModal').classList.add('show');">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 5v14M5 12h14"/></svg>
-                        Ask Question
-                    </button>
                     <button title="Notifications" onclick="toggleNotifications()" style="padding: 8px; background: none; border: none; cursor: pointer; position: relative;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" width="20" height="20">
                             <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
@@ -174,11 +328,14 @@
             // Toggle comment section
             function toggleCommentSection(button) {
                 const article = button.closest('article');
-                const commentSection = article.querySelector('.comment-section');
-                if (commentSection.style.display === 'none') {
-                    commentSection.style.display = 'block';
-                } else {
-                    commentSection.style.display = 'none';
+                const replySection = article.querySelector('.tw-reply-section');
+                if (replySection) {
+                    replySection.classList.toggle('open');
+                    // Load answers when opening
+                    if (replySection.classList.contains('open')) {
+                        const qId = article.dataset.questionId;
+                        if (qId) loadAnswersForQuestion(qId);
+                    }
                 }
             }
 
@@ -205,7 +362,7 @@
                     await AnswersAPI.create({ questionId: questionId, userId: user.id, content: comment });
 
                     // Show optimistic UI update
-                    const commentSection = input.closest('.comment-section');
+                    const commentSection = input.closest('.tw-reply-section');
                     const commentsContainer = document.getElementById('answers-' + questionId);
                     
                     const newComment = document.createElement('div');
@@ -219,18 +376,24 @@
                     
                     // Update answer count badge
                     const article = commentSection.closest('article');
-                    const commentBtn = article.querySelector('button[onclick*="toggleCommentSection"]');
-                    const commentCountSpan = commentBtn.querySelector('.comment-count');
-                    let count = parseInt(commentCountSpan.textContent.replace(/[()]/g, '')) || 0;
+                    const commentBtn = article.querySelector('.reply-btn');
+                    const commentCountSpan = commentBtn ? commentBtn.querySelector('span') : null;
+                    let count = commentCountSpan ? (parseInt(commentCountSpan.textContent) || 0) : 0;
                     count = count + 1;
-                    commentCountSpan.textContent = '(' + count + ')';
+                    if (commentCountSpan) commentCountSpan.textContent = count;
 
                     // Update the answer status banner
-                    const statusBanner = article.querySelector('div[style*="background: #fff7ed"], div[style*="background: #f0fdf4"]');
+                    const statusBanner = article.querySelector('.tw-medical');
                     if (statusBanner) {
-                        statusBanner.style.background = '#f0fdf4';
-                        statusBanner.querySelector('div').style.color = '#16a34a';
-                        statusBanner.querySelector('div').textContent = '\u2705 ' + count + ' answer' + (count !== 1 ? 's' : '') + ' available';
+                        statusBanner.innerHTML = '<span>✅</span> ' + count + ' answer' + (count !== 1 ? 's' : '') + ' from the community';
+                    } else if (count > 0) {
+                        const actions = article.querySelector('.tw-actions');
+                        if (actions) {
+                            const banner = document.createElement('div');
+                            banner.className = 'tw-medical';
+                            banner.innerHTML = '<span>✅</span> ' + count + ' answer' + (count !== 1 ? 's' : '') + ' from the community';
+                            actions.insertAdjacentElement('beforebegin', banner);
+                        }
                     }
 
                     showToast('Answer posted successfully!', 'success');
@@ -316,7 +479,7 @@
                 const queryParams = new URLSearchParams(window.location.search);
                 const topic = queryParams.get('topic');
                 
-                document.querySelectorAll('.nav-item').forEach(item => {
+                document.querySelectorAll('.feed-nav-item, .nav-item').forEach(item => {
                     const route = item.getAttribute('data-route');
                     
                     // Check for direct route match
@@ -340,75 +503,76 @@
         </script>
 
         <!-- Body -->
-        <div style="max-width: 1400px; margin: 0 auto; padding: 80px 24px 20px 24px; height: 100vh; box-sizing: border-box; overflow: hidden;">
-            <div style="display: grid; grid-template-columns: 260px 1fr 300px; gap: 24px; height: 100%;">
-                <!-- Left Sidebar -->
-                <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
-                    <div style="background: white; border-radius: 12px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Main</div>
-                            <a href="patientDashboard.html" class="nav-item active" data-route="dashboard">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                                Dashboard
-                            </a>
-                            <a href="questions.html" class="nav-item" data-route="questions">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                Questions
-                            </a>
-                            <a href="appointments.html" class="nav-item" data-route="appointments">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                My Appointments
-                            </a>
-                        </div>
+        <div class="feed-layout">
+            <!-- Left Sidebar -->
+            <aside class="feed-sidebar-left">
+                <div class="feed-nav-section">
+                    <div class="feed-nav-label">Main</div>
+                    <a href="patientDashboard.html" class="feed-nav-item active" data-route="dashboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        All Questions
+                    </a>
+                    <a href="questions.html" class="feed-nav-item" data-route="questions">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Questions
+                    </a>
+                    <a href="appointments.html" class="feed-nav-item" data-route="appointments">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        My Appointments
+                    </a>
+                </div>
 
-                        <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Health Topics</div>
-                            <a href="questions.html?topic=pediatrics" class="nav-item" data-route="pediatrics">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 12h6M12 9v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                Pediatrics
-                            </a>
-                            <a href="questions.html?topic=pregnancy" class="nav-item" data-route="pregnancy">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 8v8M8 12h8"/></svg>
-                                Pregnancy
-                            </a>
-                            <a href="questions.html?topic=infectious" class="nav-item" data-route="infectious">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-                                Infectious
-                            </a>
-                            <a href="questions.html?topic=diabetes" class="nav-item" data-route="diabetes">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                                Diabetes
-                            </a>
-                            <a href="questions.html?topic=hypertension" class="nav-item" data-route="hypertension">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                                Hypertension
-                            </a>
-                            <a href="questions.html?topic=mental_health" class="nav-item" data-route="mental_health">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a10 10 0 1010 10H12V2z"/><path d="M12 2a10 10 0 00-10 10"/></svg>
-                                Mental Health
-                            </a>
-                            <a href="questions.html?topic=sexual" class="nav-item" data-route="sexual">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                                Sexual Health
-                            </a>
-                        </div>
+                <div class="feed-nav-divider"></div>
 
-                        <div style="padding: 8px 12px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Resources</div>
-                            <a href="medical_centers.html" class="nav-item" data-route="medical_centers">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                                Find Medical Centers
-                            </a>
-                            <a href="medical-library(1).html" class="nav-item" data-route="medical_library">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-                                Medical Library
-                            </a>
-                        </div>
-                    </div>
-                </aside>
+                <div class="feed-nav-section">
+                    <div class="feed-nav-label">Health Topics</div>
+                    <a href="questions.html?topic=pediatrics" class="feed-nav-item" data-route="pediatrics">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 12h6M12 9v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Pediatrics
+                    </a>
+                    <a href="questions.html?topic=pregnancy" class="feed-nav-item" data-route="pregnancy">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 8v8M8 12h8"/></svg>
+                        Pregnancy
+                    </a>
+                    <a href="questions.html?topic=infectious" class="feed-nav-item" data-route="infectious">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                        Infectious
+                    </a>
+                    <a href="questions.html?topic=diabetes" class="feed-nav-item" data-route="diabetes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        Diabetes
+                    </a>
+                    <a href="questions.html?topic=hypertension" class="feed-nav-item" data-route="hypertension">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                        Hypertension
+                    </a>
+                    <a href="questions.html?topic=mental_health" class="feed-nav-item" data-route="mental_health">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a10 10 0 1010 10H12V2z"/><path d="M12 2a10 10 0 00-10 10"/></svg>
+                        Mental Health
+                    </a>
+                    <a href="questions.html?topic=sexual" class="feed-nav-item" data-route="sexual">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Sexual Health
+                    </a>
+                </div>
+
+                <div class="feed-nav-divider"></div>
+
+                <div class="feed-nav-section">
+                    <div class="feed-nav-label">Resources</div>
+                    <a href="medical_centers.html" class="feed-nav-item" data-route="medical_centers">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        Find Medical Centers
+                    </a>
+                    <a href="medical-library(1).html" class="feed-nav-item" data-route="medical_library">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                        Medical Library
+                    </a>
+                </div>
+            </aside>
 
                 <!-- Main Feed (Questions) -->
-                <main class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <main class="feed-center">
                     <!-- Post Creation Interface -->
                     <div style="background: #1f2937; border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
                         <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -453,7 +617,7 @@
                     </div>
 
                     <!-- Questions List - Loaded dynamically from API -->
-                    <div id="questions-list" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div id="questions-list" style="display: flex; flex-direction: column; gap: 0;">
                         <!-- Loading State -->
                         <div id="questions-loading" style="text-align: center; padding: 40px;">
                             <div style="width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid #0d9488; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
@@ -468,7 +632,7 @@
                 </main>
 
                 <!-- Right Sidebar - Loaded dynamically -->
-                <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
+                <aside class="feed-sidebar-right">
                     <div id="trending-topics-container" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
                         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1f2937;">🔥 Trending Topics</h3>
                         <div id="trending-topics-list">
@@ -493,7 +657,6 @@
                         </div>
                     </div>
                 </aside>
-            </div>
         </div>
 
         <!-- Ask Question Modal -->
@@ -1074,62 +1237,53 @@
                         const questionsHTML = questions.map(q => {
                             const authorName = q.authorName || 'Anonymous';
                             const authorInitials = authorName.substring(0, 2).toUpperCase();
-                            const categoryColors = {
-                                'PEDIATRICS': { bg: '#dbeafe', color: '#1e40af' },
-                                'PREGNANCY': { bg: '#fce7f3', color: '#be185d' },
-                                'INFECTIOUS': { bg: '#fef3c7', color: '#92400e' },
-                                'SEXUAL_HEALTH': { bg: '#f3e8ff', color: '#7c3aed' },
-                                'MENTAL_HEALTH': { bg: '#d1fae5', color: '#065f46' }
-                            };
-                            const catStyle = categoryColors[q.category] || { bg: '#f3f4f6', color: '#374151' };
+                            const catEmoji = getCategoryEmoji(q.category);
+                            const catName = (q.category || 'GENERAL').replace('_', ' ');
+                            const timeAgo = getTimeAgo(q.createdAt);
+                            const answerCount = q.answerCount || 0;
+                            const upvotes = q.upvotes || 0;
+                            const content = q.content || '';
+                            const truncated = content.length > 280 ? content.substring(0, 280) + '...' : content;
+
+                            const medicalBanner = answerCount > 0
+                                ? '<div class="tw-medical"><span>✅</span> ' + answerCount + ' answer' + (answerCount > 1 ? 's' : '') + ' from the community</div>' : '';
 
                             return `
-                            <article style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" data-category="${q.category}" data-question-id="${q.id}">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0d9488, #14b8a6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px;">${authorInitials}</div>
-                                        <div>
-                                            <div style="font-weight: 600; color: #1f2937;">${authorName}</div>
-                                            <div style="font-size: 13px; color: #6b7280;">${getTimeAgo(q.createdAt)}</div>
+                            <article class="q-card" data-category="${q.category}" data-question-id="${q.id}">
+                                <div class="tw-post-inner">
+                                    <div class="tw-avatar" style="background: linear-gradient(135deg, #0d9488, #14b8a6);">${authorInitials}</div>
+                                    <div class="tw-post-right">
+                                        <div class="tw-post-header">
+                                            <span class="tw-name">${authorName}</span>
+                                            <span class="tw-dot">·</span>
+                                            <span class="tw-time">${timeAgo}</span>
                                         </div>
-                                    </div>
-                                    <button onclick="toggleFollow(this)" style="padding: 6px 16px; background: white; border: 1px solid #0d9488; color: #0d9488; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;">Follow</button>
-                                </div>
-
-                                <div style="margin-bottom: 12px;">
-                                    <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; background: ${catStyle.bg}; color: ${catStyle.color};">${getCategoryEmoji(q.category)} ${(q.category || 'GENERAL').replace('_', ' ')}</span>
-                                </div>
-                                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1f2937;">${q.title}</h3>
-                                <p style="color: #4b5563; margin-bottom: 16px; line-height: 1.6;">${q.content || ''}</p>
-
-                                ${q.answerCount > 0 ?
-                                    `<div style="background: #f0fdf4; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-                                        <div style="color: #16a34a; font-weight: 600; font-size: 14px;">✅ ${q.answerCount} answer${q.answerCount !== 1 ? 's' : ''} available</div>
-                                    </div>` :
-                                    `<div style="background: #fff7ed; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-                                        <div style="color: #ea580c; font-weight: 600; font-size: 14px;">⏳ No answers yet — be the first to respond!</div>
-                                    </div>`}
-
-                                ${q.upvotes > 0 ? `<div style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">👁️ ${q.viewCount || 0} views • 👍 ${q.upvotes} upvotes</div>` : ''}
-
-                                <!-- Action Buttons -->
-                                <div style="display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-                                    <button id="upvote-btn-${q.id}" onclick="handleVote(this, ${q.id}, 'upvote')" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: #4b5563; transition: all 0.2s;"><span>👍</span> <span class="upvote-count">${q.upvotes || 0}</span></button>
-                                    <button id="downvote-btn-${q.id}" onclick="handleVote(this, ${q.id}, 'downvote')" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: #4b5563; transition: all 0.2s;"><span>👎</span> <span class="downvote-count">${q.downvoteCount || 0}</span></button>
-                                    <button onclick="toggleCommentSection(this)" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: #4b5563;"><span>💬</span> Answers <span class="comment-count">(${q.answerCount || 0})</span></button>
-                                    <button onclick="shareQuestion(${q.id})" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; color: #4b5563;"><span>🔗</span> Share</button>
-                                </div>
-
-                                <!-- Comment Section (answers) -->
-                                <div class="comment-section" style="display: none; margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 8px;">
-                                    <div style="margin-bottom: 12px;">
-                                        <input type="text" id="comment-input-${q.id}" placeholder="Write your answer or comment..." style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
-                                    </div>
-                                    <button onclick="postComment(${q.id})" style="padding: 8px 20px; background: #0d9488; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Post Answer</button>
-                                    <div class="answers-container" id="answers-${q.id}" style="margin-top: 16px;">
-                                        <div style="text-align: center; padding: 12px;">
-                                            <div style="width: 24px; height: 24px; border: 3px solid #e5e7eb; border-top-color: #0d9488; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 8px;"></div>
-                                            <p style="color: #9ca3af; font-size: 13px;">Loading answers...</p>
+                                        <div class="tw-context">${catEmoji} ${catName}</div>
+                                        <div class="tw-post-title">${q.title}</div>
+                                        <div class="tw-post-text">${truncated}</div>
+                                        ${medicalBanner}
+                                        <div class="tw-actions">
+                                            <button onclick="toggleCommentSection(this); event.stopPropagation();" class="tw-action-btn reply-btn" title="Reply">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                                                <span>${answerCount}</span>
+                                            </button>
+                                            <button id="upvote-btn-${q.id}" onclick="handleVote(this, ${q.id}, 'upvote'); event.stopPropagation();" class="tw-action-btn upvote-btn" title="Upvote">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                                                <span class="upvote-count">${upvotes}</span>
+                                            </button>
+                                            <button id="downvote-btn-${q.id}" onclick="handleVote(this, ${q.id}, 'downvote'); event.stopPropagation();" class="tw-action-btn downvote-btn" title="Downvote">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                                            </button>
+                                            <button onclick="shareQuestion(${q.id}); event.stopPropagation();" class="tw-action-btn share-btn" title="Share">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                                            </button>
+                                        </div>
+                                        <div class="tw-reply-section" id="replies-${q.id}">
+                                            <div class="tw-reply-input-row">
+                                                <input type="text" id="comment-input-${q.id}" class="tw-reply-input" placeholder="Post your reply" onclick="event.stopPropagation()">
+                                                <button onclick="event.stopPropagation(); postComment(${q.id})" class="tw-reply-submit">Reply</button>
+                                            </div>
+                                            <div class="tw-reply-list answers-container" id="answers-${q.id}"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1210,22 +1364,14 @@
                 const downBtn = document.getElementById('downvote-btn-' + questionId);
 
                 // Reset both buttons
-                if (upBtn) {
-                    upBtn.style.background = '#f3f4f6';
-                    upBtn.style.color = '#4b5563';
-                }
-                if (downBtn) {
-                    downBtn.style.background = '#f3f4f6';
-                    downBtn.style.color = '#4b5563';
-                }
+                if (upBtn) upBtn.classList.remove('voted');
+                if (downBtn) downBtn.classList.remove('voted');
 
                 // Highlight active vote
                 if (userVote === 'upvote' && upBtn) {
-                    upBtn.style.background = '#0d9488';
-                    upBtn.style.color = 'white';
+                    upBtn.classList.add('voted');
                 } else if (userVote === 'downvote' && downBtn) {
-                    downBtn.style.background = '#ef4444';
-                    downBtn.style.color = 'white';
+                    downBtn.classList.add('voted');
                 }
             }
 

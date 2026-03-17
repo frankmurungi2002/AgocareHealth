@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%; overflow: hidden; margin: 0; padding-bottom: 20px;">
+<html lang="en" style="margin: 0;">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="../css/questions-modern.css">
         <link rel="stylesheet" href="../css/logo.css">
         <link rel="stylesheet" href="../css/modern.css">
+        <link rel="stylesheet" href="../css/quora-feed.css">
         <link rel="stylesheet" href="../css/responsive.css">
         <script src="../js/responsive.js" defer></script>
         <style>
@@ -20,9 +21,469 @@
             .right-sidebar-scroll::-webkit-scrollbar { display: none; }
             .scroll-section::-webkit-scrollbar { display: none; }
             .scroll-section { scrollbar-width: none; -ms-overflow-style: none; }
+
+            /* ══════════════════════════════════════
+               TWITTER / X  POST CARD OVERRIDES
+               ══════════════════════════════════════ */
+
+            /* Card: rounded, bordered, subtle shadow on white */
+            .q-card {
+                background: #ffffff !important;
+                border: 1px solid #e8e8e8 !important;
+                border-radius: 12px !important;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+                margin: 0 0 8px 0 !important;
+                padding: 0 !important;
+                cursor: pointer;
+                transition: background 0.15s, box-shadow 0.15s;
+                overflow: visible !important;
+            }
+            .q-card:hover { background: #fafafa !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; }
+
+            /* Inner layout: avatar left, content right */
+            .tw-post-inner {
+                display: flex;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            /* Avatar */
+            .tw-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 700;
+                font-size: 15px;
+                flex-shrink: 0;
+                cursor: pointer;
+                transition: opacity 0.15s;
+            }
+            .tw-avatar:hover { opacity: 0.85; }
+
+            /* Right column */
+            .tw-post-right {
+                flex: 1;
+                min-width: 0;
+            }
+
+            /* Header line: Name · @handle · time */
+            .tw-post-header {
+                display: flex;
+                align-items: baseline;
+                gap: 4px;
+                flex-wrap: wrap;
+                line-height: 1.3;
+                margin-bottom: 2px;
+            }
+            .tw-name {
+                font-weight: 800;
+                font-size: 15px;
+                color: #0f1419;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+            .tw-name:hover { text-decoration: underline; }
+            .tw-verified {
+                color: #0d9488;
+                font-size: 14px;
+                margin-left: 2px;
+            }
+            .tw-handle {
+                font-size: 13px;
+                color: #8899a6;
+                white-space: nowrap;
+            }
+            .tw-dot {
+                color: #8899a6;
+                font-size: 13px;
+            }
+            .tw-time {
+                font-size: 13px;
+                color: #8899a6;
+                white-space: nowrap;
+            }
+
+            /* Context / topic tag — small grey pill like Twitter "context" */
+            .tw-context {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 13px;
+                color: #536471;
+                background: #eff3f4;
+                border-radius: 20px;
+                padding: 2px 12px;
+                margin-bottom: 4px;
+                cursor: pointer;
+                transition: background 0.15s;
+            }
+            .tw-context:hover { background: #e2e8ea; }
+
+            /* Post text */
+            .tw-post-title {
+                font-size: 15px;
+                font-weight: 600;
+                color: #141414;
+                line-height: 1.35;
+                margin-bottom: 2px;
+            }
+            .tw-post-text {
+                font-size: 15px;
+                color: #141414;
+                line-height: 1.45;
+                margin-bottom: 4px;
+                word-wrap: break-word;
+                display: -webkit-box;
+                -webkit-line-clamp: 5;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            /* Medical banner */
+            .tw-medical {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 10px;
+                background: #f0fdf4;
+                border-radius: 8px;
+                margin-bottom: 4px;
+                font-size: 13px;
+                color: #16a34a;
+                font-weight: 600;
+            }
+
+            /* ── Twitter action bar ── */
+            .tw-actions {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                max-width: 425px;
+                padding: 8px 0 4px 0;
+                margin: 0;
+            }
+            .tw-action-btn {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                padding: 6px 8px;
+                border: none;
+                background: none;
+                cursor: pointer;
+                font-size: 13px;
+                color: #536471;
+                border-radius: 8px;
+                transition: color 0.15s, background 0.15s;
+                white-space: nowrap;
+                line-height: 1;
+            }
+            .tw-action-btn svg {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+            }
+            .tw-action-btn:hover { color: #0d9488; background: rgba(13,148,136,0.1); }
+            .tw-action-btn:hover svg { stroke: #0d9488; }
+
+            /* Specific hover colors */
+            .tw-action-btn.reply-btn:hover   { color: #0d9488; background: rgba(13,148,136,0.1); }
+            .tw-action-btn.upvote-btn:hover   { color: #0d9488; background: rgba(13,148,136,0.1); }
+            .tw-action-btn.downvote-btn:hover { color: #f91880; background: rgba(249,24,128,0.1); }
+            .tw-action-btn.downvote-btn:hover svg { stroke: #f91880; }
+            .tw-action-btn.share-btn:hover    { color: #0d9488; background: rgba(13,148,136,0.1); }
+            .tw-action-btn.bookmark-btn:hover { color: #0d9488; background: rgba(13,148,136,0.1); }
+
+            /* Active/voted states */
+            .tw-action-btn.upvote-btn.voted   { color: #0d9488; }
+            .tw-action-btn.upvote-btn.voted svg { stroke: #0d9488; fill: #0d9488; }
+            .tw-action-btn.downvote-btn.voted { color: #f91880; }
+            .tw-action-btn.downvote-btn.voted svg { stroke: #f91880; fill: #f91880; }
+            .tw-action-btn.bookmark-btn.saved { color: #0d9488; }
+            .tw-action-btn.bookmark-btn.saved svg { stroke: #0d9488; fill: #0d9488; }
+
+            /* ── Reply/Comment section (inside right column) ── */
+            .tw-reply-section {
+                display: none;
+                padding: 8px 0 12px 0;
+                border-top: 1px solid #eff3f4;
+                margin-top: 4px;
+            }
+            .tw-reply-section.open { display: block; }
+            .tw-reply-input-row {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .tw-reply-input {
+                flex: 1;
+                padding: 10px 14px;
+                border: 1px solid #cfd9de;
+                border-radius: 9999px;
+                font-size: 14px;
+                outline: none;
+                background: white;
+            }
+            .tw-reply-input:focus { border-color: #0d9488; }
+            .tw-reply-submit {
+                padding: 8px 18px;
+                background: #0d9488;
+                color: white;
+                border: none;
+                border-radius: 9999px;
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+                flex-shrink: 0;
+            }
+            .tw-reply-submit:hover { background: #0b7e73; }
+            .tw-reply-list {
+                margin-top: 8px;
+            }
+            .tw-reply-item {
+                padding: 8px 0;
+                border-bottom: 1px solid #eff3f4;
+            }
+            .tw-reply-item:last-child { border-bottom: none; }
+            .tw-reply-author {
+                font-weight: 700;
+                font-size: 13px;
+                color: #0f1419;
+                margin-right: 4px;
+            }
+            .tw-reply-time {
+                font-size: 12px;
+                color: #536471;
+            }
+            .tw-reply-content {
+                font-size: 14px;
+                color: #0f1419;
+                line-height: 1.4;
+                margin-top: 2px;
+            }
+
+            /* ── Answers section ── */
+            .tw-answers-section {
+                display: none;
+                padding: 0 0 12px 0;
+                border-top: 1px solid #eff3f4;
+                margin-top: 4px;
+            }
+            .tw-answers-section.open { display: block; }
+            .tw-answer-item {
+                padding: 12px 0;
+                border-bottom: 1px solid #eff3f4;
+            }
+            .tw-answer-item:last-child { border-bottom: none; }
+            .tw-answer-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 6px;
+            }
+            .tw-answer-avatar {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                font-size: 11px;
+                flex-shrink: 0;
+            }
+            .tw-answer-name {
+                font-weight: 700;
+                font-size: 14px;
+                color: #0f1419;
+            }
+            .tw-answer-badge {
+                font-size: 11px;
+                padding: 1px 8px;
+                border-radius: 9999px;
+                background: #d1fae5;
+                color: #065f46;
+                font-weight: 600;
+            }
+            .tw-answer-time {
+                font-size: 12px;
+                color: #536471;
+                margin-left: auto;
+            }
+            .tw-answer-content {
+                font-size: 14px;
+                color: #0f1419;
+                line-height: 1.45;
+                margin-bottom: 6px;
+            }
+            .tw-answer-actions {
+                display: flex;
+                gap: 16px;
+            }
+            .tw-answer-actions button {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 13px;
+                color: #536471;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px 6px;
+                border-radius: 9999px;
+                transition: color 0.15s;
+            }
+            .tw-answer-actions button:hover { color: #0d9488; }
+            .tw-answer-actions button svg { width: 16px; height: 16px; }
+            .tw-answer-accepted { border-left: 3px solid #0d9488; background: #f0fdf4; padding-left: 12px; }
+            .tw-answers-empty {
+                padding: 16px 0;
+                text-align: center;
+                color: #536471;
+                font-size: 14px;
+            }
+            .tw-answer-compose {
+                padding: 8px 0 0 0;
+                border-top: 1px solid #eff3f4;
+                display: flex;
+                gap: 8px;
+            }
+            .tw-answer-compose textarea {
+                flex: 1;
+                padding: 10px 14px;
+                border: 1px solid #cfd9de;
+                border-radius: 12px;
+                font-size: 14px;
+                resize: none;
+                min-height: 38px;
+                outline: none;
+                font-family: inherit;
+            }
+            .tw-answer-compose textarea:focus { border-color: #0d9488; }
+            .tw-answer-compose button {
+                padding: 8px 18px;
+                background: #0d9488;
+                color: white;
+                border: none;
+                border-radius: 9999px;
+                font-weight: 700;
+                font-size: 14px;
+                cursor: pointer;
+                align-self: flex-end;
+            }
+            .tw-answer-compose button:hover { background: #0b7e73; }
+
+            /* ── Mobile menu overrides ── */
+            .mobile-sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: -80% !important;
+                width: 78% !important;
+                height: 100vh !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                z-index: 9999 !important;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.15) !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                -webkit-overflow-scrolling: touch;
+                transition: left 0.3s ease !important;
+            }
+            .mobile-sidebar.active {
+                left: 0 !important;
+            }
+
+            /* Top row: search bar + X, flush at top with no gap */
+            .mobile-sidebar .mobile-sidebar-close {
+                position: absolute !important;
+                top: 12px !important;
+                right: 8px !important;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 8px;
+                border-radius: 50%;
+                transition: background 0.2s;
+                z-index: 10;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .mobile-sidebar .mobile-sidebar-close:hover {
+                background: #f3f4f6;
+            }
+            .mobile-sidebar .mobile-sidebar-close svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            /* Search container: flush at very top, room for X on right */
+            .mobile-sidebar > div:nth-child(2) {
+                padding: 10px 52px 10px 12px !important;
+                margin: 0 !important;
+            }
+
+            /* Remove any top spacing from first/second child */
+            .mobile-sidebar > *:first-child {
+                margin-top: 0 !important;
+            }
+            .mobile-sidebar > .mobile-sidebar-close + * {
+                margin-top: 0 !important;
+            }
+
+            /* Nav items: normal flow, comfortable tap targets */
+            .mobile-sidebar .nav-item {
+                display: flex !important;
+                align-items: center;
+                min-height: 46px;
+            }
+            .mobile-sidebar .nav-item svg {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+            }
+            .mobile-sidebar .nav-section-title {
+                padding: 16px 20px 6px 20px !important;
+            }
+            .mobile-sidebar .nav-divider {
+                margin: 4px 16px !important;
+            }
+
+            /* Overlay */
+            .mobile-sidebar-overlay {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0, 0, 0, 0.5) !important;
+                z-index: 9998 !important;
+            }
+
+            /* Override quora-feed.css card styles — make them invisible */
+            .q-card-body,
+            .q-author-row,
+            .q-actions,
+            .q-comment-section,
+            .q-answers-section { display: none !important; }
+
+            /* ── Mobile adjustments ── */
+            @media (max-width: 768px) {
+                .tw-post-inner { padding: 12px; }
+                .tw-avatar { width: 36px; height: 36px; font-size: 13px; }
+                .tw-post-inner { gap: 10px; }
+                .tw-actions { max-width: 100%; }
+            }
         </style>
     </head>
-    <body style="min-height: 100vh; background: #f8fafc; color: #1f2937; margin: 0; padding: 0; overflow: hidden;">
+    <body style="min-height: 100vh; background: #f5f5f5; color: #1f2937; margin: 0; padding: 0;">
         <!-- Toast Container -->
         <div class="toast-container" id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
@@ -111,128 +572,121 @@
         </div>
 
         <!-- Body -->
-        <div style="max-width: 1400px; margin: 0 auto; padding: 80px 24px 20px 24px; height: 100vh; box-sizing: border-box; overflow: hidden;">
-            <div style="display: grid; grid-template-columns: 260px 1fr 300px; gap: 24px; height: 100%;">
-                <!-- Left Sidebar -->
-                <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
-                    <div style="background: white; border-radius: 12px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Main</div>
-                            <a href="index.html" class="nav-item active" data-route="home">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                                All Questions
-                            </a>
-                            <a href="questions.html" class="nav-item" data-route="questions">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                Questions
-                            </a>
-                        </div>
+        <div class="feed-layout">
+            <!-- Left Sidebar -->
+            <aside class="feed-sidebar-left">
+                <div class="feed-nav-section">
+                    <div class="feed-nav-label">Main</div>
+                    <a href="index.html" class="feed-nav-item active" data-route="home">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        All Questions
+                    </a>
+                    <a href="questions.html" class="feed-nav-item" data-route="questions">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Questions
+                    </a>
+                </div>
 
-                        <div style="padding: 8px 12px 16px 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 8px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Health Topics</div>
-                            <a href="questions.html?topic=pediatrics" class="nav-item" data-route="pediatrics">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 12h6M12 9v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                Pediatrics
-                            </a>
-                            <a href="questions.html?topic=pregnancy" class="nav-item" data-route="pregnancy">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 8v8M8 12h8"/></svg>
-                                Pregnancy
-                            </a>
-                            <a href="questions.html?topic=infectious" class="nav-item" data-route="infectious">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-                                Infectious
-                            </a>
-                            <a href="questions.html?topic=diabetes" class="nav-item" data-route="diabetes">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                                Diabetes
-                            </a>
-                            <a href="questions.html?topic=hypertension" class="nav-item" data-route="hypertension">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                                Hypertension
-                            </a>
-                            <a href="questions.html?topic=mental_health" class="nav-item" data-route="mental_health">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a10 10 0 1010 10H12V2z"/><path d="M12 2a10 10 0 00-10 10"/></svg>
-                                Mental Health
-                            </a>
-                            <a href="questions.html?topic=sexual" class="nav-item" data-route="sexual">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                                Sexual Health
-                            </a>
-                        </div>
+                <div class="feed-nav-divider"></div>
 
-                        <div style="padding: 8px 12px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin-bottom: 8px;">Resources</div>
-                            <a href="#" onclick="checkAuthAndNavigate('medical_centers.html')" class="nav-item" data-route="medical_centers">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                                Find Medical Centers
-                            </a>
-                            <a href="#" onclick="checkAuthAndNavigate('medical-library(1).html')" class="nav-item" data-route="medical_library">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-                                Medical Library
-                            </a>
+                <div class="feed-nav-section">
+                    <div class="feed-nav-label">Health Topics</div>
+                    <a href="questions.html?topic=pediatrics" class="feed-nav-item" data-route="pediatrics">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 12h6M12 9v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Pediatrics
+                    </a>
+                    <a href="questions.html?topic=pregnancy" class="feed-nav-item" data-route="pregnancy">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 8v8M8 12h8"/></svg>
+                        Pregnancy
+                    </a>
+                    <a href="questions.html?topic=infectious" class="feed-nav-item" data-route="infectious">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                        Infectious
+                    </a>
+                    <a href="questions.html?topic=diabetes" class="feed-nav-item" data-route="diabetes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        Diabetes
+                    </a>
+                    <a href="questions.html?topic=hypertension" class="feed-nav-item" data-route="hypertension">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                        Hypertension
+                    </a>
+                    <a href="questions.html?topic=mental_health" class="feed-nav-item" data-route="mental_health">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2a10 10 0 1010 10H12V2z"/><path d="M12 2a10 10 0 00-10 10"/></svg>
+                        Mental Health
+                    </a>
+                    <a href="questions.html?topic=sexual" class="feed-nav-item" data-route="sexual">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Sexual Health
+                    </a>
+                </div>
+
+                <div class="feed-nav-divider"></div>
+
+                <div class="feed-nav-section">
+                    <div class="feed-nav-label">Resources</div>
+                    <a href="#" onclick="checkAuthAndNavigate('medical_centers.html')" class="feed-nav-item" data-route="medical_centers">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        Find Medical Centers
+                    </a>
+                    <a href="#" onclick="checkAuthAndNavigate('medical-library(1).html')" class="feed-nav-item" data-route="medical_library">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                        Medical Library
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Center Feed -->
+            <main class="feed-center">
+                <!-- Compose prompt -->
+                <div class="feed-compose">
+                    <div class="feed-compose-avatar" id="compose-avatar">?</div>
+                    <div class="feed-compose-input" onclick="openAskQuestionModal()">What's your health question?</div>
+                </div>
+
+                <!-- Sort Tabs (Twitter-style) -->
+                <div class="feed-tabs">
+                    <button onclick="changeSortOrder('newest')" class="feed-tab active" data-sort="newest">Newest</button>
+                    <button onclick="changeSortOrder('popular')" class="feed-tab" data-sort="popular">Popular</button>
+                    <button onclick="changeSortOrder('unanswered')" class="feed-tab" data-sort="unanswered">Unanswered</button>
+                </div>
+
+                <!-- Questions List (dynamically populated by qa-feed.js) -->
+                <div id="questions-list">
+                    <div class="q-loading">
+                        <div class="q-spinner"></div>
+                        <p>Loading questions...</p>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Sidebar -->
+            <aside class="feed-sidebar-right">
+                <div class="feed-sidebar-card">
+                    <div class="feed-sidebar-title">🔥 Trending Topics</div>
+                    <div id="trending-topics">
+                        <div style="padding:8px;color:#6b7280;font-size:13px;">Loading topics...</div>
+                    </div>
+                </div>
+
+                <div class="feed-sidebar-card">
+                    <div class="feed-sidebar-title">👨‍⚕️ Top Doctors</div>
+                    <div class="feed-doctor-item">
+                        <div class="q-avatar" style="background: linear-gradient(135deg, #0ea5e9, #3b82f6);">SN</div>
+                        <div>
+                            <div class="feed-doctor-name">Dr. Sarah Nabirye</div>
+                            <div class="feed-doctor-stat">450 Answers</div>
                         </div>
                     </div>
-                </aside>
-
-                <!-- Main Feed (Questions) -->
-                <main class="scroll-section" style="height: 100%; overflow-y: auto;">
-                    <!-- Ask Question Card -->
-                    <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <button onclick="openAskQuestionModal()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px; background: #f0fdfa; color: #0d9488; border: 2px dashed #0d9488; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 16px;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                            </svg>
-                            Ask a Question
-                        </button>
-                    </div>
-
-                    <!-- Sort Controls -->
-                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                        <button onclick="changeSortOrder('newest')" class="sort-btn active" data-sort="newest" style="padding: 6px 16px; background: #0d9488; color: white; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;">Newest</button>
-                        <button onclick="changeSortOrder('popular')" class="sort-btn" data-sort="popular" style="padding: 6px 16px; background: #f3f4f6; color: #4b5563; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;">Popular</button>
-                        <button onclick="changeSortOrder('unanswered')" class="sort-btn" data-sort="unanswered" style="padding: 6px 16px; background: #f3f4f6; color: #4b5563; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;">Unanswered</button>
-                    </div>
-
-                    <!-- Questions List (dynamically populated by qa-feed.js) -->
-                    <div id="questions-list" style="display: flex; flex-direction: column; gap: 16px;">
-                        <!-- Loading placeholder — replaced on DOMContentLoaded -->
-                        <div style="text-align:center;padding:40px;color:#6b7280;">
-                            <div style="width:40px;height:40px;border:3px solid #e5e7eb;border-top-color:#0d9488;border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite;"></div>
-                            <p>Loading questions...</p>
-                            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+                    <div class="feed-doctor-item">
+                        <div class="q-avatar" style="background: linear-gradient(135deg, #10b981, #059669);">AK</div>
+                        <div>
+                            <div class="feed-doctor-name">Dr. Amina Kaggwa</div>
+                            <div class="feed-doctor-stat">320 Answers</div>
                         </div>
                     </div>
-                </main>
-
-                <!-- Right Sidebar -->
-                <aside class="scroll-section" style="height: 100%; overflow-y: auto;">
-                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
-                        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #1f2937;">🔥 Trending Topics</h3>
-                        <div id="trending-topics">
-                            <!-- Dynamically populated by qa-feed.js -->
-                            <div style="padding:12px;color:#6b7280;font-size:13px;">Loading topics...</div>
-                        </div>
-                    </div>
-
-                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px;">👨‍⚕️ Top Doctors</h4>
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">SN</div>
-                            <div>
-                                <div style="font-size: 14px; font-weight: 600;">Dr. Sarah Nabirye</div>
-                                <div style="font-size: 12px; color: #6b7280;">450 Answers</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">AK</div>
-                            <div>
-                                <div style="font-size: 14px; font-weight: 600;">Dr. Amina Kaggwa</div>
-                                <div style="font-size: 12px; color: #6b7280;">320 Answers</div>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
-            </div>
+                </div>
+            </aside>
         </div>
 
         <!-- Ask Question Modal -->
@@ -282,49 +736,49 @@
         </div>
 
         <script>
-            // Toast notifications
-            function showToast(message, type = 'info') {
-                const container = document.getElementById('toastContainer');
-                const toast = document.createElement('div');
+            // ── Toast notifications ──
+            function showToast(message, type) {
+                type = type || 'info';
+                var container = document.getElementById('toastContainer');
+                var toast = document.createElement('div');
                 toast.className = 'toast ' + type;
                 toast.innerHTML = '<span class="toast-message">' + message + '</span>';
                 container.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
+                setTimeout(function() { toast.remove(); }, 3000);
             }
 
             function toggleUserMenu() {
-                const menu = document.getElementById('user-menu');
-                const notifMenu = document.getElementById('notifications-menu');
+                var menu = document.getElementById('user-menu');
+                var notifMenu = document.getElementById('notifications-menu');
                 menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
                 if (notifMenu) notifMenu.style.display = 'none';
             }
 
             function toggleNotifications() {
-                const menu = document.getElementById('notifications-menu');
-                const userMenu = document.getElementById('user-menu');
+                var menu = document.getElementById('notifications-menu');
+                var userMenu = document.getElementById('user-menu');
                 menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
                 if (userMenu) userMenu.style.display = 'none';
-                // Load notifications dynamically
                 loadNotificationsList();
             }
 
             async function loadNotificationsList() {
-                const user = getCurrentUser();
+                var user = getCurrentUser();
                 if (!user || !user.id) return;
                 try {
-                    const res = await API.qa.getNotifications();
-                    const notifications = (res.data || res) || [];
-                    const list = document.getElementById('notifications-list');
+                    var res = await API.qa.getNotifications();
+                    var notifications = (res.data || res) || [];
+                    var list = document.getElementById('notifications-list');
                     if (!list) return;
                     if (notifications.length === 0) {
                         list.innerHTML = '<div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">No new notifications</div>';
                     } else {
-                        list.innerHTML = notifications.slice(0, 10).map(n => `
-                            <div style="padding: 12px 16px; border-bottom: 1px solid #f3f4f6; background: ${n.isRead ? 'white' : '#f0fdf4'}; cursor: pointer;" onclick="handleNotificationClick('${n.id}')">
-                                <div style="font-size: 13px; color: #1f2937;">${escapeHtml(n.message)}</div>
-                                <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">${n.timeAgo || ''}</div>
-                            </div>
-                        `).join('');
+                        list.innerHTML = notifications.slice(0, 10).map(function(n) {
+                            return '<div style="padding: 12px 16px; border-bottom: 1px solid #f3f4f6; background: ' + (n.isRead ? 'white' : '#f0fdf4') + '; cursor: pointer;" onclick="handleNotificationClick(\'' + n.id + '\')">' +
+                                '<div style="font-size: 13px; color: #1f2937;">' + escapeHtml(n.message) + '</div>' +
+                                '<div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">' + (n.timeAgo || '') + '</div>' +
+                            '</div>';
+                        }).join('');
                     }
                 } catch (err) { console.error('Notifications error:', err); }
             }
@@ -341,13 +795,13 @@
                     loadNotificationsList();
                     loadDynamicNotifications();
                 } catch(e) {
-                    const list = document.getElementById('notifications-list');
+                    var list = document.getElementById('notifications-list');
                     if (list) list.innerHTML = '<div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">No new notifications</div>';
                 }
             }
 
             function openAskQuestionModal() {
-                const user = getCurrentUser();
+                var user = getCurrentUser();
                 if (!user || !user.id) {
                     window.location.href = 'Login.html';
                     return;
@@ -359,62 +813,320 @@
                 document.getElementById('askQuestionModal').classList.remove('show');
             }
 
-            // Sort controls
+            // ── Sort controls ──
             function changeSortOrder(sort) {
                 currentSort = sort;
-                document.querySelectorAll('.sort-btn').forEach(btn => {
+                document.querySelectorAll('.feed-tab').forEach(function(btn) {
                     if (btn.dataset.sort === sort) {
-                        btn.style.background = '#0d9488';
-                        btn.style.color = 'white';
+                        btn.classList.add('active');
                     } else {
-                        btn.style.background = '#f3f4f6';
-                        btn.style.color = '#4b5563';
+                        btn.classList.remove('active');
                     }
                 });
                 loadQuestions(true);
             }
 
             function shareQuestion(questionId) {
-                const url = window.location.origin + '/html/questions-feed.html?id=' + questionId;
+                var url = window.location.origin + '/html/questions-feed.html?id=' + questionId;
                 if (navigator.clipboard) {
-                    navigator.clipboard.writeText(url).then(() => showToast('Link copied!', 'success'));
+                    navigator.clipboard.writeText(url).then(function() { showToast('Link copied!', 'success'); });
                 } else {
                     showToast('Link copied!', 'success');
                 }
             }
 
             function checkAuthAndNavigate(url) {
-                const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+                var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
                 if (!user || !user.id) {
-                    const proceed = confirm('This feature requires login. Would you like to login now?');
+                    var proceed = confirm('This feature requires login. Would you like to login now?');
                     if (proceed) window.location.href = 'Login.html';
                     return;
                 }
                 window.location.href = url;
             }
 
-            // Legacy stubs kept for backward compat (qa-feed.js handles dynamic versions)
+            // ── Navigate to author profile ──
+            function navigateToProfile(authorId, authorName) {
+                if (!authorId) return;
+                // Navigate to a profile view (falls back to questions filtered by author)
+                window.location.href = 'questions-feed.html?author=' + encodeURIComponent(authorId);
+            }
+
+            // ── Navigate to question detail ──
+            function viewQuestion(questionId) {
+                window.location.href = 'questions-feed.html?id=' + questionId;
+            }
+
+            // ── Filter by category from topic tag click ──
+            function filterByCategoryFromTag(slug, event) {
+                if (event) { event.stopPropagation(); }
+                if (typeof filterByCategory === 'function') {
+                    filterByCategory(slug);
+                }
+            }
+
+            // ── Toggle answers section ──
+            async function toggleAnswers(questionId, button, event) {
+                if (event) event.stopPropagation();
+                var section = document.getElementById('answers-' + questionId);
+                if (!section) return;
+
+                if (section.classList.contains('open')) {
+                    section.classList.remove('open');
+                    return;
+                }
+
+                section.classList.add('open');
+                var listEl = document.getElementById('answers-list-' + questionId);
+                if (!listEl) return;
+
+                listEl.innerHTML = '<div class="tw-answers-empty">Loading answers...</div>';
+
+                try {
+                    var res = await API.qa.getAnswers(questionId);
+                    var answers = (res.data || res) || [];
+
+                    if (answers.length === 0) {
+                        listEl.innerHTML = '<div class="tw-answers-empty">No answers yet. Be the first to answer!</div>';
+                    } else {
+                        listEl.innerHTML = answers.map(function(a) {
+                            var author = a.author || {};
+                            var initials = author.initials || (author.name ? author.name.charAt(0).toUpperCase() : '?');
+                            var name = a.isAnonymous ? 'Anonymous' : (author.name || author.username || 'Anonymous');
+                            var gradient = getAvatarGradient(name);
+                            var isAccepted = a.isAccepted || a.accepted;
+                            var badge = author.isDoctor ? '<span class="tw-answer-badge">Doctor</span>' : '';
+                            var acceptedClass = isAccepted ? ' tw-answer-accepted' : '';
+
+                            return '<div class="tw-answer-item' + acceptedClass + '">' +
+                                '<div class="tw-answer-header">' +
+                                    '<div class="tw-answer-avatar" style="background:' + gradient + ';">' + escapeHtml(String(initials)) + '</div>' +
+                                    '<span class="tw-answer-name">' + escapeHtml(name) + '</span>' +
+                                    badge +
+                                    (isAccepted ? '<span class="tw-answer-badge">✓ Accepted</span>' : '') +
+                                    '<span class="tw-answer-time">' + (a.timeAgo || '') + '</span>' +
+                                '</div>' +
+                                '<div class="tw-answer-content">' + escapeHtml(a.content || '') + '</div>' +
+                                '<div class="tw-answer-actions">' +
+                                    '<button onclick="event.stopPropagation(); voteAnswer(' + a.id + ', \'UPVOTE\', this);">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>' +
+                                        '<span>' + (a.upvotes || a.upvoteCount || 0) + '</span>' +
+                                    '</button>' +
+                                    '<button onclick="event.stopPropagation(); voteAnswer(' + a.id + ', \'DOWNVOTE\', this);">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>' +
+                                    '</button>' +
+                                '</div>' +
+                            '</div>';
+                        }).join('');
+                    }
+                } catch (err) {
+                    console.error('Load answers error:', err);
+                    listEl.innerHTML = '<div class="tw-answers-empty">Failed to load answers.</div>';
+                }
+            }
+
+            // ── Vote on an answer ──
+            async function voteAnswer(answerId, voteType, button) {
+                var user = getCurrentUser();
+                if (!user || !user.id) { alert('Please login to vote.'); return; }
+                try {
+                    var res = await API.qa.vote('ANSWER', answerId, voteType);
+                    var data = res.data || res;
+                    var countSpan = button.querySelector('span');
+                    if (countSpan && voteType === 'UPVOTE') {
+                        countSpan.textContent = data.upvoteCount || 0;
+                    }
+                    button.classList.toggle('voted');
+                } catch (err) {
+                    console.error('Answer vote error:', err);
+                }
+            }
+
+            // ── Post an answer ──
+            async function postAnswer(questionId) {
+                var user = getCurrentUser();
+                if (!user || !user.id) { alert('Please login to answer.'); return; }
+                var textarea = document.getElementById('answer-input-' + questionId);
+                if (!textarea || !textarea.value.trim()) { alert('Please write an answer.'); return; }
+                try {
+                    await API.qa.createAnswer(questionId, textarea.value.trim());
+                    textarea.value = '';
+                    showToast('Answer posted!', 'success');
+                    // Reload answers
+                    var section = document.getElementById('answers-' + questionId);
+                    if (section) section.classList.remove('open');
+                    toggleAnswers(questionId, null, null);
+                } catch (err) {
+                    console.error('Post answer error:', err);
+                    showToast('Failed to post answer', 'error');
+                }
+            }
+
+            // ── Comment toggle (Twitter reply section) ──
+            function toggleDynamicCommentsFixed(questionId, button, event) {
+                if (event) event.stopPropagation();
+                var section = document.getElementById('replies-' + questionId);
+                if (!section) return;
+
+                if (section.classList.contains('open')) {
+                    section.classList.remove('open');
+                    return;
+                }
+
+                section.classList.add('open');
+                (async function() {
+                    try {
+                        var res = await API.qa.getComments('QUESTION', String(questionId));
+                        var comments = (res.data || res) || [];
+                        var list = document.getElementById('replies-list-' + questionId);
+                        if (list) {
+                            list.innerHTML = comments.length > 0
+                                ? comments.map(function(c) {
+                                    var a = c.author || {};
+                                    var n = a.username || 'Anonymous';
+                                    return '<div class="tw-reply-item">' +
+                                        '<span class="tw-reply-author">' + escapeHtml(n) + '</span>' +
+                                        '<span class="tw-reply-time">' + (c.timeAgo || '') + '</span>' +
+                                        '<div class="tw-reply-content">' + escapeHtml(c.content) + '</div>' +
+                                    '</div>';
+                                }).join('')
+                                : '<div style="color:#536471;font-size:13px;padding:8px 0;">No replies yet.</div>';
+                        }
+                    } catch(err) { console.error('Load comments error:', err); }
+                })();
+            }
+
+            // ── Fixed upvote with visual feedback ──
+            function handleVoteFixed(entityId, votableType, voteType, button, event) {
+                if (event) event.stopPropagation();
+                var user = getCurrentUser();
+                if (!user || !user.id) { alert('Please login to vote.'); return; }
+
+                var article = button.closest('article');
+                var upBtn = article.querySelector('.upvote-btn');
+                var downBtn = article.querySelector('.downvote-btn');
+
+                // Optimistic toggle
+                if (voteType === 'UPVOTE') {
+                    var wasVoted = upBtn.classList.contains('voted');
+                    upBtn.classList.toggle('voted');
+                    if (downBtn) downBtn.classList.remove('voted');
+                    var countEl = upBtn.querySelector('.vote-count');
+                    if (countEl) {
+                        var current = parseInt(countEl.textContent) || 0;
+                        countEl.textContent = wasVoted ? current - 1 : current + 1;
+                    }
+                } else {
+                    var wasDownVoted = downBtn.classList.contains('voted');
+                    downBtn.classList.toggle('voted');
+                    if (upBtn) upBtn.classList.remove('voted');
+                }
+
+                // API call
+                (async function() {
+                    try {
+                        var res = await API.qa.vote(votableType, entityId, voteType);
+                        var data = res.data || res;
+                        var voteCountEl = upBtn.querySelector('.vote-count');
+                        if (voteCountEl) voteCountEl.textContent = data.upvoteCount || 0;
+                    } catch(err) {
+                        console.error('Vote error:', err);
+                    }
+                })();
+            }
+
+            // ── Follow with visual feedback ──
+            function handleFollowFixed(questionId, button, event) {
+                if (event) event.stopPropagation();
+                var user = getCurrentUser();
+                if (!user || !user.id) { alert('Please login to follow questions.'); return; }
+                (async function() {
+                    try {
+                        var res = await API.qa.followQuestion(questionId);
+                        var data = res.data || res;
+                        var label = button.querySelector('.q-action-label');
+                        if (label) label.textContent = data.isFollowing ? 'Following' : 'Follow';
+                        if (data.isFollowing) {
+                            button.style.color = '#0d9488';
+                        } else {
+                            button.style.color = '';
+                        }
+                    } catch(err) { console.error('Follow error:', err); }
+                })();
+            }
+
+            // ── Handle card click (navigate unless clicking a button) ──
+            function handleCardClick(questionId, event) {
+                // Don't navigate if clicking a button, input, link, or interactive element
+                var target = event.target;
+                while (target && target !== event.currentTarget) {
+                    if (target.tagName === 'BUTTON' || target.tagName === 'INPUT' ||
+                        target.tagName === 'A' || target.tagName === 'TEXTAREA' ||
+                        target.tagName === 'SVG' || target.tagName === 'path' ||
+                        target.classList.contains('tw-action-btn') ||
+                        target.classList.contains('tw-actions') ||
+                        target.classList.contains('tw-reply-section') ||
+                        target.classList.contains('tw-answers-section') ||
+                        target.classList.contains('tw-context') ||
+                        target.classList.contains('tw-avatar') ||
+                        target.classList.contains('tw-name')) {
+                        return;
+                    }
+                    target = target.parentElement;
+                }
+                viewQuestion(questionId);
+            }
+
+            // ── Bookmark with visual feedback ──
+            function handleBookmark(questionId, button, event) {
+                if (event) event.stopPropagation();
+                button.classList.toggle('saved');
+                var isSaved = button.classList.contains('saved');
+                showToast(isSaved ? 'Bookmarked!' : 'Removed bookmark', 'success');
+            }
+
+            // ── Post reply (comment) ──
+            async function postReply(questionId) {
+                var user = getCurrentUser();
+                if (!user || !user.id) { alert('Please login to reply.'); return; }
+                var input = document.getElementById('reply-input-' + questionId);
+                if (!input || !input.value.trim()) { alert('Please write a reply.'); return; }
+                try {
+                    await API.qa.createComment('QUESTION', String(questionId), input.value.trim());
+                    input.value = '';
+                    showToast('Reply posted!', 'success');
+                    // Reload comments
+                    var section = document.getElementById('replies-' + questionId);
+                    if (section) section.classList.remove('open');
+                    toggleDynamicCommentsFixed(questionId, null, null);
+                } catch (err) {
+                    console.error('Post reply error:', err);
+                    showToast('Failed to post reply', 'error');
+                }
+            }
+
+            // ── Handle legacy stubs ──
             function handleVote(button, type) {
-                const user = getCurrentUser();
+                var user = getCurrentUser();
                 if (!user || !user.id) { alert('Please login to vote.'); return; }
             }
             function toggleCommentSection(button) {
-                const article = button.closest('article');
-                const cs = article.querySelector('.comment-section');
+                var article = button.closest('article');
+                var cs = article.querySelector('.comment-section');
                 if (cs) cs.style.display = cs.style.display === 'none' ? 'block' : 'none';
             }
             function handleAskQuestion(event) {
-                // Overridden by qa-feed.js handleAskQuestionDynamic
                 event.preventDefault();
                 if (typeof handleAskQuestionDynamic === 'function') {
                     handleAskQuestionDynamic(event);
                 }
             }
 
+            // ── Close dropdowns on outside click ──
             document.addEventListener('click', function(event) {
-                const menu = document.getElementById('user-menu');
-                const notifMenu = document.getElementById('notifications-menu');
-                const avatar = document.getElementById('patientAvatar');
+                var menu = document.getElementById('user-menu');
+                var notifMenu = document.getElementById('notifications-menu');
+                var avatar = document.getElementById('patientAvatar');
                 if (avatar && !avatar.contains(event.target) && menu && !menu.contains(event.target)) {
                     menu.style.display = 'none';
                 }
@@ -423,23 +1135,30 @@
                 }
             });
 
+            // ── User/auth init ──
             window.addEventListener('DOMContentLoaded', function() {
-                const user = getCurrentUser ? getCurrentUser() : null;
-                const guestSection = document.getElementById('guest-section');
-                const userSection = document.getElementById('user-section');
+                var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+                var guestSection = document.getElementById('guest-section');
+                var userSection = document.getElementById('user-section');
                 
                 if (user && user.id) {
                     if (guestSection) guestSection.style.display = 'none';
                     if (userSection) userSection.style.display = 'flex';
                     
-                    const userNameEl = document.getElementById('user-name');
+                    var userNameEl = document.getElementById('user-name');
                     if (userNameEl) userNameEl.textContent = user.name || user.username || 'User';
 
-                    const avatar = document.getElementById('patientAvatar');
-                    if (avatar) {
-                        const name = user.name || user.username || '';
-                        const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-                        avatar.textContent = initials || 'U';
+                    var avatarEl = document.getElementById('patientAvatar');
+                    if (avatarEl) {
+                        var name = user.name || user.username || '';
+                        var initials = name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+                        avatarEl.textContent = initials || 'U';
+                    }
+
+                    var composeAvatar = document.getElementById('compose-avatar');
+                    if (composeAvatar) {
+                        var n = user.name || user.username || '';
+                        composeAvatar.textContent = n.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase() || 'U';
                     }
                 } else {
                     if (guestSection) guestSection.style.display = 'flex';
@@ -447,15 +1166,15 @@
                 }
             });
 
-            // Highlight active route in sidebar
+            // ── Route highlighting ──
             document.addEventListener('DOMContentLoaded', function() {
-                const currentRoute = window.location.pathname.split('/').pop().replace('.html', '').replace(/\(1\)/, '');
-                const queryParams = new URLSearchParams(window.location.search);
-                const topic = queryParams.get('topic');
+                var currentRoute = window.location.pathname.split('/').pop().replace('.html', '').replace(/\(1\)/, '');
+                var queryParams = new URLSearchParams(window.location.search);
+                var topic = queryParams.get('topic');
                 
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    const route = item.getAttribute('data-route');
-                    let isActive = false;
+                document.querySelectorAll('.feed-nav-item').forEach(function(item) {
+                    var route = item.getAttribute('data-route');
+                    var isActive = false;
                     if (route === 'home' && (currentRoute === 'index' || currentRoute === '')) isActive = true;
                     else if (route === 'questions' && currentRoute === 'questions') isActive = true;
                     else if (route === topic) isActive = true;
@@ -463,9 +1182,8 @@
                     if (isActive) item.classList.add('active');
                 });
 
-                // If a topic param is present, auto-filter
                 if (topic) {
-                    const slugMap = {
+                    var slugMap = {
                         'pediatrics': 'pediatrics',
                         'pregnancy': 'pregnancy-care',
                         'infectious': 'infectious-diseases',
@@ -474,7 +1192,124 @@
                         'mental_health': 'mental-wellness',
                         'sexual': 'sexual-health'
                     };
-                    if (slugMap[topic]) filterByCategory(slugMap[topic]);
+                    if (slugMap[topic] && typeof filterByCategory === 'function') filterByCategory(slugMap[topic]);
+                }
+            });
+
+            // ── Override renderQuestionCard with Twitter/X layout ──
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof renderQuestionCard === 'function') {
+                    window._originalRenderQuestionCard = renderQuestionCard;
+                }
+
+                window.renderQuestionCard = function(q) {
+                    var author = q.author || {};
+                    var stats = q.stats || {};
+                    var category = q.category || {};
+                    var catStyle = (typeof CATEGORY_COLORS !== 'undefined' && CATEGORY_COLORS[category.slug])
+                        ? CATEGORY_COLORS[category.slug]
+                        : { bg: '#f3f4f6', color: '#374151', icon: '❓' };
+
+                    var initials = author.initials || '?';
+                    var authorName = q.isAnonymous ? 'Anonymous' : (author.name || author.username || 'Anonymous');
+                    var authorId = author.id || '';
+                    var gradient = typeof getAvatarGradient === 'function' ? getAvatarGradient(authorName) : 'linear-gradient(135deg, #0d9488, #14b8a6)';
+                    var verifiedBadge = author.verificationBadge
+                        ? '<span class="tw-verified" title="Verified">✓</span>' : '';
+
+                    var specialty = author.specialty || category.name || 'General';
+                    var answerCount = stats.answers || stats.answerCount || 0;
+                    var commentCount = stats.comments || 0;
+                    var upvotes = stats.upvotes || 0;
+
+                    var medicalBanner = stats.medicalAnswers > 0
+                        ? '<div class="tw-medical">' +
+                            '<span>✅</span> ' + stats.medicalAnswers + ' answer' + (stats.medicalAnswers > 1 ? 's' : '') + ' from medical professionals' +
+                          '</div>' : '';
+
+                    return '' +
+                    '<article class="q-card" data-question-id="' + q.id + '" data-category="' + (category.slug || '') + '" onclick="handleCardClick(' + q.id + ', event)">' +
+                        '<div class="tw-post-inner">' +
+                            /* Avatar (left) */
+                            '<div class="tw-avatar" style="background:' + gradient + ';" onclick="event.stopPropagation(); navigateToProfile(\'' + authorId + '\', \'' + escapeHtml(authorName).replace(/'/g, "\\'") + '\')">' +
+                                escapeHtml(String(initials)) +
+                            '</div>' +
+
+                            /* Right column */
+                            '<div class="tw-post-right">' +
+
+                                /* Header: Name ✓ · @specialty · time */
+                                '<div class="tw-post-header">' +
+                                    '<span class="tw-name" onclick="event.stopPropagation(); navigateToProfile(\'' + authorId + '\', \'' + escapeHtml(authorName).replace(/'/g, "\\'") + '\')">' + escapeHtml(authorName) + '</span>' +
+                                    verifiedBadge +
+                                    '<span class="tw-handle">@' + escapeHtml(specialty).toLowerCase().replace(/\s+/g, '') + '</span>' +
+                                    '<span class="tw-dot">·</span>' +
+                                    '<span class="tw-time">' + (q.timeAgo || '') + '</span>' +
+                                '</div>' +
+
+                                /* Topic tag (grey pill context) */
+                                '<div class="tw-context" onclick="filterByCategoryFromTag(\'' + (category.slug || '') + '\', event)">' +
+                                    catStyle.icon + ' ' + (category.name || 'General') +
+                                '</div>' +
+
+                                /* Title + Content */
+                                '<div class="tw-post-title">' + escapeHtml(q.title) + '</div>' +
+                                '<div class="tw-post-text">' + (typeof truncate === 'function' ? truncate(escapeHtml(q.content), 280) : escapeHtml(q.content || '')) + '</div>' +
+
+                                medicalBanner +
+
+                                /* Twitter Action Bar: Reply, Upvote+count, Downvote, Share, Bookmark */
+                                '<div class="tw-actions">' +
+                                    '<button onclick="toggleDynamicCommentsFixed(' + q.id + ', this, event)" class="tw-action-btn reply-btn" title="Reply">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>' +
+                                        '<span>' + commentCount + '</span>' +
+                                    '</button>' +
+                                    '<button onclick="handleVoteFixed(' + q.id + ', \'QUESTION\', \'UPVOTE\', this, event)" class="tw-action-btn upvote-btn" title="Upvote">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>' +
+                                        '<span class="vote-count">' + upvotes + '</span>' +
+                                    '</button>' +
+                                    '<button onclick="handleVoteFixed(' + q.id + ', \'QUESTION\', \'DOWNVOTE\', this, event)" class="tw-action-btn downvote-btn" title="Downvote">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>' +
+                                    '</button>' +
+                                    '<button onclick="shareQuestion(' + q.id + '); event.stopPropagation();" class="tw-action-btn share-btn" title="Share">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>' +
+                                    '</button>' +
+                                    '<button onclick="handleBookmark(' + q.id + ', this, event)" class="tw-action-btn bookmark-btn" title="Bookmark">' +
+                                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>' +
+                                    '</button>' +
+                                '</div>' +
+
+                                /* Reply section (hidden, opens on comment click) */
+                                '<div class="tw-reply-section" id="replies-' + q.id + '">' +
+                                    '<div class="tw-reply-input-row">' +
+                                        '<input type="text" id="reply-input-' + q.id + '" class="tw-reply-input" placeholder="Post your reply" onclick="event.stopPropagation()">' +
+                                        '<button onclick="event.stopPropagation(); postReply(' + q.id + ')" class="tw-reply-submit">Reply</button>' +
+                                    '</div>' +
+                                    '<div class="tw-reply-list" id="replies-list-' + q.id + '"></div>' +
+                                '</div>' +
+
+                                /* Answers section (hidden, opens on answer count in future) */
+                                '<div class="tw-answers-section" id="answers-' + q.id + '">' +
+                                    '<div id="answers-list-' + q.id + '"></div>' +
+                                    '<div class="tw-answer-compose">' +
+                                        '<textarea id="answer-input-' + q.id + '" placeholder="Write your answer..." onclick="event.stopPropagation()"></textarea>' +
+                                        '<button onclick="event.stopPropagation(); postAnswer(' + q.id + ')">Answer</button>' +
+                                    '</div>' +
+                                '</div>' +
+
+                            '</div>' + /* end tw-post-right */
+                        '</div>' + /* end tw-post-inner */
+                    '</article>';
+                };
+
+                // Fix toggleDynamicComments globally
+                window.toggleDynamicComments = function(questionId, button) {
+                    toggleDynamicCommentsFixed(questionId, button, null);
+                };
+
+                // Reload questions with the new render function
+                if (typeof loadQuestions === 'function') {
+                    loadQuestions(true);
                 }
             });
         </script>

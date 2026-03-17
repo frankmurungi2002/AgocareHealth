@@ -123,7 +123,7 @@ function continue_button_3(event){
 
     if (new_password === confirm_new_password){
         // Redirect to login page
-        window.location.href = "login.html";
+        window.location.href = "../html/Login.html";
     }
 }
 

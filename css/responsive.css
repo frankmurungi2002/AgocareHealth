@@ -76,7 +76,7 @@
     overflow-y: auto;
     transition: left 0.3s ease;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
-    padding: 70px 0 20px 0;
+    padding: 0 0 20px 0;
 }
 
 .mobile-sidebar.active {
@@ -546,15 +546,40 @@ img {
     height: auto;
 }
 
+/* ---- Mobile Sidebar Top Row ---- */
+.mobile-sidebar-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+}
+
+.mobile-sidebar-search {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+    min-height: 40px;
+}
+
+.mobile-sidebar-search:focus {
+    border-color: #0d9488;
+}
+
 /* ============================================
    MOBILE SIDEBAR CLOSE BUTTON
    ============================================ */
 .mobile-sidebar-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
     width: 36px;
     height: 36px;
+    min-width: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
