@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Patient Dashboard</title>
+        <link rel="icon" type="image/svg+xml" href="../images/logo.svg">
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="../js/navigation.js"></script>
         <script src="../js/api-client.js"></script>
@@ -13,10 +14,9 @@
         <link rel="stylesheet" href="../css/logo.css">
         <link rel="stylesheet" href="../css/doctor.css">
         <link rel="stylesheet" href="../css/modern.css">
-        <link rel="stylesheet" href="../css/quora-feed.css">
+        <link rel="stylesheet" href="../css/quora-feed.css?v=20260321b">
         <link rel="stylesheet" href="../css/responsive.css">
-        <script src="../js/responsive.js" defer></script>
-        <style>
+<style>
             /* Custom scrollbar for sidebars */ 
             .left-sidebar-scroll::-webkit-scrollbar { display: none; }
             .main-feed::-webkit-scrollbar { display: none; }
@@ -94,7 +94,45 @@
             @media (max-width: 768px) {
                 .tw-post-inner { padding: 12px; gap: 10px; }
                 .tw-avatar { width: 36px; height: 36px; font-size: 13px; }
-                .tw-actions { max-width: 100%; }
+                .tw-actions {
+                    max-width: 100%;
+                    width: 100%;
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 4px;
+                }
+                .tw-action-btn {
+                    width: 100%;
+                    min-width: 0;
+                    justify-content: center;
+                    padding: 8px 4px;
+                    gap: 3px;
+                }
+                .tw-action-btn span {
+                    min-width: 0;
+                    max-width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-size: 12px;
+                }
+                .tw-action-btn.reply-btn span {
+                    max-width: 54px;
+                }
+                .tw-reply-input-row {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 10px;
+                }
+                .tw-reply-input {
+                    width: 100%;
+                    min-width: 0;
+                }
+                .tw-reply-submit {
+                    width: 100%;
+                    justify-content: center;
+                    padding: 10px 14px;
+                }
             }
 
             /* ── Mobile menu overrides (match index.html) ── */
@@ -186,6 +224,21 @@
                 height: 100% !important;
                 background: rgba(0, 0, 0, 0.5) !important;
                 z-index: 9998 !important;
+            }
+
+            /* Keep dashboard content clear below taller fixed navbar */
+            .feed-layout {
+                padding-top: 80px !important;
+            }
+            @media (max-width: 768px) {
+                .feed-layout {
+                    padding-top: 72px !important;
+                }
+            }
+            @media (max-width: 480px) {
+                .feed-layout {
+                    padding-top: 68px !important;
+                }
             }
         </style>
     </head>
@@ -380,7 +433,7 @@
                     const commentCountSpan = commentBtn ? commentBtn.querySelector('span') : null;
                     let count = commentCountSpan ? (parseInt(commentCountSpan.textContent) || 0) : 0;
                     count = count + 1;
-                    if (commentCountSpan) commentCountSpan.textContent = count;
+                    if (commentCountSpan) commentCountSpan.textContent = count + ' answer' + (count === 1 ? '' : 's');
 
                     // Update the answer status banner
                     const statusBanner = article.querySelector('.tw-medical');
@@ -659,6 +712,18 @@
                 </aside>
         </div>
 
+        <!-- Floating Action Buttons (Global) -->
+        <div class="floating-actions" aria-label="Quick actions">
+            <button type="button" class="floating-action-btn ask" onclick="openAskQuestionModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Ask
+            </button>
+            <button type="button" class="floating-action-btn talk" onclick="handleTalkToDoctor()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Talk to Doctor
+            </button>
+        </div>
+
         <!-- Ask Question Modal -->
         <div id="askQuestionModal" class="modal-overlay">
             <div class="modal-content">
@@ -745,6 +810,20 @@
         </div>
 
         <script>
+        // Floating Action Buttons logic (global)
+        function openAskQuestionModal() {
+            document.getElementById('askQuestionModal').classList.add('show');
+        }
+
+        function handleTalkToDoctor() {
+            // On index.html, require login; on other pages, go to appointments
+            if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+                alert('Please login to talk to a doctor.');
+                window.location.href = 'Login.html';
+                return;
+            }
+            window.location.href = 'appointments.html';
+        }
             // Category filtering with switchTab
             function switchTab(topic) {
                 // Filter questions by category
@@ -899,19 +978,97 @@
 
             // Post creation functions
             function openAskModal() {
+                const postInput = document.getElementById('postInput');
+                const questionTitle = document.getElementById('question-title');
+                const questionDescription = document.getElementById('question-description');
+                const text = postInput ? postInput.value.trim() : '';
+
                 document.getElementById('askQuestionModal').classList.add('show');
+
+                // If user typed text in the quick input, carry it into the ask form.
+                if (text) {
+                    if (questionTitle && !questionTitle.value.trim()) {
+                        questionTitle.value = text;
+                    } else if (questionDescription && !questionDescription.value.trim()) {
+                        questionDescription.value = text;
+                    }
+                }
+
+                if (questionTitle) {
+                    setTimeout(() => questionTitle.focus(), 50);
+                }
             }
             
             function openAnswerModal() {
-                showToast('Select a question to answer from the feed below', 'info');
+                const postInput = document.getElementById('postInput');
+                const text = postInput ? postInput.value.trim() : '';
+                const firstQuestion = document.querySelector('article.q-card[data-question-id]');
+
+                if (!firstQuestion) {
+                    showToast('No questions available to answer yet.', 'info');
+                    return;
+                }
+
+                const replySection = firstQuestion.querySelector('.tw-reply-section');
+                if (replySection && !replySection.classList.contains('open')) {
+                    replySection.classList.add('open');
+                }
+
+                const qId = firstQuestion.dataset.questionId;
+                if (qId) {
+                    loadAnswersForQuestion(qId);
+                }
+
+                const answerInput = qId ? document.getElementById('comment-input-' + qId) : null;
+                if (answerInput) {
+                    if (text) {
+                        answerInput.value = text;
+                        if (postInput) postInput.value = '';
+                    }
+                    answerInput.focus();
+                }
+
+                firstQuestion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToast('Ready to answer. Type and tap Answer.', 'success');
             }
             
-            function openPostModal() {
+            async function openPostModal() {
                 const postInput = document.getElementById('postInput');
-                if (postInput && postInput.value.trim()) {
-                    showToast('Post functionality coming soon!', 'info');
-                } else {
+                const text = postInput ? postInput.value.trim() : '';
+
+                if (!text) {
                     showToast('Please enter something to post', 'info');
+                    return;
+                }
+
+                const user = getCurrentUser ? getCurrentUser() : null;
+                if (!user || !user.id) {
+                    showToast('Please login to post a question', 'error');
+                    return;
+                }
+
+                const postBtn = document.querySelector('button[onclick="openPostModal()"]');
+                if (postBtn) {
+                    postBtn.disabled = true;
+                    postBtn.style.opacity = '0.7';
+                }
+
+                try {
+                    const res = await apiCreateQuestion(user.id, text, '', 'GENERAL');
+                    if (res && res.question) {
+                        showToast('Posted successfully!', 'success');
+                        postInput.value = '';
+                        loadQuestions();
+                    } else {
+                        showToast('Failed to post: ' + ((res && res.error) || 'Unknown error'), 'error');
+                    }
+                } catch (err) {
+                    showToast('Failed to post: ' + (err.message || 'Unknown error'), 'error');
+                } finally {
+                    if (postBtn) {
+                        postBtn.disabled = false;
+                        postBtn.style.opacity = '1';
+                    }
                 }
             }
 
@@ -1263,9 +1420,9 @@
                                         <div class="tw-post-text">${truncated}</div>
                                         ${medicalBanner}
                                         <div class="tw-actions">
-                                            <button onclick="toggleCommentSection(this); event.stopPropagation();" class="tw-action-btn reply-btn" title="Reply">
+                                            <button onclick="toggleCommentSection(this); event.stopPropagation();" class="tw-action-btn reply-btn" title="Answers">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                                                <span>${answerCount}</span>
+                                                <span>${answerCount} answer${answerCount === 1 ? '' : 's'}</span>
                                             </button>
                                             <button id="upvote-btn-${q.id}" onclick="handleVote(this, ${q.id}, 'upvote'); event.stopPropagation();" class="tw-action-btn upvote-btn" title="Upvote">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
@@ -1280,8 +1437,8 @@
                                         </div>
                                         <div class="tw-reply-section" id="replies-${q.id}">
                                             <div class="tw-reply-input-row">
-                                                <input type="text" id="comment-input-${q.id}" class="tw-reply-input" placeholder="Post your reply" onclick="event.stopPropagation()">
-                                                <button onclick="event.stopPropagation(); postComment(${q.id})" class="tw-reply-submit">Reply</button>
+                                                <input type="text" id="comment-input-${q.id}" class="tw-reply-input" placeholder="Write your answer" onclick="event.stopPropagation()">
+                                                <button onclick="event.stopPropagation(); postComment(${q.id})" class="tw-reply-submit">Answer</button>
                                             </div>
                                             <div class="tw-reply-list answers-container" id="answers-${q.id}"></div>
                                         </div>
@@ -1378,13 +1535,46 @@
             // Load answers when comment section is toggled
             async function loadAnswersForQuestion(questionId) {
                 const container = document.getElementById('answers-' + questionId);
-                if (!container || container.dataset.loaded === 'true') return;
+                if (!container) return;
 
                 try {
-                    const answers = await AnswersAPI.getByQuestion(questionId);
-                    container.dataset.loaded = 'true';
+                    const normalizeAnswers = (response) => {
+                        const payload = response?.data || response || {};
+                        if (Array.isArray(payload)) return payload;
+                        if (Array.isArray(payload.answers)) return payload.answers;
+                        if (Array.isArray(payload.content)) return payload.content;
+                        if (Array.isArray(payload.items)) return payload.items;
+                        if (Array.isArray(payload.results)) return payload.results;
+                        if (Array.isArray(payload.data)) return payload.data;
+                        if (Array.isArray(payload.data?.answers)) return payload.data.answers;
+                        if (Array.isArray(payload.data?.content)) return payload.data.content;
+                        return [];
+                    };
 
-                    if (answers && answers.length > 0) {
+                    const [legacyRes, qaRes] = await Promise.allSettled([
+                        AnswersAPI.getByQuestion(questionId, 0, 200),
+                        (window.API && API.qa && typeof API.qa.getAnswers === 'function')
+                            ? API.qa.getAnswers(questionId, 0, 200)
+                            : Promise.resolve([])
+                    ]);
+
+                    const legacyAnswers = legacyRes.status === 'fulfilled' ? normalizeAnswers(legacyRes.value) : [];
+                    const qaAnswers = qaRes.status === 'fulfilled' ? normalizeAnswers(qaRes.value) : [];
+
+                    const byKey = new Map();
+                    [...legacyAnswers, ...qaAnswers].forEach(a => {
+                        const key = a.id || [a.content, a.authorName, a.createdAt].join('|');
+                        if (!byKey.has(key)) byKey.set(key, a);
+                    });
+                    const answers = Array.from(byKey.values());
+
+                    const article = container.closest('article');
+                    const countSpan = article ? article.querySelector('.reply-btn span') : null;
+                    if (countSpan) {
+                        countSpan.textContent = answers.length + ' answer' + (answers.length === 1 ? '' : 's');
+                    }
+
+                    if (Array.isArray(answers) && answers.length > 0) {
                         container.innerHTML = answers.map(a => {
                             const name = a.authorName || 'Anonymous';
                             const role = a.authorRole || '';
@@ -1414,15 +1604,6 @@
                     container.innerHTML = '<p style="color: #ef4444; font-size: 13px;">Failed to load answers</p>';
                 }
             }
-
-            // Override toggleCommentSection to also load answers
-            const _origToggle = toggleCommentSection;
-            toggleCommentSection = function(button) {
-                _origToggle(button);
-                const article = button.closest('article');
-                const qId = article.dataset.questionId;
-                if (qId) loadAnswersForQuestion(parseInt(qId));
-            };
 
             // Load trending topics from real category counts
             function loadTrendingTopics(categoryCounts) {
@@ -1708,5 +1889,6 @@
                 }
             });
         </script>
-    </body>
+    <script src="../js/global-navbar.js"></script>
+</body>
 </html>

@@ -1,3 +1,29 @@
+    <!-- Floating Action Buttons (Global) -->
+    <div class="floating-actions" aria-label="Quick actions">
+        <button type="button" class="floating-action-btn ask" onclick="openAskQuestionModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Ask
+        </button>
+        <button type="button" class="floating-action-btn talk" onclick="handleTalkToDoctor()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Talk to Doctor
+        </button>
+    </div>
+    <script>
+    // Floating Action Buttons logic (global)
+    function openAskQuestionModal() {
+        document.getElementById('askQuestionModal').classList.add('show');
+    }
+
+    function handleTalkToDoctor() {
+        if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+            alert('Please login to talk to a doctor.');
+            window.location.href = 'Login.html';
+            return;
+        }
+        window.location.href = 'appointments.html';
+    }
+    </script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1776,5 +1802,6 @@ document.getElementById('loadMoreBtn')?.addEventListener('click', async function
     await loadQuestions();
 });
 </script>
+    <script src="../js/global-navbar.js"></script>
 </body>
 </html>
